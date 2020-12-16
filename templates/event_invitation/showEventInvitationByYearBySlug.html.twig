@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+        [yearInUrl, path('invitation_list_by_Year', {year: yearInUrl})],
+        [invitation.title, path('invitation_show_by_Year_by_Slug', {year: yearInUrl, slug: invitation.getSlug})]
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{ invitation.title }} - Pozvánky - {% endblock %}
+{% block description %}{{invitation.summary}}{% endblock %}
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: yearInUrl}) }}" role="button">Pridať novú pozvánku</a>
+    <a class="btn btn-primary btn-sm" href="{{ path('invitation_edit', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button">Upraviť túto</a>
+    <a class="btn btn-danger btn-sm" href="{{ path('invitation_delete', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button" data-toggle="modal" data-target="#delete">Zmazať túto</a>
+</p>
+<hr>
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Skutočne si želáte zmazať tento článok?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <a type="button" class="btn btn-danger" href="{{ path('invitation_delete_yes', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button">Chcem zmazať</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="h-event">
+    <h1 class="p-name">{{ invitation.title }}</h1>
+    <p id="start-date">Dátum konania: <strong class="dt-start" datetime="{{ invitation.startDate|date('c') }}">{{ invitation.startDate|date('j. n. Y') }}</strong>.</p>
+
+    {% set countRoutes = invitation.routes|length %}
+    {% if countRoutes > 1 %}
+        <div id="routes">
+          <p>Trasy:</p>
+          <ul>
+          {% for route in invitation.routes %}
+              <li>{{route.title}} ({{route.length}} km)</li>
+          {% endfor %}
+          </ul>
+        </div>
+    {% elseif countRoutes == 1 %}
+        <div id="routes"><p><b>Trasa:</b> {{invitation.routes[0].title}} ({{invitation.routes[0].length}} km).</p></div>
+    {% endif %}
+  <div class="e-content">
+    {{ invitation.content|raw }}
+  </div>
+</div>
+{% endblock %}

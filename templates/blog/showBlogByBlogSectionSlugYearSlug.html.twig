@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['blog'],
+        [blogSection.title[:1]|upper ~ blogSection.title[1:], path('blog_list_by_BlogSectionSlug', {blogSectionSlug: blogSection.getSlug()})],
+        [blog.title, path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()})],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block description %}{{ blog.summary }}{% endblock %}
+
+
+{% block title %}{{ blog.title }} - {% endblock %}
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('blog_create', {blogSectionSlug: blogSection.getSlug()}) }}" role="button">Pridať nový článok</a>
+    <a class="btn btn-primary btn-sm" href="{{ path('blog_edit', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}" role="button">Upraviť tento</a>
+    <a class="btn btn-danger btn-sm" href="{{ path('blog_delete', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}
+" role="button" data-toggle="modal" data-target="#delete">Zmazať tento</a>
+</p>
+<hr>
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Skutočne si želáte zmazať článok: "{{ blog.title }}"?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <a type="button" class="btn btn-danger" href="{{ path('blog_delete_yes', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}" role="button">Chcem zmazať</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+    <h1>{{ blog.title }}</h1>
+    {{ blog.content|raw }}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Pozvánky - {% endblock %}
+{% block description %}KST Žochár Topoľčany organizuje množstvo výletov. Môžete ísť s nami pešo, na bicykli, na lyžiach, do vysokých hôr, na vodu. Prečítajte si pozvánky na rôzne naše podujatia.{% endblock %}
+
+{% block body %}
+{% set year = "now"|date("Y") %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: year}) }}" role="button">Pridať novú pozvánku</a>
+</p>
+<hr>
+{% endif %}
+<h1>Pozvánky</h1>
+<p>Aktuálne pozvánky na turistké podujatia klubu KST Žochár Topoľčany nájdete na stránke: <a href="/pozvanky/aktualne">Aktuálne pozvánky</a>.</p>
+<p>Nižšie nájdete staré pozvánky na podujatia, ktoré sme buď organizovali alebo sa na nich aj zúčastnili. Vyberte si prosím niektorý z rokov.</p>
+<p>Pozvánky z roku:</p>
+<ul>
+    {% for y in range(year, 2011) %}
+    <li><a  href="{{ path('invitation_list_by_Year', {year: y}) }}">{{y}}</a>{% if not loop.last %},{% else %}.{% endif %}</li>
+    {% endfor %}
+
+</ul>
+{% endblock %}

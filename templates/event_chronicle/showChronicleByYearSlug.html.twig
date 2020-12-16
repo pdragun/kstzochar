@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['chronicle'],
+        ['Kronika', path('chronicle_show')],
+        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
+        [chronicle.title, path('chronicle_show_by_Year_Slug', {year: yearInUrl, slug: chronicle.getSlug})]
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{ chronicle.title }} - Kronika  - {% endblock %}
+{% block description %}{{ chronicle.summary }}{% endblock %}
+
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('chronicle_create_from_date', {year: yearInUrl}) }}" role="button">Pridať novú kroniku</a>
+    <a class="btn btn-primary btn-sm" href="{{ path('chronicle_edit', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Upraviť túto</a>
+    <a class="btn btn-danger btn-sm" href="{{ path('chronicle_delete', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button" data-toggle="modal" data-target="#delete">Zmazať túto</a>
+</p>
+<hr>
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Skutočne si želáte zmazať tento článok?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <a type="button" class="btn btn-danger" href="{{ path('chronicle_delete_yes', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Chcem zmazať</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+    <h1>{{ chronicle.title }}</h1>
+
+    {% if chronicle.endDate is empty %}
+        <p>Dátum konania: <b id="start-date">{{ chronicle.startDate|date("j. n. Y") }}</b></p>
+    {% else %}
+        <p>Začiatok podujatia: <b id="start-date">{{ chronicle.startDate|date("j. n. Y") }}</b><br>Koniec podujatia: <b id="end-date">{{ chronicle.endDate|date("j. n. Y") }}</b></p>
+    {% endif %}
+
+    {% set countRoutes = chronicle.routes|length %}
+    {% if countRoutes > 1 %}
+        <div id="routes">
+          <p>Trasy:</p>
+          <ul>
+          {% for route in chronicle.routes %}
+              <li>{{route.title}} ({{route.length}} km)</li>
+          {% endfor %}
+          </ul>
+        </div>
+    {% elseif countRoutes == 1 %}
+        <div id="routes"><p><b>Trasa:</b> {{chronicle.routes[0].title}} ({{chronicle.routes[0].length}} km).</p></div>
+    {% endif %}
+
+    {{ chronicle.content|raw }}
+
+{% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}    
+    <p><a href="{{chronicle.photoAlbumG}}"><strong>Fotografie z podujatia {{ chronicle.title }}.</strong></a></p>
+{% endif %}
+
+
+{% endblock %}

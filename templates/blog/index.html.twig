@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        [null],
+        [null],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{% endblock %}
+
+{% block body %}
+<h1>Vyberte si prosím niektorú z kategórií</h1>
+<p>Po pravde povedané, vôbec netuším ako ste na túto konkrétnu stránku moholi dostať, ale keď už ste tu. Vitajte :)</p>
+<ul>
+    <li><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">Viacďňové podujatia</a>,</li>
+    <li><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">Chutné recepty na túry</a>,</li>
+    <li><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">Čo sa deje v klube KST Žochár Topoľčany</a>.</li>
+</ul>
+
+{% endblock %}

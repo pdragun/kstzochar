@@ -1,0 +1,420 @@
+@import "~bootstrap/scss/bootstrap";
+
+body {
+  background-color: #666;
+  color: #000;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.container > * {
+  width: 100%;
+  padding: 0 15px;
+}
+
+.navbar {
+  display: block;
+  padding: 0 8px;
+}
+
+.navbar-nav .nav-link {
+  font-size: 14px;
+  padding: 4px;
+}
+
+.dropdown-menu {
+  margin-top: -4px;
+  padding: 0;
+}
+
+.dropdown-item {
+  font-size: 14px;
+}
+
+.breadcrumb {
+  padding: 0.5em;
+  background-color: whitesmoke;
+}
+
+.breadcrumb-item {
+  font-size: 14px;
+}
+
+.hp {
+  border: 1px solid;
+  padding-top: 20px;
+  padding-bottom: 50px;
+  position: relative;
+  text-align: center;
+}
+
+.header {
+  background-color: #ffcc00;
+  border: 1px solid black;
+  display: block;
+  text-align: center;
+}
+
+footer {
+  background-color: #ffcc00;
+  border: 1px solid black;
+  text-align: center;
+}
+
+footer p {
+  margin: 0px;
+  font-size: 80%;
+}
+
+.hp-main {
+  background-color: yellow;
+}
+
+.hp-header {
+  /* text-align: center; */
+  font-weight: bold;
+}
+
+.hp-header a {
+  /* text-align: center; */
+  /* font-weight: bold; */
+  text-decoration: underline;
+  color: #000;
+}
+
+.hp-header a:hover {
+  color: red;
+}
+
+.wrapper {
+  background-color: white;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  min-height: 300px;
+  padding: 10px 20px;
+}
+
+.subtitle {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.hp-invitation {
+  text-align: left;
+}
+
+.hp-invitation-img {
+  float: left;
+}
+
+.hp-invitation-text {
+  padding-top: 3%;
+  padding-left: 30%;
+  text-align: center;
+}
+
+.hp-invitation-text a {
+  text-decoration: underline;
+  color: #000;
+}
+
+.hp-invitation-text a:hover {
+  color: red;
+}
+
+.hp-button {
+  border: 1px solid black;
+  border-right: none;
+  bottom: 10px;
+  margin: 0 10px;
+  padding-left: 10px;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  width: calc(100% - 20px);
+}
+
+.hp-button:hover {
+  box-shadow: -3px 3px 6px rgba(0,0,0,0.4);
+}
+
+.hp-button a {
+  background: #fff url("/build/images/arrow.png") no-repeat right;
+  color: black;
+  display: block;
+  margin-right: -7px;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hp-button a:hover {
+  color: #047E04;
+  background: url("/build/images/arrow_h.png") no-repeat right;
+}
+
+.hp-button.pozvanky {
+  width: calc(100% - 241px);
+}
+
+.no-bottom {
+  margin-bottom: 0;
+}
+
+.logo {
+  float: left;
+  height: 60px;
+  margin-right: 10px;
+  margin-top: 5px;
+  width: 74px;
+}
+
+.logo img {
+  width: 100%;
+  height: auto;
+}
+
+/* page title */
+.pt {
+  color: inherit;
+  font-family: inherit;
+  font-size: 2em;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: .5rem;
+  margin-top: .6rem;
+  text-align: left;
+}
+
+.pt-short {
+  display: flex;
+}
+
+.pt-long {
+  display: none;
+}
+
+.logo-klub {
+  float: right;
+  margin-top: 5px;
+  width: 45px;
+}
+
+.logo-klub img {
+  width: 100%;
+  height: auto;
+}
+
+.dropdown-menu {
+  min-width: 4em;
+  text-align: center;
+}
+
+.nav-link .short {
+  display: none;
+}
+
+.nav-item.active {
+  background-color: rgba(255,255,255,0.3);
+}
+
+.kronika-img {
+  float: left;
+  padding-right: 20px;
+}
+
+p.justify {
+  text-align: justify;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+@media (max-width: 991.9px) {
+  .dropdown-item,
+  .navbar-nav .nav-link,
+  li.breadcrumb-item {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767.9px) {
+  .dropdown-item,
+  .navbar-nav .nav-link {
+    font-size: 11px;
+  }
+  .nav-link .short {
+    display: block;
+  }
+  .nav-link :not(.short) {
+    display: none;
+  }
+}
+
+@media (max-width: 575.9px) {
+  .hp {
+    height: 170px;
+    margin-top:3%;
+  }
+  .hp-invitation {
+    height: 300px;
+    text-align: center;
+  }
+  .hp-invitation-img {
+    float: none;
+  }
+  .hp-invitation-text {
+    padding-top: 3%;
+    padding-left: 0%;
+  }
+  .pt {
+    font-size: 1.5em;
+    margin-top: .6rem;
+
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+  }
+  .navbar-nav {
+    flex-direction: row;
+  }
+  .navbar-nav .nav-link {
+    padding: 4px 8px;
+  }
+  .navbar-nav .dropdown-menu {
+    position: absolute;
+  }
+}
+
+@media (max-width: 540px) {
+  .navbar-nav .nav-link {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 510px) {
+  .navbar-nav .nav-link {
+    padding: 4px 4px;
+  }
+}
+
+@media (max-width: 470px) {
+  .dropdown-item,
+  .navbar-nav .nav-link {
+    font-size: 10px;
+    padding: 4px 4px;
+  }
+  .navbar-nav {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.99px) {
+  .hp-top {
+    margin-top:1%;
+  }
+  .hp-left {
+    margin-left: 3%;
+    padding-right: 1%;
+    padding-left: 1%;
+  }
+  .hp-right {
+    padding-right: 1%;
+    padding-left: 1%;
+  }
+  .hp {
+    height: 180px;
+  }
+  .hp-desc {
+    display: none;
+  }
+  .hp-invitation-text {
+    padding-top: 1%;
+    padding-left: 65%;
+    text-align: center;
+  }
+  .pt {
+    font-size: 1.5em;
+    margin-top: .6rem;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+  }
+}
+
+@media (max-width: 576px) {
+  .hp-button.pozvanky {
+    width: calc(100% - 20px);
+  }
+}
+
+@media (max-width: 767.9px) {
+  .subtitle {
+    font-size: x-small;
+  }
+}
+
+@media (min-width: 768px) {
+  .hp-top {
+    margin-top:1%;
+  }
+  .hp-left {
+    margin-left: 3%;
+    padding-right: 1%;
+    padding-left: 1%;
+  }
+  .hp-right {
+    padding-right: 1%;
+    padding-left: 1%;
+  }
+  .hp {
+    height: 170px;
+  }
+  .hp-desc {
+    display: none;
+  }
+  .hp-invitation-text {
+    padding-top: 1%;
+    padding-left: 50%;
+    text-align: center;
+  }
+  .pt {
+    font-size: 1.5em;
+    margin-top: .6rem;
+    margin-bottom: .5rem;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+  }
+}
+
+@media (min-width: 992px) {
+  .hp-invitation-text {
+    padding-top: 2%;
+    padding-left: 35%;
+    text-align: center;
+  }
+  .hp-desc {
+    display: block;
+  }
+  .pt-short {
+    display: none;
+  }
+  .pt-long {
+    display: flex;
+  }
+}
+

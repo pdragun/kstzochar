@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['chronicle'],
+        ['Kronika', path('chronicle_show')],
+      ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Kronika - {% endblock %}
+{% block description %}Vyberte si rok a prečítajte si zážitky, spomienky z podujatí, ktoré KST Žochár Topoľčany zorganizoval.{% endblock %}
+
+{% block body %}
+{% set year = "now"|date("Y") %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+  <a class="btn btn-primary btn-sm" href="{{ path('chronicle_create_from_date', {year: year}) }}" role="button">Pridať novú kroniku</a>
+</p>
+<hr>
+{% endif %}
+<h1>Kronika</h1>
+<p>Prečítajte si naše zážitky a dojmy z niektorých podujatí, ktoré sme buď organizovali alebo sa na nich aj zúčastnili. Vyberte si prosím niektorý z rokov.</p>
+<p>Kroniky z roku:</p>
+<ul>
+  {% for y in range(year, 2010) %}
+  <li><a  href="{{ path('chronicle_list_by_Year', {year: y}) }}">{{y}}</a>{% if not loop.last %},{% else %}.{% endif %}</li>
+  {% endfor %}
+
+</ul>
+{% endblock %}

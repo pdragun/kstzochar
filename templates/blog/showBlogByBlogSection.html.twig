@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['blog'],
+        [blogSection.title[:1]|upper ~ blogSection.title[1:], path('blog_list_by_BlogSectionSlug', {blogSectionSlug: blogSectionSlug})],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{ blogSection.title[:1]|upper ~ blogSection.title[1:] }} - {% endblock %}
+
+{# @TODO move description to DB #}
+{% set descText = null %}
+{% if blogSectionId == 1 %}
+   {% set descText = 'Články o dianí v klube KST Žochár Topoľčany.' %}
+{% elseif blogSectionId == 2 %}
+   {% set descText = 'Bližšie informácie o plánovanýh viac dňových podujatiach, ktoré organizuje KST Žochár Topoľčany.' %}
+{% elseif blogSectionId == 3 %}
+   {% set descText = 'Recepty na rôzne sladkosti, ktoré sa osvedčili na podujatiach KST Žochár Topoľčany.' %}
+{% endif %}
+{% block description %}{{ descText }}{% endblock %}
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('blog_create', {blogSectionSlug: blogSectionSlug}) }}" role="button">Pridať nový článok</a>
+</p>
+<hr>
+{% endif %}
+
+<h1>{{ blogSection.title[:1]|upper ~ blogSection.title[1:] }}</h1>
+
+<div class="table-responsive">
+    <table class="table table-hover table-condensed">
+    {% for k, year in blogs %}
+        <tr><td colspan="3"><b>{{ k }}</b></td></tr>
+
+        {% if year[0].startDate is null %}
+             {% for key, blog in year %}
+                <tr><td><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSectionSlug, year: blog.createdAt|date('Y'), slug: blog.slug}) }}">{{ blog.title }}</a></td></tr>
+            {% endfor %}
+        {% else %}
+            {% for key, blog in year|sort((a, b) => a.startDate <=> b.startDate) %}
+                <tr><td><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSectionSlug, year: blog.createdAt|date('Y'), slug: blog.slug}) }}">{{ blog.title }}</a></td></tr>
+            {% endfor %}
+        {% endif %}
+
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

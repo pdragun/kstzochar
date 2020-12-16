@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+{% set navigation = [
+        ['chronicle'],
+        ['Kronika', path('chronicle_show')],
+        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
+        [chronicleTitle, path('chronicle_create_from_event', {year: yearInUrl, date: dateTime})],
+        [actionName],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{pageTitle}} - {% endblock %}
+
+{% block body %}
+    <h1>{{pageTitle}}</h1>
+    {{ form(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('a2lixSfCollection') }}
+{% endblock %}

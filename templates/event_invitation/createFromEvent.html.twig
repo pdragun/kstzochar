@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+        [yearInUrl, path('invitation_list_by_Year', {year: yearInUrl})],
+        [invitationTitle, path('invitation_create_from_event', {year: yearInUrl, date: dateTime})],
+        [actionName],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{invitationTitle}} - {% endblock %}
+
+{% block body %}
+    <h1>{{invitationTitle}}</h1>
+    {{ form(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('a2lixSfCollection') }}
+{% endblock %}

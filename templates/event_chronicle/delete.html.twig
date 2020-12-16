@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['chronicle'],
+        ['Kronika', path('chronicle_show')],
+        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
+        [chronicle.title, path('chronicle_show_by_Year_Slug', {year: yearInUrl, slug: chronicle.getSlug})]
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}{{ chronicle.title }} - Kronika  - {% endblock %}
+{% block description %}{{ chronicle.summary }}{% endblock %}
+
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-secondary btn-sm" href="{{ path('chronicle_show_by_Year_Slug', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Nechcem zmazať</a>
+    <a class="btn btn-danger btn-sm" href="{{ path('chronicle_delete_yes', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Chcem zmazať</a>
+</p>
+<hr>
+{% endif %}
+
+    <h1>{{ chronicle.title }}</h1>
+
+    {% if chronicle.endDate is empty %}
+        <p>Dátum konania: <b>{{ chronicle.startDate|date("j. n. Y") }}</b></p>
+    {% else %}
+        <p>Začiatok podujatia: <b>{{ chronicle.startDate|date("j. n. Y") }}</b><br>Koniec podujatia: <b>{{ chronicle.endDate|date("j. n. Y") }}</b></p>
+    {% endif %}
+
+    {% set countRoutes = chronicle.routes|length %}
+    {% if countRoutes > 1 %}
+        <p>Trasy:</p>
+        <ul>
+        {% for route in chronicle.routes %}
+            <li>{{route.title}} ({{route.length}} km)</li>
+        {% endfor %}
+        </ul>
+    {% elseif countRoutes == 1 %}
+        <p><b>Trasa:</b> {{chronicle.routes[0].title}} ({{chronicle.routes[0].length}} km).</p>
+    {% endif %}
+
+    {{ chronicle.content|raw }}
+
+{% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}    
+    <p><a href="{{chronicle.photoAlbumG}}"><strong>Fotografie z podujatia {{ chronicle.title }}.</strong></a></p>
+{% endif %}
+
+
+{% endblock %}

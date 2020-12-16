@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['plan'],
+        ['Plán', path('plan')],
+        [yearInUrl, path('plan_show_by_Year', {year: yearInUrl})],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Plán {{ yearInUrl }} - {% endblock %}
+{% block description %}Plán podujatí KST Žochár Topoľčany na rok {{ yearInUrl }}.{% endblock %}
+
+{% block body %}
+<h1>Plán podujatí na rok {{ yearInUrl }}</h1>
+<p>Zoznam turistických podujatí, ktoré buď priamo organizuje klub KST Žochár Topoľčany alebo sú to podujatia, na ktorých sa plánujeme zúčastniť.</p>
+{% set monthNames = {
+     1: 'Január',
+     2: 'Február',
+     3: 'Marec',
+     4: 'Apríl',
+     5: 'Máj',
+     6: 'Jún',
+     7: 'Júl',
+     8: 'August',
+     9: 'September',
+     10: 'Október',
+     11: 'November',
+     12: 'December'} %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-condensed" id="event-plan">
+    {% for k,month in year %}
+        <tr><td colspan="3"><b>{{ monthNames[k] }}</b></td></tr>
+
+        {% for key,event in month %}
+        <tr>
+            <td>{{ event.startDate|date('j. n.') }}{% if event.endDate|length %} – {{ event.endDate|date('j. n.') }}{% endif %}</td>
+
+            {% if event.blog is not empty %}
+            <td><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'viacdnove-akcie', year: event.startDate|date('Y'), slug: event.blog.slug}) }}">{{ event.title }}</a></td>
+            {% else %}
+            <td>{{ event.title }}</td>
+            {% endif %}
+            
+            <td>
+            {% for sportType in event.sportType %}
+                <abbr title="{{sportType.title}}">{{sportType.shortcut}}</abbr>{% if not loop.last %},{% endif %}
+            {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

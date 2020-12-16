@@ -1,0 +1,26 @@
+<!-- breadcrumb -->
+{% apply spaceless %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+    <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+      <a itemprop="item" href="{{ path('home_page') }}"><span itemprop="name">Domov</span></a>
+      <meta itemprop="position" content="1" />
+    </li>
+    {% for page in navigation %}
+      {% if loop.index0 > 0 %} {# Skip first in loop #}
+        {% if not loop.last %}
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+              <span property="name"><a href="{{page[1]}}">{{page[0]}}</span></a>
+              <meta property="position" content="{{loop.index}}">
+            </li>
+        {% else %}
+            <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+              <span property="name">{{page[0]}}</span>
+              <meta property="position" content="{{loop.index}}">
+            </li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>
+{% endapply %}

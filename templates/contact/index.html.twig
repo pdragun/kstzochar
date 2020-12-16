@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['contact'],
+		['Kontakt', path('contact')]
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Kontakt - {% endblock %}
+{% block description %}Kontaktné údaje ako e-mail, telefón, adresa, facebook ale aj IČO pre klub KST Žochár Topoľčany.{% endblock %}
+
+
+{% block body %}
+<h1>Kontakt</h1>
+<p>Predseda turistického klubu KST Žochár Topoľčany:</p>
+<ul>
+	<li>Ing. Peter Dragúň,</li>
+ 	<li><a href="mailto:peter@zochar.sk">peter@zochar.sk</a>,</li>
+	<li>+421 905 609 385,</li>
+	<li><a href="//www.facebook.com/KSTZochar/">KST Žochár Topoľčany na Facebooku</a>.</li>
+</ul>
+<h2>Klub slovenských turistov Žochár Topoľčany</h2>
+<ul>
+	<li><strong>IČO</strong>: 42205379,</li>
+	<li><strong>DIČ</strong>: 2023258358,</li>
+	<li><strong>Účet</strong>:
+		<ul>
+			<li><strong>číslo účtu</strong>: SK22 7500 0000 0040 2087 7115,</li>
+			<li><strong>banka</strong>: ČSOB Topoľčany,</li>
+		</ul>
+	</li>
+	<li><strong>Adresa:</strong>
+		<ul>
+			<li>Klub slovenských turistov Žochár Topoľčany,</li>
+			<li>M. A. Bazovského 2360/15,</li>
+			<li>Topoľčany,</li>
+			<li>955 03.</li>
+		</ul>
+	</li>
+</ul>
+<p>Môžete nahliadnuť aj do: <a href="http://ives.minv.sk/rez/registre/pages/detailoz.aspx?id=168051">Výpisu z registra evidencie občianskych združení pre KST Žochár Topoľčany</a>.</p>
+<p>Turistický klub KST Žochár Topoľčany a ďalších trinásť klubov pôsobiacich v regióne Topoľčian vytvorilo združenie <a href="http://rrkstto.sk/o-nas/">Región Klubu slovenských turistov Topoľčany</a>. Kluby organizujú rôzne spoločné podujatia, značia turistické chodníky a stavajú turistické prístrešky.</p>
+{% endblock %}

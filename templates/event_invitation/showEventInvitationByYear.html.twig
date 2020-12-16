@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+        [yearInUrl, path('invitation_list_by_Year', {year: yearInUrl})],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Pozvánky {{yearInUrl}} - {% endblock %}
+{% block description %}Zoznam podujatí, na ktoré v roku {{yearInUrl}} pozýval KST Žochár Topoľčany.{% endblock %}
+
+{% block body %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: yearInUrl}) }}" role="button">Pridať novú pozvánku</a>
+</p>
+<hr>
+{% endif %}
+
+<h1>Pozvánky z roku {{ yearInUrl }}</h1>
+<p>Prečítajte si pozvánky na podujatia, ktoré sme buď organizovali alebo sa na nich aj zúčastnili.</p>
+{% set monthNames = {
+    12: 'December',
+    11: 'November',
+    10: 'Október',
+    9: 'September',
+    8: 'August',
+    7: 'Júl',
+    6: 'Jún',
+    5: 'Máj',
+    4: 'Apríl',
+    3: 'Marec',
+    2: 'Február',
+    1: 'Január'} %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-condensed">
+    {% for k,month in eventInvitations %}
+        <tr><td colspan="3"><b>{{ monthNames[k] }}</b></td></tr>
+        {% for key,event in month %}
+        <tr>
+            <td>{{ event.startDate|date('j. n.') }}{% if event.endDate|length %} – {{ event.endDate|date('j. n.') }}{% endif %}</td>
+            <td><a href="{{ path('invitation_show_by_Year_by_Slug', {year: yearInUrl, slug: event.slug}) }}">{{ event.title }}</a></td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

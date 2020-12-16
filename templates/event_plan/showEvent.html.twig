@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['plan'],
+        ['Plán', path('plan')],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Plány - {% endblock %}
+{% block description %}Pozrite si staršie ročné plány KST Žochár Topoľčany. Vyberte si prosím rok, pre ktorý si chcete pozrieť ročný plán.{% endblock %}
+
+{% block body %}
+<h1>Ročné plány</h1>
+<p>Nižšie nájdete staré plány na podujatia, ktoré sme buď organizovali alebo sa na nich aj zúčastnili. Vyberte si prosím niektorý z rokov.</p>
+<p>Plány z roku:</p>
+<ul>
+    {% for y in range(maxYear, 2010) %}
+    <li><a  href="{{ path('plan_show_by_Year', {year: y}) }}">{{y}}</a>{% if not loop.last %},{% else %}.{% endif %}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

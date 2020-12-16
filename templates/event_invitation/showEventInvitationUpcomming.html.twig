@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+        ['Pozvánky', path('invitation_list_upcomming')],
+    ]
+%}
+{% set breadcrumb = TRUE %}
+{% block title %}Aktuálne pozvánky na turistické podujatia - {% endblock %}
+{% block description %}Zoznam aktuálnych pozvánok na podujatia, ktoré organizuje KST Žochár Topoľčany.{% endblock %}
+{% block body %}
+{% set currentYear = 'now' | date('Y') %}
+{% if is_granted('ROLE_ADMIN') %}
+<hr>
+<p>
+    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: currentYear}) }}" role="button">Pridať novú pozvánku</a>
+</p>
+<hr>
+{% endif %}
+<h1>Aktuálne pozvánky na turistické podujatia</h1>
+
+{% if upcommingInvitations is empty %}
+    {# Corona #}
+    <p>Žiaľ zo známych dôvodov sú zakázané všetky verejné športové podujatia, takže nemôžeme organizovať žiadne spoločné výlety. Ak máte radi prírodu
+    a pohyb po čerstvom vzduchu, choďte prosím na turistiku sami, či s členmi vašej domácnosti.</p>
+    <p>Veríme, že najskôr budeme môcť pokračovať v spoločných vychádzach do prírody.</p>
+    
+    {# No Corona #}
+    {# <p>Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(</p> #}
+    
+    <p>Pozrite si napríklad <a href="{{ path('plan_show_by_Year', {year: currentYear}) }}">plán na aktuálny rok</a> alebo si môžete prečítať ako nám bolo v našej <a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">klubovej kronike</a>.</p>
+{% else %}
+<div class="table-responsive" id="invitations-upcomming">
+    <table class="table table-hover table-condensed">
+    {% for invitation in upcommingInvitations %}
+        <tr>
+            <td>{{ invitation.startDate|date('j. n. Y') }}{% if invitation.endDate|length %} – {{ invitation.endDate|date('j. n.') }}{% endif %}</td>
+            <td><a href="{{ path('invitation_show_by_Year_by_Slug', {year: invitation.startDate|date('Y'), slug: invitation.slug}) }}">{{ invitation.title }}</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}

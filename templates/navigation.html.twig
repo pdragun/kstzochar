@@ -1,0 +1,52 @@
+{% set year = "now"|date("Y") %}
+<!-- navigation menu -->
+{% apply spaceless %}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <div class="navbar">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item"><a class="nav-link" href="{{ path('home_page') }}">Úvod</a></li>
+      <li class="nav-item">
+        <a class="nav-link{% if navigation[0][0] == 'invitation' %} active{% endif %}" href="{{ path('invitation_show') }}">Pozvánky</a>
+      </li>
+      <li class="nav-item dropdown{% if navigation[0][0] == 'chronicle' %} show active{% endif %}">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{ path('chronicle_show') }}">Kronika</a>
+        <div class="dropdown-menu">
+        {% for i in range(year, 2010) %}
+          <a class="dropdown-item{% if navigation[0][0] == 'chronicle' and navigation[2] is defined and navigation[2][0] == i %} active{% endif %}" href="{{ path('chronicle_list_by_Year',{year: i}) }}">{{i}}</a>
+        {% endfor %}
+        </div>
+      </li>
+      <li class="nav-item dropdown{% if navigation[0][0] == 'plan' %} show active{% endif %}">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{ path('plan') }}">Plán</a>
+        <div class="dropdown-menu">
+        {% for i in range(year, 2010) %}
+          <a class="dropdown-item{% if navigation[0][0] == 'plan' and navigation[2] is defined and navigation[2][0] == i %} active{% endif %}" href="{{ path('plan_show_by_Year', {year: i}) }}">{{i}}</a>
+        {% endfor %}
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link{% if navigation[0][0] == 'blog' and navigation[1][0] == 'Z klubovej kuchyne' %} active{% endif %}" href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">
+          <span>Z klubovej kuchyne</span>
+          <span class="short">Klubové info</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link{% if navigation[0][0] == 'blog' and navigation[1][0] == 'Viacdňové akcie' %} active{% endif %}" href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">
+          <span>Viacdňové akcie</span>
+          <span class="short">Viacdňové</span>
+        </a>
+       </li>
+      <li class="nav-item">
+        <a class="nav-link{% if navigation[0][0] == 'blog' and navigation[1][0] == 'Receptúry na túry' %} active{% endif %}" href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">
+           <span>Receptúry na túry</span>
+           <span class="short">Recepty</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link{% if navigation[0][0] == 'contact' %} active{% endif %}" href="{{ path('contact') }}">Kontakt</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+{% endapply %}

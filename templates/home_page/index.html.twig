@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+{% if is_granted('ROLE_ADMIN') %}
+<div class="row no-gutters"><p>Ahoj <b>{{ app.user.displayName }}</b>,<br/>vyber si kategóriou, ktorú chceš upravovať.</p></div>
+{% endif %}
+
+{% set currentYear = 'now'|date('Y') %}
+<div class="row no-gutters">
+  <div class="col-sm-8 hp-right">
+    <div class="hp hp-right hp-invitation">
+      <div class="hp-invitation-img"><img src="{{ asset('build/images/general.jpg') }}" width="212px" height="145px" alt="pozvánka" title="pozvánka" /></div>
+      <div class="hp-invitation-text">
+      {% set firstInvitation = latestInvitations|first %}
+      {% set countInvitations = latestInvitations|length %}
+
+      {% if countInvitations >= 1 %}
+        <p><b><a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date("Y"), slug: firstInvitation.getSlug()}) }}">Najbližšia akcia:<br>{{ firstInvitation.title }}</a></b></p>
+      {% else %}
+      {# Display different notice during Corona time #}
+      {# <p><b>Žiaľ, až do odvolania rušíme všetky plánované podujatia. Držte sa priatelia. Náš čas ešte príde! :)</b></p>  #}
+      <p>Juj. Nemáme žiadne <b>aktuálne</b> pozváky.
+      {% if latestEventPlanYear %}
+      Pozrite naše najbližšie plánované podujatia v <a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">Pláne na rok {{ latestEventPlanYear }}</a>.</b>
+      {% endif %}
+      </p>
+      {% endif %}
+
+      {% if countInvitations > 1 %}
+        <div class="hp-button pozvanky">
+          <a href="{{ path('invitation_list_upcomming') }}">Ďalšie pozvánky ({{ countInvitations }}) </a>
+        </div>
+      {% elseif countInvitations == 1 %}
+        <div class="hp-button pozvanky">
+          <a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date("Y"), slug: firstInvitation.getSlug()}) }}">{{ firstInvitation.title }}</a>
+        </div>
+      {% else %}
+        {% if latestEventPlanYear %}
+          <div class="hp-button pozvanky">
+            <a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">Plán na rok {{ latestEventPlanYear }}</a>
+          </div>
+        {% endif %}
+      {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm">
+    <div class="hp hp-left">
+      <p class="hp-header">Kronika</p>
+      <p class="no-bottom hp-desc">Text a fotky z predchádzajúcich akcií</p>
+      {% if latestChronicle %}
+      <p class="hp-header"><a href="{{ path('chronicle_show_by_Year_Slug', {year: latestChronicle[0].startDate|date("Y"), slug: latestChronicle[0].getSlug()}) }}">{{ latestChronicle[0].title }}</a></p>
+      <div class="hp-button"><a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">Viac z kroniky</a></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row no-gutters hp-top">
+  <div class="col-sm">
+    <div class="hp hp-right">
+      <p class="hp-header">Viacdňové podujatia</p>
+      <p class="no-bottom hp-desc">Bližšie informácie o dlhších podujatiach</p>
+      {% if latestBlogSectionId2 %}
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date("Y"), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">Ďalšie viacdňové akcie</a></div>
+      {% else %}
+        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm">
+    <div class="hp hp-right hp-left">
+      <p class="hp-header">Plán na celý rok</p>
+      <p>Zoznam (takmer) všetkých podujatí aj s dátumami</p>
+      {% if latestEventPlanYear %}
+      <div class="hp-button"><a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">Plán {{ latestEventPlanYear }}</a></div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm">
+    <div class="hp hp-left">
+      <p class="hp-header">Receptúry na túry</p>
+      <p class="no-bottom hp-desc">Obľúbené sladkosti na výletoch</p>
+      {% if latestBlogSectionId3 %}
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'receptury-na-tury', year: latestBlogSectionId3.createdAt|date("Y"), slug: latestBlogSectionId3.slug}) }}">{{ latestBlogSectionId3.title }}</a></p>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">Viac receptov</a></div>
+      {% else %}
+        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+      {% endif %}
+    </div>
+  </div>
+ </div>
+
+ <div class="row no-gutters hp-top">
+  <div class="col-sm-4">
+    <div class="hp hp-right">
+      <p class="hp-header">Z klubovej kuchyne</p>
+      {% if latestBlogSectionId1 %}
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId1.createdAt|date("Y"), slug: latestBlogSectionId1.slug}) }}">{{ latestBlogSectionId1.title }}</a></p>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">Viac článkov</a></div>
+      {% else %}
+        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="hp hp-right hp-left">
+      <p class="hp-header">Kontakt</p>
+      <p>Ing. Peter Dragúň<br/><a href="mailto:peter@zochar.sk">peter@zochar.sk</a><br/>+421 905 609 385</p>
+      <div class="hp-button"><a href="{{ path('contact') }}">Viac o KST Žochár Topoľčany</a></div>
+    </div>
+   </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+{% set navigation = [
+        ['invitation'],
+        ['Pozvánky', path('invitation_show')],
+        [yearInUrl, path('invitation_list_by_Year', {year: yearInUrl})],
+        [invitationTitle, path('invitation_create_from_date', {year: yearInUrl})],
+        [actionName],
+    ]
+%}
+
+{% set breadcrumb = TRUE %}
+{% block title %}Vytvoriť novú pozvánku - {% endblock %}
+
+{% block body %}
+
+    <h1>Pridanie novej pozvánky</h1>
+    <p>Najprv prosím vyber dátum, kedy by sa podujatie malo uskutočnilo a klikni na "Vytvoriť pozvánku".</p>
+    {{ form(form) }}
+    
+{% endblock %}
