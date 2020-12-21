@@ -16,6 +16,7 @@ class SportTypeFixtures extends Fixture
     public const SPORT_TYPE_6_REFERENCE = 'vodná turistika';
     public const SPORT_TYPE_7_REFERENCE = 'auto';
     public const SPORT_TYPE_8_REFERENCE = 'sedí sa';
+    public const SPORT_TYPE_9_REFERENCE = 'vht';
 
     public function load(ObjectManager $manager)
     {
@@ -109,7 +110,7 @@ class SportTypeFixtures extends Fixture
         $this->addReference(self::SPORT_TYPE_6_REFERENCE, $sportType6);
         $this->addReference(self::SPORT_TYPE_7_REFERENCE, $sportType7);
         $this->addReference(self::SPORT_TYPE_8_REFERENCE, $sportType8);
-        $this->addReference(self::SPORT_TYPE_8_REFERENCE, $sportType9);
+        $this->addReference(self::SPORT_TYPE_9_REFERENCE, $sportType9);
     }
 
 }
