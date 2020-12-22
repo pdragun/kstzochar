@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\EventChronicle;
+use App\Entity\SportType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
