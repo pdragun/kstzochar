@@ -55,6 +55,22 @@ class BlogRepository extends ServiceEntityRepository
 
     /**
      * @var int $sectionId
+     */
+    public function findAllByBlogSectionIdOrderByStartDate(int $sectionId)
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.publish = 1')
+            ->andWhere('b.section = :sectionId')
+            ->setParameter('sectionId', $sectionId)
+            ->orderBy('b.startDate', 'DESC')
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+
+
+    /**
+     * @var int $sectionId
      * @return Blog[] Returns an prepared array of Blogs for table
      */
     public function getPreparedByYear(int $sectionId)
@@ -70,7 +86,22 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
+    /**
+     * @var int $sectionId
+     * @return Blog[] Returns an prepared array of Blogs for table
+     */
+    public function getPreparedByYearStartDate(int $sectionId)
+    {
+        $clearResults = [];
 
+        $res = $this->findAllByBlogSectionIdOrderByStartDate($sectionId);
+        foreach ($res as $blog) {
+            $year = $blog['startDate']->format('Y');
+            $clearResults[$year][] = $blog;
+        }
+
+        return $clearResults;
+    }
 
 
 

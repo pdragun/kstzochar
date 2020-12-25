@@ -91,8 +91,16 @@ class BlogController extends AbstractController
 
         $blogSectionId = $blogSection->getId();
 
-        /** @var App\Entity\Blog[] $blog **/
-        $blogs = $blogRepository->getPreparedByYear($blogSectionId);
+       
+        if($blogSection->getId() === 2) { //Multiday events
+            /** @var App\Entity\Blog[] $blog **/
+            $blogs = $blogRepository->getPreparedByYearStartDate($blogSectionId);
+        } else {
+            /** @var App\Entity\Blog[] $blog **/
+            $blogs = $blogRepository->getPreparedByYear($blogSectionId);
+        }
+
+        
         if(!$blogs) { // 404
             throw $this->createNotFoundException();
         }
