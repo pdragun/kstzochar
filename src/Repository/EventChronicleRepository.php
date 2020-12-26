@@ -102,7 +102,7 @@ class EventChronicleRepository extends ServiceEntityRepository
      */
     public function findLatest()
     {
-        $currentDate = $date = new \DateTime();
+        $currentDate = new \DateTime();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
 
         $qb = $this->createQueryBuilder('p')
