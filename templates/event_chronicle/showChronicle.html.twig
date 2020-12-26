@@ -22,7 +22,7 @@
 <p>Kroniky z roku:</p>
 <ul>
   {% for y in range(year, 2010) %}
-  <li><a  href="{{ path('chronicle_list_by_Year', {year: y}) }}">{{y}}</a>{% if not loop.last %},{% else %}.{% endif %}</li>
+  <li><a href="{{ path('chronicle_list_by_Year', {year: y}) }}">{{y}}</a>{% if not loop.last %},{% else %}.{% endif %}</li>
   {% endfor %}
 
 </ul>
