@@ -62,7 +62,7 @@ class HomePageController extends AbstractController
         $idSecondSection = $blogSectionRepository->findBySlug('viacdnove-akcie');
         $latestBlogSectionId2 = null;
         if($idSecondSection) {
-            $latestBlogSectionId2 = $blogRepository->findLatestByBlogSectionId($idSecondSection->getId());
+            $latestBlogSectionId2 = $blogRepository->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
         }
 
         /**

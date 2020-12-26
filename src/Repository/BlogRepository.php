@@ -39,6 +39,30 @@ class BlogRepository extends ServiceEntityRepository
 
 
     /**
+     * Get Blog from section with the latest by start date
+     * @var int $sectionId
+     * @return Blog
+     */
+    public function findLatestByBlogSectionIdStartDate(int $sectionId): ?Blog
+    {
+
+        $currentDate = new \DateTime();
+        $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
+
+        return $this->createQueryBuilder('b')
+            ->where('b.startDate >= :startDateUntilMidnight')
+            ->andWhere('b.publish = 1')
+            ->andWhere('b.section = :sectionId')
+            ->setParameter('sectionId', $sectionId)
+            ->setParameter('startDateUntilMidnight', $startDateUntilMidnight)
+            ->orderBy('b.startDate', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+
+    /**
      * @var int $sectionId
      */
     public function findAllByBlogSectionId(int $sectionId)
