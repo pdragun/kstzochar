@@ -19,7 +19,7 @@
       <li class="nav-item dropdown{% if navigation[0][0] == 'plan' %} show active{% endif %}">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{ path('plan') }}">Plán</a>
         <div class="dropdown-menu">
-        {% for i in range(year, 2010) %}
+        {% for i in range(2021, 2010) %}
           <a class="dropdown-item{% if navigation[0][0] == 'plan' and navigation[2] is defined and navigation[2][0] == i %} active{% endif %}" href="{{ path('plan_show_by_Year', {year: i}) }}">{{i}}</a>
         {% endfor %}
         </div>
