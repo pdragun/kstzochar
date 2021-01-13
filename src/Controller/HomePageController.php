@@ -84,4 +84,18 @@ class HomePageController extends AbstractController
             'latestBlogSectionId3' => $latestBlogSectionId3
         ]);
     }
+
+    /**
+     * Redirect favicon.ico
+     * 
+     * @Route("/favicon.ico", name="favicon")
+     * 
+     * @return Symfony\Component\HttpFoundation\Response Redirect to real favicon
+     */
+    public function favicon(): Response {
+        return $this->redirect('/build/images/favicon.svg');
+    }
+
+
+
 }
