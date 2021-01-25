@@ -9,6 +9,7 @@
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "5.2.*",
+        "symfony/cache": "5.2.*",
         "symfony/console": "5.2.*",
         "symfony/dotenv": "5.2.*",
         "symfony/expression-language": "5.2.*",

@@ -2,12 +2,9 @@
 
 namespace App\Controller;
 
-use App\Repository\BlogRepository;
-use App\Repository\BlogSectionRepository;
-use App\Repository\EventChronicleRepository;
-use App\Repository\EventInvitationRepository;
-use App\Repository\EventRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -28,60 +25,72 @@ class HomePageController extends AbstractController
      * @param App\Repository\BlogSectionRepository $blogSectionRepository
      * @return Symfony\Component\HttpFoundation\Response Show home page
      */
-    public function index(EventRepository $eventRepository, EventInvitationRepository $eventInvitationRepository, EventChronicleRepository $eventChronicleRepository, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository): Response
+    public function index(): Response
     {
 
-        $latestEventPlanYear = $eventRepository->findMaxStartYear();
+        $cached = [];
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
 
-        /**
-         * The latest Event Invitation
-         * @var App\Entity\EventChronicle[] $latestInvitations
-         */
-        $latestInvitations = $eventInvitationRepository->findLatest();
+        $cached = $cache->get('home-page', function (ItemInterface $item) {
+            
+            $entityManager = $this->getDoctrine()->getManager();
+            
+            $fromDB = [];
+            $fromDB['latestEventPlanYear'] = $entityManager->getRepository(\App\Entity\Event::class)->findMaxStartYear();
 
-        /**
-         * The latest Event chronicle articles
-         * @var App\Entity\EventChronicle $latestChronicle
-         */
-        $latestChronicle = $eventChronicleRepository->findLatest();
+            /**
+             * The latest Event Invitation
+             * @var App\Entity\EventChronicle[] $fromDB['latestInvitations']
+             */
+            $fromDB['latestInvitations'] = $entityManager->getRepository(\App\Entity\EventInvitation::class)->findLatest();
 
-        /**
-         * The latest blog articles from the section 'z klubovej kuchyne'
-         * @var App\Entity\Blog $latestBlogSectionId1
-         */
-        $idFirstSection = $blogSectionRepository->findBySlug('z-klubovej-kuchyne');
-        $latestBlogSectionId1 = null;
-        if($idFirstSection) {
-            $latestBlogSectionId1 = $blogRepository->findLatestByBlogSectionId($idFirstSection->getId());
-        }
+            /**
+             * The latest Event chronicle articles
+             * @var App\Entity\EventChronicle $fromDB['latestChronicle']
+             */
+            $fromDB['latestChronicle'] = $entityManager->getRepository(\App\Entity\EventChronicle::class)->findLatest();
 
-        /**
-         * The latest blog articles from the section 'viacdňové akcie'
-         * @var App\Entity\Blog $latestBlogSectionId2
-         */
-        $idSecondSection = $blogSectionRepository->findBySlug('viacdnove-akcie');
-        $latestBlogSectionId2 = null;
-        if($idSecondSection) {
-            $latestBlogSectionId2 = $blogRepository->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
-        }
+            /**
+             * The latest blog articles from the section 'z klubovej kuchyne'
+             * @var App\Entity\Blog $fromDB['latestBlogSectionId1']
+             */
+            $idFirstSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('z-klubovej-kuchyne');
+            $fromDB['latestBlogSectionId1'] = null;
+            if($idFirstSection) {
+                $fromDB['latestBlogSectionId1'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
+            }
 
-        /**
-         * The latest blog articles from the section 'receptúry na túry'
-         * @var App\Entity\Blog $latestBlogSectionId3
-         */
-        $idThirdSection = $blogSectionRepository->findBySlug('receptury-na-tury');
-        $latestBlogSectionId3 = null;
-        if($idThirdSection) {
-            $latestBlogSectionId3 = $blogRepository->findLatestByBlogSectionId($idThirdSection->getId());
-        }
+            /**
+             * The latest blog articles from the section 'viacdňové akcie'
+             * @var App\Entity\Blog $fromDB['latestBlogSectionId2']
+             */
+            $idSecondSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('viacdnove-akcie');
+            $fromDB['latestBlogSectionId2'] = null;
+            if($idSecondSection) {
+                $fromDB['latestBlogSectionId2'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
+            }
+
+            /**
+             * The latest blog articles from the section 'receptúry na túry'
+             * @var App\Entity\Blog $fromDB['latestBlogSectionId3']
+             */
+            $idThirdSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('receptury-na-tury');
+            $fromDB['latestBlogSectionId3'] = null;
+            if($idThirdSection) {
+                $fromDB['latestBlogSectionId3'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionId($idThirdSection->getId());
+            }
+
+            return $fromDB;
+        });
+
 
         return $this->render('home_page/index.html.twig', [
-            'latestEventPlanYear' => $latestEventPlanYear,
-            'latestInvitations' => $latestInvitations,
-            'latestChronicle' => $latestChronicle,
-            'latestBlogSectionId1' => $latestBlogSectionId1,
-            'latestBlogSectionId2' => $latestBlogSectionId2,
-            'latestBlogSectionId3' => $latestBlogSectionId3
+            'latestEventPlanYear' => $cached['latestEventPlanYear'],
+            'latestInvitations' => $cached['latestInvitations'],
+            'latestChronicle' => $cached['latestChronicle'],
+            'latestBlogSectionId1' => $cached['latestBlogSectionId1'],
+            'latestBlogSectionId2' => $cached['latestBlogSectionId2'],
+            'latestBlogSectionId3' => $cached['latestBlogSectionId3']
         ]);
     }
 
@@ -95,7 +104,4 @@ class HomePageController extends AbstractController
     public function favicon(): Response {
         return $this->redirect('/build/images/favicon.svg');
     }
-
-
-
 }

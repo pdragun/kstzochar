@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -222,6 +223,9 @@ class EventChronicleController extends AbstractController
 
             $entityManager->persist($chronicle);
             $entityManager->flush();
+
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
     
             $this->addFlash(
                 'success',
@@ -316,6 +320,9 @@ class EventChronicleController extends AbstractController
             $entityManager->persist($chronicle);
             $entityManager->flush();
 
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
+
             $this->addFlash(
                 'success',
                 'Zmeny v kronike: „' . $chronicle->getTitle() . '“ boli uložené!'
@@ -386,13 +393,14 @@ class EventChronicleController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-       
         $chronicle->removeEvent();
         $chronicleTitle = $chronicle->getTitle();
-
         
         $entityManager->remove($chronicle);
         $entityManager->flush();
+
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
 
         $this->addFlash(
             'success',

@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -184,6 +185,9 @@ class BlogController extends AbstractController
 
             $entityManager->persist($blog);
             $entityManager->flush();
+
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
     
             $this->addFlash(
                 'success',
@@ -270,6 +274,9 @@ class BlogController extends AbstractController
 
             $entityManager->persist($blog);
             $entityManager->flush();
+
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
     
             $this->addFlash(
                 'success',
@@ -325,6 +332,9 @@ class BlogController extends AbstractController
 
         $entityManager->remove($blog);
         $entityManager->flush();
+
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
 
         $this->addFlash(
             'success',

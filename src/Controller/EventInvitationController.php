@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -236,6 +237,9 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
 
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
+
             $this->addFlash(
                 'success',
                 'Nová pozvánka: „' . $invitation->getTitle() . '“ bola vytvorená a uložená!'
@@ -324,6 +328,9 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
     
+            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+            $cache->delete('home-page');
+
             $this->addFlash(
                 'success',
                 'Zmeny v pozvánke: „' . $invitation->getTitle() . '“ boli uložené!'
@@ -396,10 +403,12 @@ class EventInvitationController extends AbstractController
         $invitation->removeEvent();
         $invitationTitle = $invitation->getTitle();
 
-
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($invitation);
         $entityManager->flush();
+
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
 
         $this->addFlash(
             'success',
