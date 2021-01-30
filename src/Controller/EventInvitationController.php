@@ -352,7 +352,7 @@ class EventInvitationController extends AbstractController
 
 
     /**
-     * 
+     * Confirmation to delete invitation
      * 
      * @Route("/pozvanky/{year}/{slug}/delete", name="invitation_delete", requirements={"year"="\d+"})
      * @IsGranted("ROLE_ADMIN")
@@ -379,7 +379,7 @@ class EventInvitationController extends AbstractController
 
 
     /**
-     * 
+     * Delete invitation
      * 
      * @Route("/pozvanky/{year}/{slug}/delete/yes", name="invitation_delete_yes", requirements={"year"="\d+"})
      * @IsGranted("ROLE_ADMIN")
