@@ -327,7 +327,7 @@ class EventChronicleController extends AbstractController
             );
 
             return $this->redirectToRoute('chronicle_show_by_Year_Slug', [
-                'year' => $year,
+                'year' => $chronicle->getStartDate()->format('Y'),
                 'slug' => $chronicle->getSlug()
             ]);
         }

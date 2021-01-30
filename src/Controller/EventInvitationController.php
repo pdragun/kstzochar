@@ -335,7 +335,7 @@ class EventInvitationController extends AbstractController
             );
 
             return $this->redirectToRoute('invitation_show_by_Year_by_Slug', [
-                'year' => $year,
+                'year' => $invitation->getStartDate()->format('Y'),
                 'slug' => $invitation->getSlug()
             ]);
         }
