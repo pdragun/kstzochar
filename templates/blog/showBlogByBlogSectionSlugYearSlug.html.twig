@@ -1,8 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block description %}{{ blog.summary }}{% endblock %}
-
 {% block title %}{{ blog.title }} - {% endblock %}
+{% block description %}{{ blog.summary }}{% endblock %}
 
 {% block body %}
 {% if is_granted('ROLE_ADMIN') %}
