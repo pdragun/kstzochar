@@ -416,6 +416,6 @@ class EventChronicleController extends AbstractController
     private function deleteCache() {
         $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
         $cache->delete('home-page');
+        $cache->delete('main-menu-data');
     }
-
 }

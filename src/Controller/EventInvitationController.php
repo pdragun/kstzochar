@@ -415,7 +415,7 @@ class EventInvitationController extends AbstractController
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);
     }
 
-    
+
     /**
      * Delete cache
      * 
@@ -424,6 +424,6 @@ class EventInvitationController extends AbstractController
     private function deleteCache() {
         $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
         $cache->delete('home-page');
+        $cache->delete('main-menu-data');
     }
-
 }
