@@ -1,11 +1,5 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['invitation'],
-        ['Pozvánky', path('invitation_show')],
-        [yearInUrl, path('invitation_list_by_Year', {year: yearInUrl})],
-    ]
-%}
-{% set breadcrumb = TRUE %}
+
 {% block title %}Pozvánky {{yearInUrl}} - {% endblock %}
 {% block description %}Zoznam podujatí, na ktoré v roku {{yearInUrl}} pozýval KST Žochár Topoľčany.{% endblock %}
 

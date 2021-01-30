@@ -1,15 +1,6 @@
 {% extends 'base.html.twig' %}
 {% form_theme form 'bootstrap_4_layout.html.twig' %}
-{% set navigation = [
-        ['chronicle'],
-        ['Kronika', path('chronicle_show')],
-        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
-        [chronicleTitle, path('chronicle_create_from_date', {year: yearInUrl})],
-        [actionName]
-    ]
-%}
 
-{% set breadcrumb = TRUE %}
 {% block title %}Vytvoriť novú kroniku -{% endblock %}
 
 {% block body %}

@@ -1,12 +1,5 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['chronicle'],
-        ['Kronika', path('chronicle_show')],
-        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
-        [chronicle.title, path('chronicle_show_by_Year_Slug', {year: yearInUrl, slug: chronicle.getSlug})]
-    ]
-%}
-{% set breadcrumb = TRUE %}
+
 {% block title %}{{ chronicle.title }} - Kronika  - {% endblock %}
 {% block description %}{{ chronicle.summary }}{% endblock %}
 

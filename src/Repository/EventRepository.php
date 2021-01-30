@@ -99,4 +99,24 @@ class EventRepository extends ServiceEntityRepository
         $dt = new \DateTime($res['maxYear']);
         return $dt->format('Y');
     }
+
+    public function getUniqueYearsFromDB(){
+
+        $em = $this->getEntityManager();
+        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
+        return $query->getArrayResult();
+    }
+
+
+    public function findUniqueYears() {
+
+        $years = $this->getUniqueYearsFromDB();
+
+        $clearYears = [];
+        foreach( $years as $year ) {
+            $clearYears[] = $year['y'];
+        }
+
+        return $clearYears;
+    }
 }

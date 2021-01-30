@@ -1,13 +1,6 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['blog'],
-        [blogSection.title[:1]|upper ~ blogSection.title[1:], path('blog_list_by_BlogSectionSlug', {blogSectionSlug: blogSection.getSlug()})],
-        [blog.title, path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()})],
-    ]
-%}
-{% set breadcrumb = TRUE %}
-{% block description %}{{ blog.summary }}{% endblock %}
 
+{% block description %}{{ blog.summary }}{% endblock %}
 
 {% block title %}{{ blog.title }} - {% endblock %}
 

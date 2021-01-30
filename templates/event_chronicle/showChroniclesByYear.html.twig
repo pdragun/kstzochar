@@ -1,13 +1,6 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['chronicle'],
-        ['Kronika', path('chronicle_show')],
-        [yearInUrl, path('chronicle_list_by_Year', {year: yearInUrl})],
-    ]
-%}
-{% set breadcrumb = TRUE %}
-{% block title %}Kronika {{yearInUrl}} - {% endblock %}
 
+{% block title %}Kronika {{yearInUrl}} - {% endblock %}
 {% block description %}Podrobnosti o podujatiach, ktoré organizoval KST Žochár Topoľčany v roku {{yearInUrl}}. Príbehy a spomienky z rôzchnych našich poduajtí.{% endblock %}
 
 {% block body %}

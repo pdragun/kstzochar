@@ -1,10 +1,4 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['blog'],
-        [blogSection.title[:1]|upper ~ blogSection.title[1:], path('blog_list_by_BlogSectionSlug', {blogSectionSlug: blogSectionSlug})],
-    ]
-%}
-{% set breadcrumb = TRUE %}
 {% block title %}{{ blogSection.title[:1]|upper ~ blogSection.title[1:] }} - {% endblock %}
 
 {# @TODO move description to DB #}

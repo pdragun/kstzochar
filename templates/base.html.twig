@@ -29,15 +29,39 @@
           <p class="subtitle">Turistický klub priateľov prírody, cyklistiky, lyžovania. Každý je vítaný.</p>
         </div>
       </div>
-      
-      {% if navigation is defined %}
-        {% include 'navigation.html.twig' with navigation %}
-      {% endif %}
-     
+     {%- if homepage is not defined %}
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark"><div class="navbar">
+        {{- knp_menu_render('main', {
+          'currentClass': 'active',
+          'ancestorClass': 'active',
+          'compressed': true,
+          'template': 'extended_knp_menu.html.twig'
+        }) }}
+        </div></nav>
+    {%- endif %}
+
       <div class="wrapper">
-      {% if breadcrumb is defined %}
-        {% include 'breadcrumb.html.twig' with navigation %}
-      {% endif %}
+
+     {%- if homepage is not defined %}
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+{% for breadcrumb_item in knp_menu_get_breadcrumbs_array(knp_menu_get_current_item('main')) %}
+    {% if not loop.last %}
+    <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a itemscope itemtype="https://schema.org/WebPage" href="{{ breadcrumb_item.uri }}"><span property="name">{{ breadcrumb_item.label }}</a></span>
+      <meta itemprop="position" content="{{loop.index}}">
+    {% else %}
+     <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+      <span property="name">{{ breadcrumb_item.label }}</span>
+     {% endif %}
+      <meta property="position" content="{{loop.index}}">
+    </li>
+{% endfor %}
+</ol>
+</nav>
+      {%- endif %}
+
+
         {# important msg #}
         <p><b>Stiahnite si tlačivo na <a href="{{ asset('build/downloads/vyhlasenie_2perc_kst-zochar_2019.pdf') }}">2% dane pre KST Žochár Topoľčany</a></b> (PDF, 14,5KB)</p>
         {# read and display all flash messages #}

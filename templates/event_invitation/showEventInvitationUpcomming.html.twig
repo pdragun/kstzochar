@@ -1,13 +1,8 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['invitation'],
-        ['Pozvánky', path('invitation_show')],
-        ['Pozvánky', path('invitation_list_upcomming')],
-    ]
-%}
-{% set breadcrumb = TRUE %}
+
 {% block title %}Aktuálne pozvánky na turistické podujatia - {% endblock %}
 {% block description %}Zoznam aktuálnych pozvánok na podujatia, ktoré organizuje KST Žochár Topoľčany.{% endblock %}
+
 {% block body %}
 {% set currentYear = 'now' | date('Y') %}
 {% if is_granted('ROLE_ADMIN') %}

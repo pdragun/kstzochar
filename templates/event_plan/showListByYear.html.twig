@@ -1,11 +1,5 @@
 {% extends 'base.html.twig' %}
-{% set navigation = [
-        ['plan'],
-        ['Plán', path('plan')],
-        [yearInUrl, path('plan_show_by_Year', {year: yearInUrl})],
-    ]
-%}
-{% set breadcrumb = TRUE %}
+
 {% block title %}Plán {{ yearInUrl }} - {% endblock %}
 {% block description %}Plán podujatí KST Žochár Topoľčany na rok {{ yearInUrl }}.{% endblock %}
 

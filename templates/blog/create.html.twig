@@ -1,14 +1,6 @@
 {% extends 'base.html.twig' %}
 {% form_theme form 'bootstrap_4_layout.html.twig' %}
-{% set navigation = [
-        ['blog'],
-        [blogSection.title[:1]|upper ~ blogSection.title[1:], path('blog_list_by_BlogSectionSlug', {blogSectionSlug: blogSection.getSlug()})],
-        [title, path('blog_create', {blogSectionSlug: blogSection.getSlug()})],
-        [actionName],
-    ]
-%}
 
-{% set breadcrumb = TRUE %}
 {% block title %}{{ title }} - {% endblock %}
 
 {% block body %}

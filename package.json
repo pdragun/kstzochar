@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@a2lix/symfony-collection": "^0.4.0",
+        "ckeditor": "^4.12.1",
         "node-sass": "4.14.1"
     }
 }

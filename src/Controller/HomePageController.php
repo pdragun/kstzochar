@@ -90,7 +90,8 @@ class HomePageController extends AbstractController
             'latestChronicle' => $cached['latestChronicle'],
             'latestBlogSectionId1' => $cached['latestBlogSectionId1'],
             'latestBlogSectionId2' => $cached['latestBlogSectionId2'],
-            'latestBlogSectionId3' => $cached['latestBlogSectionId3']
+            'latestBlogSectionId3' => $cached['latestBlogSectionId3'],
+            'homepage' => \true,
         ]);
     }
 
