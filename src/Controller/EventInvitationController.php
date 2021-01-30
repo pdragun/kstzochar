@@ -237,8 +237,7 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
 
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
 
             $this->addFlash(
                 'success',
@@ -328,8 +327,7 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
     
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
 
             $this->addFlash(
                 'success',
@@ -407,8 +405,7 @@ class EventInvitationController extends AbstractController
         $entityManager->remove($invitation);
         $entityManager->flush();
 
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-        $cache->delete('home-page');
+        $this->deleteCache();
 
         $this->addFlash(
             'success',
@@ -416,6 +413,17 @@ class EventInvitationController extends AbstractController
         );
 
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);
+    }
+
+    
+    /**
+     * Delete cache
+     * 
+     * @return void
+     */
+    private function deleteCache() {
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
     }
 
 }

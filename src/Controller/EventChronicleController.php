@@ -224,8 +224,7 @@ class EventChronicleController extends AbstractController
             $entityManager->persist($chronicle);
             $entityManager->flush();
 
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
     
             $this->addFlash(
                 'success',
@@ -320,8 +319,7 @@ class EventChronicleController extends AbstractController
             $entityManager->persist($chronicle);
             $entityManager->flush();
 
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
 
             $this->addFlash(
                 'success',
@@ -399,14 +397,25 @@ class EventChronicleController extends AbstractController
         $entityManager->remove($chronicle);
         $entityManager->flush();
 
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-        $cache->delete('home-page');
+        $this->deleteCache();
 
         $this->addFlash(
             'success',
             'Kronika: „' . $chronicleTitle . '“ bola zmazaná!'
         );  
+    
         return $this->redirectToRoute('chronicle_list_by_Year', ['year' => $year]);
+    }
+
+
+    /**
+     * Delete cache
+     * 
+     * @return void
+     */
+    private function deleteCache() {
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
     }
 
 }

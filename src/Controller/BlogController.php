@@ -186,8 +186,7 @@ class BlogController extends AbstractController
             $entityManager->persist($blog);
             $entityManager->flush();
 
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
     
             $this->addFlash(
                 'success',
@@ -275,8 +274,7 @@ class BlogController extends AbstractController
             $entityManager->persist($blog);
             $entityManager->flush();
 
-            $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-            $cache->delete('home-page');
+            $this->deleteCache();
     
             $this->addFlash(
                 'success',
@@ -333,8 +331,7 @@ class BlogController extends AbstractController
         $entityManager->remove($blog);
         $entityManager->flush();
 
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-        $cache->delete('home-page');
+        $this->deleteCache();
 
         $this->addFlash(
             'success',
@@ -378,5 +375,15 @@ class BlogController extends AbstractController
             'year' => $year,
             'blogSection' => $blogSection,
         ]);
+    }
+
+    /**
+     * Delete cache
+     * 
+     * @return void
+     */
+    private function deleteCache() {
+        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache->delete('home-page');
     }
 }
