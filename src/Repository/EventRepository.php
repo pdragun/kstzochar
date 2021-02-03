@@ -84,6 +84,7 @@ class EventRepository extends ServiceEntityRepository
         return $query->getSingleResult();
     }
 
+    
     /**
      * Find the latest year from event plan
      * 
@@ -99,6 +100,7 @@ class EventRepository extends ServiceEntityRepository
         $dt = new \DateTime($res['maxYear']);
         return $dt->format('Y');
     }
+
 
     public function getUniqueYearsFromDB(){
 

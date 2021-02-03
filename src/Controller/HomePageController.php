@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
+use App\Utils\SecondLevelCachePDO;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,7 +29,7 @@ class HomePageController extends AbstractController
     {
 
         $cached = [];
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache = SecondLevelCachePDO::getInstance()->getCache();
 
         $cached = $cache->get('home-page', function (ItemInterface $item) {
             

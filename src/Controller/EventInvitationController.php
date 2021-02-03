@@ -7,11 +7,11 @@ use App\Form\EventInvitationType;
 use App\Form\SetDateType;
 use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
+use App\Utils\SecondLevelCachePDO;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -237,7 +237,8 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
 
-            $this->deleteCache();
+            $cache = SecondLevelCachePDO::getInstance();
+            $cache->clearAllCache();
 
             $this->addFlash(
                 'success',
@@ -327,7 +328,8 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
     
-            $this->deleteCache();
+            $cache = SecondLevelCachePDO::getInstance();
+            $cache->clearAllCache();
 
             $this->addFlash(
                 'success',
@@ -405,7 +407,8 @@ class EventInvitationController extends AbstractController
         $entityManager->remove($invitation);
         $entityManager->flush();
 
-        $this->deleteCache();
+        $cache = SecondLevelCachePDO::getInstance();
+        $cache->clearAllCache();
 
         $this->addFlash(
             'success',
@@ -413,17 +416,5 @@ class EventInvitationController extends AbstractController
         );
 
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);
-    }
-
-
-    /**
-     * Delete cache
-     * 
-     * @return void
-     */
-    private function deleteCache() {
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
-        $cache->delete('home-page');
-        $cache->delete('main-menu-data');
     }
 }

@@ -1,9 +1,9 @@
 <?php
 namespace App\Menu;
 
+use App\Utils\SecondLevelCachePDO;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
-use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
 use Doctrine\ORM\EntityManagerInterface as DoctrineItemInterface;
 
@@ -140,7 +140,7 @@ class MenuBuilder
      */
     private function getData() {
 
-        $cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $cache = SecondLevelCachePDO::getInstance()->getCache();
         $em = $this->entityManager;
  
         $cached = $cache->get('main-menu-data', function (CacheItemInterface $item) use ($em) {
