@@ -4,4 +4,19 @@ Custom web page based on framework Symfony for local turist club "Klub Slovensk√
 
 Live page: https://kst.zochar.sk
 
-No unit tests only functional tests.
+Used:
+* Backend:
+    * ORM (Entity)
+    * Controller (Routes in annotations)
+    * Forms (Embed a Collecion of Forms)
+    * Second level cache (PDO)
+    * Twig
+    * KnpMenuBundle (menu and breadcrumbs)
+* Frontend:
+    * Webpack
+    * Bootstrap
+    * CKEditor
+    * @a2lix/symfony-collection
+* Tests
+    * DataFixtures
+    * Functional tests (user & admin)
