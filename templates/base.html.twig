@@ -48,13 +48,12 @@
 {% for breadcrumb_item in knp_menu_get_breadcrumbs_array(knp_menu_get_current_item('main')) %}
     {% if not loop.last %}
     <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-      <a itemscope itemtype="https://schema.org/WebPage" href="{{ breadcrumb_item.uri }}"><span property="name">{{ breadcrumb_item.label }}</a></span>
-      <meta itemprop="position" content="{{loop.index}}">
+      <a itemprop="item" href="{{ breadcrumb_item.uri }}"><span itemprop="name">{{ breadcrumb_item.label }}</a></span>
     {% else %}
-     <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-      <span property="name">{{ breadcrumb_item.label }}</span>
+     <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/WebPage">
+      <span itemprop="name">{{ breadcrumb_item.label }}</span>
      {% endif %}
-      <meta property="position" content="{{loop.index}}">
+      <meta itemprop="position" content="{{loop.index}}">
     </li>
 {% endfor %}
 </ol>
