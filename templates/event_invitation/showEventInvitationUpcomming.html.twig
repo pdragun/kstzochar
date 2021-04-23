@@ -16,12 +16,12 @@
 
 {% if upcommingInvitations is empty %}
     {# Corona #}
-    <p>Žiaľ zo známych dôvodov sú zakázané všetky verejné športové podujatia, takže nemôžeme organizovať žiadne spoločné výlety. Ak máte radi prírodu
-    a pohyb po čerstvom vzduchu, choďte prosím na turistiku sami, či s členmi vašej domácnosti.</p>
-    <p>Veríme, že najskôr budeme môcť pokračovať v spoločných vychádzach do prírody.</p>
+    {# <p>Žiaľ zo známych dôvodov sú zakázané všetky verejné športové podujatia, takže nemôžeme organizovať žiadne spoločné výlety. Ak máte radi prírodu #}
+    {#a pohyb po čerstvom vzduchu, choďte prosím na turistiku sami, či s členmi vašej domácnosti.</p> #}
+    {# <p>Veríme, že najskôr budeme môcť pokračovať v spoločných vychádzach do prírody.</p> #}
     
     {# No Corona #}
-    {# <p>Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(</p> #}
+    <p>Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(</p>
     
     <p>Pozrite si napríklad <a href="{{ path('plan_show_by_Year', {year: currentYear}) }}">plán na aktuálny rok</a> alebo si môžete prečítať ako nám bolo v našej <a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">klubovej kronike</a>.</p>
 {% else %}
