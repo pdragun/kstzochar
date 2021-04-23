@@ -149,14 +149,14 @@ class MenuBuilder
             //Ivitation
             $invitationList = $em->getRepository(\App\Entity\EventInvitation::class)->findBy(
                 ['publish' => 1],
-                ['startDate' => 'ASC']
+                ['startDate' => 'DESC']
             );
             $data['Pozvánky'] = $this->addEventsToYars($invitationList);
             
             //Chronicle
             $chronicleList = $em->getRepository(\App\Entity\EventChronicle::class)->findBy(
                 ['publish' => 1],
-                ['startDate' => 'ASC']
+                ['startDate' => 'DESC']
             );
             $data['Kronika'] = $this->addEventsToYars($chronicleList);
 
