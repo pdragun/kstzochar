@@ -26,3 +26,6 @@ yarn-error.log
 
 ### Some docs ###
 /assets/downloads/
+
+### IDE
+/.idea
