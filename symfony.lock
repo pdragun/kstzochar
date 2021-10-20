@@ -515,6 +515,9 @@
             "config/packages/routing.yaml"
         ]
     },
+    "symfony/runtime": {
+        "version": "v5.3.4"
+    },
     "symfony/security-bundle": {
         "version": "5.3",
         "recipe": {
