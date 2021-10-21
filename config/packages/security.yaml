@@ -15,14 +15,19 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
             lazy: true
             provider: users_in_memory
-            guard:
-                authenticators:
-                    - App\Security\LoginFormAuthenticator
+            form_login:
+                # "login" is the name of the route created previously
+                login_path: login
+                check_path: login
+                enable_csrf: true
             logout:
-                path:   app_logout
+                path:   logout
+            # configure the maximum login attempts (per minute)
+            login_throttling:
+                max_attempts: 3
+                interval: '15 minutes'
     encoders:
         App\Entity\User:
             algorithm: auto
@@ -38,4 +43,4 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
-        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }

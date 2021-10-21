@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     /**
-     * @Route("/login", name="app_login")
+     * @Route("/login", name="login")
      * @var Symfony\Component\Security\Http\Authentication\AuthenticationUtils $authenticationUtils
      * @return Symfony\Component\HttpFoundation\Response Show login page
      */
@@ -30,12 +30,13 @@ class SecurityController extends AbstractController
 
     
     /**
-     * @Route("/logout", name="app_logout")
+     * @Route("/logout", name="logout", methods={"GET"})
      * 
      * @return void
      */
-    public function logout()
+    public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        // controller can be blank: it will never be called!
+        throw new \Exception('Don\'t forget to activate logout in security.yaml');
     }
 }

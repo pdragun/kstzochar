@@ -109,7 +109,7 @@ class BlogSection
             $this->blog->removeElement($blog);
             // set the owning side to null (unless already changed)
             if ($blog->getSection() === $this) {
-                $blog->setSection(null);
+                $blog->setSection(\null);
             }
         }
 
