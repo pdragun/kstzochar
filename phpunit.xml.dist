@@ -29,6 +29,12 @@
         <env name="APP_ENV" value="dev"/>
         <env name="APP_SECRET" value="2afccd4764d42e8cc1b1d6f11b309c40"/>
         <!-- ###- symfony/framework-bundle ### -->
+
+        <!-- ###+ symfony/lock ### -->
+        <!-- Choose one of the stores below -->
+        <!-- postgresql+advisory://db_user:db_password@localhost/db_name -->
+        <env name="LOCK_DSN" value="flock"/>
+        <!-- ###- symfony/lock ### -->
     </php>
 
     <testsuites>
