@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -7,81 +9,62 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=SportTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: SportTypeRepository::class)]
+#[ORM\Table(name: '`sport_type`')]
 class SportType
 {
-    /**
-     * @var int $id
-     * 
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string $title
-     * 
-     * @ORM\Column(type="string", length=190)
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $title;
 
-    /**
-     * @var string $slug
-     * 
-     * @ORM\Column(type="string", length=190)
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $slug;
 
-    /**
-     * @var string $description
-     * 
-     * @ORM\Column(type="string", length=190)
-     */
+    
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $description;
 
-    /**
-     * @var string $shortcut
-     * 
-     * @ORM\Column(type="string", length=190)
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $shortcut;
 
-    /**
-     * @var string $image
-     * 
-     * @ORM\Column(type="string", length=190, nullable=true)
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $image;
 
     /**
-     * @var ArrayCollection<Event> $events
-     * 
-     * @ORM\ManyToMany(targetEntity=Event::class, mappedBy="sportType")
+     * @var Collection<int, Event> $events
      */
+    #[ManyToMany(targetEntity: Event::class, mappedBy: 'sportType')]
     private $events;
 
     /**
-     * @var ArrayCollection<EventChronicle> $eventChronicles
-     * 
-     * @ORM\ManyToMany(targetEntity=EventChronicle::class, mappedBy="sportType")
+     * @var Collection<int, EventChronicle> $eventChronicles
      */
+    #[ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'sportType')]
     private $eventChronicles;
 
     /**
-     * @var ArrayCollection<Blog> $blogs
-     * 
-     * @ORM\ManyToMany(targetEntity=Blog::class, mappedBy="sportType")
+     * @var Collection<int, Blog> $blogs
      */
+    #[ManyToMany(targetEntity: Blog::class, mappedBy: 'sportType')]
     private $blogs;
 
     /**
-     * @var ArrayCollection<EventInvitation> $eventInvitations
-     * 
-     * @ORM\ManyToMany(targetEntity=EventInvitation::class, mappedBy="sportType")
+     * @var Collection<int, EventInvitation> $eventInvitations
      */
+    #[ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'sportType')]
     private $eventInvitations;
 
     public function __construct()
@@ -158,7 +141,7 @@ class SportType
     }
 
     /**
-     * @return ArrayCollection<Event>
+     * @return Collection<int, Event>
      */
     public function getEvents(): ?Collection
     {
@@ -186,7 +169,7 @@ class SportType
     }
 
     /**
-     * @return ArrayCollection<EventChronicle>
+     * @return Collection<int, EventChronicle>
      */
     public function getEventChronicles(): ?Collection
     {
@@ -214,7 +197,7 @@ class SportType
     }
 
     /**
-     * @return ArrayCollection<Blog>
+     * @return Collection<int, Blog>
      */
     public function getBlogs(): ?Collection
     {
@@ -242,7 +225,7 @@ class SportType
     }
 
     /**
-     * @return ArrayCollection<EventInvitation>
+     * @return Collection<int, EventInvitation>
      */
     public function getEventInvitations(): ?Collection
     {

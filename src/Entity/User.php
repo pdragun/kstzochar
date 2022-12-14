@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -23,66 +22,58 @@ class User
     private ?int $id = null;
 
 
-    /**
-     * @var string $nickName
-     *
-     * @ORM\Column(type="string", length=190)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank]
     private $nickName;
 
 
-    /**
-     * @var string $email
-     * 
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 190, unique: true)]
+    #[Assert\NotBlank]
     private $email;
 
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private $roles = [];
-
 
     /**
      * @var string The hashed password
-     * 
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank()]
     private $password;
 
 
     /**
-     * @var ArrayCollection<EventInvitation> $eventInvitationsCreatedBy
-     * 
-     * @ORM\OneToMany(targetEntity=EventInvitation::class, mappedBy="createdBy")
+     * @var Collection<int, EventInvitation>
      */
+    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
     private $eventInvitationsCreatedBy;
 
 
     /**
-     * @var ArrayCollection<EventChronicle> $eventChroniclesCreatedBy
+     * @var Collection<int, EventChronicle> $eventChroniclesCreatedBy
      * 
      * @ORM\OneToMany(targetEntity=EventChronicle::class, mappedBy="createdBy")
      */
+    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
     private $eventChroniclesCreatedBy;
 
 
     /**
-     * @var ArrayCollection<Blog> $blogsCreatedBy
+     * @var Collection<int, Blog> $blogsCreatedBy
      * 
      * @ORM\OneToMany(targetEntity=Blog::class, mappedBy="createdBy")
      */
+    #[OneToMany(targetEntity: Blog::class, mappedBy: 'createdBy')]
     private $blogsCreatedBy;
 
 
     /**
-     * @var ArrayCollection<Event> $eventsCreatedBy
+     * @var Collection<int, Event> $eventsCreatedBy
      * 
      * @ORM\OneToMany(targetEntity=Event::class, mappedBy="createdBy")
      */
+    #[OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
     private $eventsCreatedBy;
 
 
@@ -93,34 +84,34 @@ class User
 
 
     /**
-     * @var ArrayCollection<Blog> $blogsAuthorBy
-     * 
-     * @ORM\OneToMany(targetEntity=Blog::class, mappedBy="authorBy")
+     * @var Collection<int, Blog> $blogsAuthorBy
      */
+    #[OneToMany(targetEntity: Blog::class, mappedBy: 'authorBy')]
     private $blogsAuthorBy;
 
 
     /**
-     * @var ArrayCollection<Event> $eventsAuthorBy
-     * 
-     * @ORM\OneToMany(targetEntity=Event::class, mappedBy="authorBy")
+     * @var Collection<int, Event> $eventsAuthorBy
      */
+    #[OneToMany(targetEntity: Event::class, mappedBy: 'authorBy')]
     private $eventsAuthorBy;
 
 
     /**
-     * @var ArrayCollection<EventInvitation> $eventInvitationsAuthorBy
+     * @var Collection<int, EventInvitation> $eventInvitationsAuthorBy
      * 
      * @ORM\OneToMany(targetEntity=EventInvitation::class, mappedBy="authorBy")
      */
+    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'authorBy')]
     private $eventInvitationsAuthorBy;
 
 
     /**
-     * @var ArrayCollection<EventChronicle> $eventChroniclesAuthorBy
+     * @var Collection<int, EventChronicle> $eventChroniclesAuthorBy
      * 
      * @ORM\OneToMany(targetEntity=EventChronicle::class, mappedBy="authorBy")
      */
+    #[OneToMany(targetEntity: EventChronicle::class, mappedBy: 'authorBy')]
     private $eventChroniclesAuthorBy;
 
 
@@ -250,7 +241,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventInvitation $eventInvitationsCreatedBy
+     * @param \App\Entity\EventInvitation $eventInvitationsCreatedBy
      */
     public function addEventInvitationsCreatedBy(EventInvitation $eventInvitationsCreatedBy): self
     {
@@ -263,7 +254,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventInvitation $eventInvitationsCreatedBy
+     * @param \App\Entity\EventInvitation $eventInvitationsCreatedBy
      */
     public function removeEventInvitationsCreatedBy(EventInvitation $eventInvitationsCreatedBy): self
     {
@@ -287,7 +278,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventChronicle $eventChroniclesCreatedBy
+     * @param \App\Entity\EventChronicle $eventChroniclesCreatedBy
      */
     public function addEventChroniclesCreatedBy(EventChronicle $eventChroniclesCreatedBy): self
     {
@@ -300,7 +291,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventChronicle $eventChroniclesCreatedBy
+     * @param \App\Entity\EventChronicle $eventChroniclesCreatedBy
      */
     public function removeEventChroniclesCreatedBy(EventChronicle $eventChroniclesCreatedBy): self
     {
@@ -324,7 +315,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Blog $blogsCreatedBy
+     * @param \App\Entity\Blog $blogsCreatedBy
      */
     public function addBlogsCreatedBy(Blog $blogsCreatedBy): self
     {
@@ -337,7 +328,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Blog $blogsCreatedBy
+     * @param \App\Entity\Blog $blogsCreatedBy
      */
     public function removeBlogsCreatedBy(Blog $blogsCreatedBy): self
     {
@@ -361,7 +352,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Event $eventsCreatedBy
+     * @param \App\Entity\Event $eventsCreatedBy
      */
     public function addEventsCreatedBy(Event $eventsCreatedBy): self
     {
@@ -374,7 +365,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Event $eventsCreatedBy
+     * @param \App\Entity\Event $eventsCreatedBy
      */
     public function removeEventsCreatedBy(Event $eventsCreatedBy): self
     {
@@ -402,7 +393,7 @@ class User
     }
 
     /**
-     * @return ArrayCollection<Blog>
+     * @return Collection<int, Blog>
      */
     public function getBlogsAuthorBy(): ?Collection
     {
@@ -410,7 +401,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Blog $blogsAuthorBy
+     * @param \App\Entity\Blog $blogsAuthorBy
      */
     public function addBlogsAuthorBy(Blog $blogsAuthorBy): self
     {
@@ -423,7 +414,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Blog $blogsAuthorBy
+     * @param \App\Entity\Blog $blogsAuthorBy
      */
     public function removeBlogsAuthorBy(Blog $blogsAuthorBy): self
     {
@@ -447,7 +438,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Event $eventsAuthorBy
+     * @param \App\Entity\Event $eventsAuthorBy
      */
     public function addEventsAuthorBy(Event $eventsAuthorBy): self
     {
@@ -460,7 +451,7 @@ class User
     }
 
     /**
-     * @param App\Entity\Event $eventsAuthorBy
+     * @param \App\Entity\Event $eventsAuthorBy
      */
     public function removeEventsAuthorBy(Event $eventsAuthorBy): self
     {
@@ -484,7 +475,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventInvitation $eventInvitationsAuthorBy
+     * @param \App\Entity\EventInvitation $eventInvitationsAuthorBy
      */
     public function addEventInvitationsAuthorBy(EventInvitation $eventInvitationsAuthorBy): self
     {
@@ -497,7 +488,7 @@ class User
     }
 
     /**
-     * @param App\Entity\EventInvitation $eventInvitationsAuthorBy
+     * @param \App\Entity\EventInvitation $eventInvitationsAuthorBy
      */
     public function removeEventInvitationsAuthorBy(EventInvitation $eventInvitationsAuthorBy): self
     {
@@ -522,7 +513,7 @@ class User
 
 
     /**
-     * @param App\Entity\EventChronicle $eventChroniclesAuthorBy
+     * @param \App\Entity\EventChronicle $eventChroniclesAuthorBy
      */
     public function addEventChroniclesAuthorBy(EventChronicle $eventChroniclesAuthorBy): self
     {
@@ -535,7 +526,7 @@ class User
 }
 
     /**
-     * @param App\Entity\EventChronicle $eventChroniclesAuthorBy
+     * @param \App\Entity\EventChronicle $eventChroniclesAuthorBy
      */
     public function removeEventChroniclesAuthorBy(EventChronicle $eventChroniclesAuthorBy): self
     {

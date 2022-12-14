@@ -10,40 +10,33 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=EventRepository::class)
  */
+#[ORM\Entity(repositoryClass: EventRepository::class)]
+#[ORM\Table(name: '`event`')]
 class Event
 {
-    /**
-     * @var int $id
-     * 
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
 
-    /**
-     * @var string $title
-     * 
-     * @ORM\Column(type="string", length=190)
-     */
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $title;
 
 
     /**
-     * @var \DateTime $startDate
-     * 
-     * @ORM\Column(type="date")
+     * @var \DateTimeImmutable $startDate
      */
-    private $startDate;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $startDate = null;
 
 
     /**
-     * @var \DateTime $endDate
-     * 
-     * @ORM\Column(type="date", nullable=true)
+     * @var \DateTimeImmutable $endDate
      */
-    private $endDate;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $endDate = null;
 
 
     /**
@@ -51,6 +44,8 @@ class Event
      * 
      * @ORM\OneToOne(targetEntity=EventInvitation::class, inversedBy="event", cascade={"persist", "remove"})
      */
+    #[OneToOne(targetEntity: EventInvitation::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
+
     private $eventInvitation;
 
 
@@ -59,6 +54,8 @@ class Event
      * 
      * @ORM\OneToOne(targetEntity=EventChronicle::class, inversedBy="event", cascade={"persist", "remove"})
      */
+    #[OneToOne(targetEntity: EventChronicle::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
+
     private $eventChronicle;
 
 
@@ -67,6 +64,8 @@ class Event
      * 
      * @ORM\OneToOne(targetEntity=Blog::class, inversedBy="event", cascade={"persist", "remove"})
      */
+    #[OneToOne(targetEntity: Blog::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
+
     private $blog;
 
 
@@ -76,48 +75,49 @@ class Event
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsCreatedBy")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
+    #[JoinColumn(nullable: false)]
     private $createdBy;
 
 
     /**
-     * @var ArrayCollection<SportType>
+     * @var Collection<int, SportType>
      * 
      * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="events")
      * @ORM\JoinTable(name="event_sport_type")
      */
+    #[ManyToMany(targetEntity: SportType::class, inversedBy: 'events')]
+    #[JoinTable(name: 'event_sport_type')]
     private $sportType;
 
 
-    /**
-     * @var bool $publish
-     * 
-     * @ORM\Column(type="boolean")
-     */
-    private $publish;
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $publish = true;
 
 
     /**
-     * @var \DateTime $createdAt
+     * @var \DateTimeImmutable $createdAt
      * 
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
 
     /**
-     * @var \DateTime $publishedAt
-     * 
      * @ORM\Column(type="boolean")
      */
-    private $showDate;
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $showDate = true;
 
 
     /**
-     * @var \DateTime $modifiedAt
+     * @var \DateTimeImmutable $modifiedAt
      * 
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $modifiedAt;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $modifiedAt = null;
 
 
     /**
@@ -125,15 +125,17 @@ class Event
      * 
      * @ORM\Column(type="text", nullable=true)
      */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $content;
 
 
     /**
-     * @var \DateTime $publishedAt
+     * @var \DateTimeImmutable $publishedAt
      * 
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $publishedAt;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $publishedAt = null;
 
 
     /**
@@ -141,6 +143,7 @@ class Event
      * 
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsAuthorBy")
      */
+    #[ManyToMany(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
     private $authorBy;
 
 
@@ -176,29 +179,29 @@ class Event
     }
 
     /**
-     * @return \DateTime $startDate
+     * @return \DateTimeImmutable $startDate
      */
-    public function getStartDate(): ?\DateTime
+    public function getStartDate(): ?\DateTimeImmutable
     {
         return $this->startDate;
     }
 
     /**
-     * @param \DateTime $startDate
+     * @param \DateTimeImmutable $startDate
      */
-    public function setStartDate(\DateTime $startDate): self
+    public function setStartDate(\DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTime
+    public function getEndDate(): ?\DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTime $endDate): self
+    public function setEndDate(?\DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
 
@@ -341,12 +344,12 @@ class Event
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -374,7 +377,7 @@ class Event
     /**
      * @return \DateTime $modifiedAt
      */
-    public function getModifiedAt(): ?\DateTime
+    public function getModifiedAt(): ?\DateTimeImmutable
     {
         return $this->modifiedAt;
     }
@@ -382,7 +385,7 @@ class Event
     /**
      * @param \DateTime $modifiedAt
      */
-    public function setModifiedAt(?\DateTime $modifiedAt): self
+    public function setModifiedAt(?\DateTimeImmutable $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -408,18 +411,18 @@ class Event
     }
 
     /**
-     * @return \DateTime $publishedAt
+     * @return \DateTimeImmutable $publishedAt
      */
-    public function getPublishedAt(): ?\DateTime
+    public function getPublishedAt(): ?\DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
     /**
-     * @param \DateTime $publishedAt
+     * @param \DateTimeImmutable $publishedAt
      * @return \App\Entity\Event
      */
-    public function setPublishedAt(?\DateTime $publishedAt): self
+    public function setPublishedAt(?\DateTimeImmutable $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 

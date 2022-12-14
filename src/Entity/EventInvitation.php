@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -18,90 +20,66 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=EventInvitationRepository::class)
  * @ORM\Table(name="event_invitation")
  */
+#[ORM\Entity(repositoryClass: EventInvitationRepository::class)]
+#[ORM\Table(name: '`event_invitation`')]
 class EventInvitation
 {
 
-    /**
-     * @var int $id
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string $title
-     *
-     * @ORM\Column(type="string", length=190)
-     * @Assert\NotBlank
-     */
 
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $title;
 
-    /**
-     * @var string $slug
-     *
-     * @ORM\Column(type="string", length=190)
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank()]
     private $slug;
 
-    /**
-     * @var string $summary
-     *
-     * @ORM\Column(type="string", length=190)
-     * @Assert\NotBlank(message="post.blank_summary")
-     */
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank(message: 'post.blank_summary')]
     private $summary;
 
-    /**
-     * @var string $content
-     *
-     * @ORM\Column(type="text")
-     * @Assert\NotBlank(message="post.blank_content")
-     * @Assert\Length(min=10, minMessage="post.too_short_content")
-     */
+
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: 'post.blank_summary')]
+    #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
     private $content;
 
-    /**
-     * @var \DateTime $publishedAt
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    private $publishedAt;
 
-    
-    /**
-     * @var \DateTime $startDate
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    private $startDate;
-    
-    /**
-     * @var \DateTime $endDate
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    private $endDate;
-    
-    /**
-     * @var \DateTime $createdAt
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    private $createdAt;
+    #[ORM\Column(nullable: true)]
+    #[Assert\Type('\DateTimeImmutable')]
+    private ?\DateTimeImmutable $publishedAt = null;
+
+
+    #[ORM\Column]
+    #[Assert\Type('\DateTimeImmutable')]
+    private ?\DateTimeImmutable $startDate = null;
+
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\Type('\DateTimeImmutable')]
+    private ?\DateTimeImmutable $endDate = null;
+
+
+    #[ORM\Column]
+    #[Assert\Type('\DateTimeImmutable')]
+    private ?\DateTimeImmutable $createdAt = null;
+
 
     /**
      * @var \App\Entity\User $createdBy
      * 
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventInvitationsCreatedBy")
+     * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsCreatedBy")
      * @ORM\JoinColumn(nullable=false)
      */
+    #[ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsCreatedBy')]
+    #[JoinColumn(nullable: false)]
     private $createdBy;
 
     /**
@@ -109,39 +87,47 @@ class EventInvitation
      * 
      * @ORM\OneToOne(targetEntity=Event::class, mappedBy="eventInvitation", cascade={"persist"})
      */
+    #[OneToOne(targetEntity: Event::class, mappedBy: 'eventInvitation', cascade: ['persist'])]
     private $event;
 
     /**
-     * @var ArrayCollection<SportType> $sportType
+     * @var Collection<int, SportType> $sportType
      * 
      * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="eventInvitations")
      */
+    #[ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
     private $sportType;
 
     /**
      * @var boolean $publish
      * 
      * @ORM\Column(type="boolean")
-     */
-    private $publish;
+     */    
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $publish = true;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Assert\Type("\DateTimeInterface")
      */
-    private $modifiedAt;
+    #[ORM\Column(nullable: true)]
+    #[Assert\Type('\DateTimeImmutable')]
+    private ?\DateTimeImmutable $modifiedAt = null;
 
     /**
      * @var \App\Entity\User $authorBy
      * 
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventInvitationsAuthorBy")
+     * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsAuthorBy")
      */
+    #[ManyToMany(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
     private $authorBy;
 
     /**
-     * @var ArrayCollection<EventRoute> $routes
+     * @var Collection<int, EventRoute> $routes
      * @ORM\ManyToMany(targetEntity=EventRoute::class, inversedBy="eventInvitations", cascade={"persist"})
      */
+    #[ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
+
     private $routes;
 
 

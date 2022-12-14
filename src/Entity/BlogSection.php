@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -7,39 +9,29 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=BlogSectionRepository::class)
- */
+
+#[ORM\Entity(repositoryClass: BlogSectionRepository::class)]
+#[ORM\Table(name: '`blog_section`')]
 class BlogSection
 {
-    /**
-     * @var int $id
-     * 
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+
+    #[ORM\Column(type: 'string', length: 190)]
+    private ?string $title = null;
+
+
+    #[ORM\Column(type: 'string', length: 190, unique: true)]
+    private ?string $slug = null;
 
     /**
-     * @var string $title
-     * 
-     * @ORM\Column(type="string", length=190)
+     * @var Collection<int, Blog> $blog
      */
-    private $title;
+    #[OneToMany(targetEntity: Blog::class, mappedBy: 'section')]
 
-    /**
-     * @var string $slug
-     * 
-     * @ORM\Column(type="string", unique=true, length=190)
-     */
-    private $slug;
-
-    /**
-     * @var ArrayCollection<Blog> $blog
-     * 
-     * @ORM\OneToMany(targetEntity=Blog::class, mappedBy="section")
-     */
     private $blog;
 
     public function __construct()
@@ -47,9 +39,6 @@ class BlogSection
         $this->blog = new ArrayCollection();
     }
 
-    /**
-     * @return int $id
-     */
     public function getId(): ?int
     {
         return $this->id;
@@ -80,7 +69,7 @@ class BlogSection
     }
 
     /**
-     * @return ArrayCollection<Blog> $blog
+     * @return Collection<int, Blog> $blog
      */
     public function getBlog(): ?Collection
     {
@@ -88,7 +77,7 @@ class BlogSection
     }
 
     /**
-     * @param App\Entity\Blog $blog
+     * @param \App\Entity\Blog $blog
      */
     public function addBlog(Blog $blog): self
     {
@@ -101,7 +90,7 @@ class BlogSection
     }
 
     /**
-     * @param App\Entity\Blog $blog
+     * @param \App\Entity\Blog $blog
      */
     public function removeBlog(Blog $blog): self
     {

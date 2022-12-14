@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -16,76 +18,54 @@ use Symfony\Component\Validator\Constraints as Assert;
  * 
  * @author Peter Dragúň jr. <peter.dragun@gmail.com>
  * 
- * @ORM\Table(name="event_route")
- * @ORM\Entity(repositoryClass=EventRouteRepository::class)
  */
+#[ORM\Entity(repositoryClass: EventRouteRepository::class)]
+#[ORM\Table(name: '`event_route`')]
 class EventRoute
 {
 
-    /**
-     * @var int $id
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @var string $title
-     *
-     * @ORM\Column(type="text", nullable=false)
-     * @Assert\NotBlank
-     */
+
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank]
     private $title;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false)
-     * @Assert\NotBlank
-     * @Assert\Positive
-     */
+
+    #[ORM\Column(type: 'integer')]
+    #[Assert\NotBlank]
+    #[Assert\Positive]
     private $length;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\DateTime
-     * @Assert\NotBlank
-     */
-    private $createdAt;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", nullable=true, length=190)
-     * @Assert\IsNull
-     */
+    #[Assert\DateTime]
+    #[Assert\NotBlank]
+    private ?\DateTimeImmutable $createdAt = null;
+
+
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\IsNull]
     private $gpxSlug;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime
-     * @Assert\IsNull
-     */
-    private $eventDate;
+
+    #[ORM\Column]
+    #[Assert\IsNull]
+    #[Assert\DateTime]
+    private ?\DateTimeImmutable $eventDate = null;
 
     /**
-     * @var ArrayCollection<EventInvitation> $eventInvitations
-     * 
-     * @ORM\ManyToMany(targetEntity=EventInvitation::class, mappedBy="routes")
+     * @var Collection<int, EventInvitation> $eventInvitations
      */
+    #[ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
     private $eventInvitations;
 
     /**
-     * @var ArrayCollection<EventChronicle> $eventChronicles
-     * 
-     * @ORM\ManyToMany(targetEntity=EventChronicle::class, mappedBy="routes")
+     * @var Collection<int, EventChronicle> $eventChronicles
      */
+    #[ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
     private $eventChronicles;
 
     public function __construct()
@@ -124,12 +104,12 @@ class EventRoute
         return $this;
     }
     
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -149,7 +129,7 @@ class EventRoute
     }
 
     /**
-     * @return ArrayCollection<EventInvitation>
+     * @return Collection<int, EventInvitation>
      */
     public function getEventInvitations(): ?Collection
     {
@@ -157,7 +137,7 @@ class EventRoute
     }
 
     /**
-     * @var App\Entity\EventInvitation $eventInvitation
+     * @var \App\Entity\EventInvitation $eventInvitation
      */
     public function addEventInvitation(EventInvitation $eventInvitation): self
     {
@@ -170,7 +150,7 @@ class EventRoute
     }
 
     /**
-     * @var App\Entity\EventInvitation $eventInvitation
+     * @var \App\Entity\EventInvitation $eventInvitation
      */
     public function removeEventInvitation(EventInvitation $eventInvitation): self
     {
@@ -183,7 +163,7 @@ class EventRoute
     }
 
     /**
-     * @return ArrayCollection<EventChronicle>
+     * @return Collection<int, EventChronicle>
      */
     public function getEventChronicles(): ?Collection
     {
@@ -191,7 +171,7 @@ class EventRoute
     }
 
     /**
-     * @var App\Entity\EventChronicle $eventChronicle
+     * @var \App\Entity\EventChronicle $eventChronicle
      */
     public function addEventChronicle(EventChronicle $eventChronicle): self
     {
@@ -204,7 +184,7 @@ class EventRoute
     }
 
     /**
-     * @var App\Entity\EventChronicle $eventChronicle
+     * @var \App\Entity\EventChronicle $eventChronicle
      */
     public function removeEventChronicle(EventChronicle $eventChronicle): self
     {
