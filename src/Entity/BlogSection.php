@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Entity(repositoryClass: BlogSectionRepository::class)]
 #[ORM\Table(name: '`blog_section`')]
 class BlogSection
@@ -30,7 +29,7 @@ class BlogSection
     /**
      * @var Collection<int, Blog> $blog
      */
-    #[OneToMany(targetEntity: Blog::class, mappedBy: 'section')]
+    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'section')]
 
     private $blog;
 

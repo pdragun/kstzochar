@@ -16,9 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Events are in plan per year, invitation and chronicle should be linked to planned event.
  *
  * @author Peter Dragúň jr. <peter.dragun@gmail.com>
- * 
- * @ORM\Entity(repositoryClass=EventInvitationRepository::class)
- * @ORM\Table(name="event_invitation")
  */
 #[ORM\Entity(repositoryClass: EventInvitationRepository::class)]
 #[ORM\Table(name: '`event_invitation`')]
@@ -78,8 +75,8 @@ class EventInvitation
      * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsCreatedBy")
      * @ORM\JoinColumn(nullable=false)
      */
-    #[ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsCreatedBy')]
-    #[JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsCreatedBy')]
+    #[ORM\JoinColumn(nullable: false)]
     private $createdBy;
 
     /**
@@ -87,7 +84,7 @@ class EventInvitation
      * 
      * @ORM\OneToOne(targetEntity=Event::class, mappedBy="eventInvitation", cascade={"persist"})
      */
-    #[OneToOne(targetEntity: Event::class, mappedBy: 'eventInvitation', cascade: ['persist'])]
+    #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'eventInvitation', cascade: ['persist'])]
     private $event;
 
     /**
@@ -95,7 +92,7 @@ class EventInvitation
      * 
      * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="eventInvitations")
      */
-    #[ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
+    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
     private $sportType;
 
     /**
@@ -119,15 +116,14 @@ class EventInvitation
      * 
      * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsAuthorBy")
      */
-    #[ManyToMany(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
     private $authorBy;
 
     /**
      * @var Collection<int, EventRoute> $routes
      * @ORM\ManyToMany(targetEntity=EventRoute::class, inversedBy="eventInvitations", cascade={"persist"})
      */
-    #[ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
-
+    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
     private $routes;
 
 
@@ -135,7 +131,7 @@ class EventInvitation
     {
          $this->sportType = new ArrayCollection();
          $this->routes = new ArrayCollection();
-      }
+     }
 
     public function getId(): ?int
     {

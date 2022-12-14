@@ -59,13 +59,13 @@ class EventRoute
     /**
      * @var Collection<int, EventInvitation> $eventInvitations
      */
-    #[ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
+    #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
     private $eventInvitations;
 
     /**
      * @var Collection<int, EventChronicle> $eventChronicles
      */
-    #[ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
+    #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
     private $eventChronicles;
 
     public function __construct()

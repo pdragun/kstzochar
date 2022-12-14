@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -7,9 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EventRepository::class)
- */
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: '`event`')]
 class Event
@@ -25,27 +24,16 @@ class Event
     private $title;
 
 
-    /**
-     * @var \DateTimeImmutable $startDate
-     */
     #[ORM\Column]
     private ?\DateTimeImmutable $startDate = null;
 
 
-    /**
-     * @var \DateTimeImmutable $endDate
-     */
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $endDate = null;
 
 
-    /**
-     * @var \App\Entity\EventInvitation $eventInvitation
-     * 
-     * @ORM\OneToOne(targetEntity=EventInvitation::class, inversedBy="event", cascade={"persist", "remove"})
-     */
-    #[OneToOne(targetEntity: EventInvitation::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
 
+    #[ORM\OneToOne(targetEntity: EventInvitation::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
     private $eventInvitation;
 
 
@@ -54,8 +42,7 @@ class Event
      * 
      * @ORM\OneToOne(targetEntity=EventChronicle::class, inversedBy="event", cascade={"persist", "remove"})
      */
-    #[OneToOne(targetEntity: EventChronicle::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
-
+    #[ORM\OneToOne(targetEntity: EventChronicle::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
     private $eventChronicle;
 
 
@@ -64,8 +51,7 @@ class Event
      * 
      * @ORM\OneToOne(targetEntity=Blog::class, inversedBy="event", cascade={"persist", "remove"})
      */
-    #[OneToOne(targetEntity: Blog::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
-
+    #[ORM\OneToOne(targetEntity: Blog::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
     private $blog;
 
 
@@ -75,8 +61,8 @@ class Event
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsCreatedBy")
      * @ORM\JoinColumn(nullable=false)
      */
-    #[ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
-    #[JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
+    #[ORM\JoinColumn(nullable: false)]
     private $createdBy;
 
 
@@ -86,8 +72,8 @@ class Event
      * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="events")
      * @ORM\JoinTable(name="event_sport_type")
      */
-    #[ManyToMany(targetEntity: SportType::class, inversedBy: 'events')]
-    #[JoinTable(name: 'event_sport_type')]
+    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'events')]
+    #[ORM\JoinTable(name: 'event_sport_type')]
     private $sportType;
 
 
@@ -143,7 +129,7 @@ class Event
      * 
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsAuthorBy")
      */
-    #[ManyToMany(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
     private $authorBy;
 
 

@@ -39,13 +39,13 @@ class Blog
     private ?bool $publish = null;
 
 
-    #[OneToMany(targetEntity: BlogSection::class, inversedBy: 'blog')]
-    #[JoinColumn(nullable: false)]
+    #[ORM\OneToMany(targetEntity: BlogSection::class, inversedBy: 'blog')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?BlogSection $section = null;
 
 
-    #[OneToMany(targetEntity: User::class, inversedBy: 'blogsCreatedBy')]
-    #[JoinColumn(nullable: false)]
+    #[ORM\OneToMany(targetEntity: User::class, inversedBy: 'blogsCreatedBy')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
 
@@ -54,7 +54,7 @@ class Blog
      * 
      * @ORM\OneToOne(targetEntity=Event::class, mappedBy="blog", cascade={"persist", "remove"})
      */
-    #[OneToMany(targetEntity: Event::class, mappedBy: 'blog', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'blog', cascade: ['persist', 'remove'])]
     private ?Event $event = null;
 
 
@@ -62,7 +62,7 @@ class Blog
      * @var Collection<int, SportType> $sportType
      * 
      */
-    #[OneToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
+    #[ORM\OneToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
     private $sportType;
 
 
@@ -91,9 +91,8 @@ class Blog
 
     /**
      * @var \App\Entity\User|null $authorBy
-     * 
      */
-    #[ManyToMany(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
     private ?User $authorBy = null;
 
     /**

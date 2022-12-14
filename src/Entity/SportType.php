@@ -46,25 +46,25 @@ class SportType
     /**
      * @var Collection<int, Event> $events
      */
-    #[ManyToMany(targetEntity: Event::class, mappedBy: 'sportType')]
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'sportType')]
     private $events;
 
     /**
      * @var Collection<int, EventChronicle> $eventChronicles
      */
-    #[ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'sportType')]
+    #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'sportType')]
     private $eventChronicles;
 
     /**
      * @var Collection<int, Blog> $blogs
      */
-    #[ManyToMany(targetEntity: Blog::class, mappedBy: 'sportType')]
+    #[ORM\ManyToMany(targetEntity: Blog::class, mappedBy: 'sportType')]
     private $blogs;
 
     /**
      * @var Collection<int, EventInvitation> $eventInvitations
      */
-    #[ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'sportType')]
+    #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'sportType')]
     private $eventInvitations;
 
     public function __construct()

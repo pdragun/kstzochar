@@ -46,7 +46,7 @@ class User
     /**
      * @var Collection<int, EventInvitation>
      */
-    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
     private $eventInvitationsCreatedBy;
 
 
@@ -55,7 +55,7 @@ class User
      * 
      * @ORM\OneToMany(targetEntity=EventChronicle::class, mappedBy="createdBy")
      */
-    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
     private $eventChroniclesCreatedBy;
 
 
@@ -64,7 +64,7 @@ class User
      * 
      * @ORM\OneToMany(targetEntity=Blog::class, mappedBy="createdBy")
      */
-    #[OneToMany(targetEntity: Blog::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'createdBy')]
     private $blogsCreatedBy;
 
 
@@ -73,27 +73,28 @@ class User
      * 
      * @ORM\OneToMany(targetEntity=Event::class, mappedBy="createdBy")
      */
-    #[OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
     private $eventsCreatedBy;
 
 
     /**
      * @ORM\Column(type="string", length=190)
      */
+    #[ORM\Column(type: 'string', length: 190)]
     private $displayName;
 
 
     /**
      * @var Collection<int, Blog> $blogsAuthorBy
      */
-    #[OneToMany(targetEntity: Blog::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'authorBy')]
     private $blogsAuthorBy;
 
 
     /**
      * @var Collection<int, Event> $eventsAuthorBy
      */
-    #[OneToMany(targetEntity: Event::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'authorBy')]
     private $eventsAuthorBy;
 
 
@@ -102,7 +103,7 @@ class User
      * 
      * @ORM\OneToMany(targetEntity=EventInvitation::class, mappedBy="authorBy")
      */
-    #[OneToMany(targetEntity: EventInvitation::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'authorBy')]
     private $eventInvitationsAuthorBy;
 
 
@@ -111,7 +112,7 @@ class User
      * 
      * @ORM\OneToMany(targetEntity=EventChronicle::class, mappedBy="authorBy")
      */
-    #[OneToMany(targetEntity: EventChronicle::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(targetEntity: EventChronicle::class, mappedBy: 'authorBy')]
     private $eventChroniclesAuthorBy;
 
 

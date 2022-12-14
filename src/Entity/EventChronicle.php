@@ -104,22 +104,22 @@ class EventChronicle
     /**
      * @var \App\Entity\User $createdBy
      */
-    #[ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesCreatedBy')]
-    #[JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesCreatedBy')]
+    #[ORM\JoinColumn(nullable: false)]
     private $createdBy;
 
 
     /**
      * @var \App\Entity\Event $event
      */
-    #[OneToOne(targetEntity: Event::class, inversedBy: 'eventChronicle', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'eventChronicle', cascade: ['persist', 'remove'])]
     private $event;
 
 
     /**
      * @var Collection<int, SportType> $sportType
      */
-    #[ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicle')]
+    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicle')]
     private $sportType;
 
 
@@ -134,14 +134,14 @@ class EventChronicle
     /**
      * @var \App\Entity\User $authorBy
      */
-    #[ManyToMany(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
     private $authorBy;
 
 
     /**
      * @var Collection<int, EventRoute> $routes
      */
-    #[ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
     private $routes;
 
 
