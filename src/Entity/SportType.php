@@ -8,6 +8,7 @@ use App\Repository\SportTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SportTypeRepository::class)]
 #[ORM\Table(name: '`sport_type`')]
@@ -18,54 +19,41 @@ class SportType
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank]
+    private ?string $title = null;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $title;
-
-
-    #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $slug;
-
-    
-    #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $description;
-
+    #[Assert\NotBlank]
+    private ?string $slug = null;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $shortcut;
-
+    #[Assert\NotBlank]
+    private ?string $description = null;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $image;
+    #[Assert\NotBlank]
+    private ?string $shortcut = null;
 
-    /**
-     * @var Collection<int, Event> $events
-     */
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank]
+    private ?string $image = null;
+
+    /** @var ?Collection<int, Event> $events */
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'sportType')]
-    private $events;
+    private ?Collection $events;
 
-    /**
-     * @var Collection<int, EventChronicle> $eventChronicles
-     */
+    /** @var ?Collection<int, EventChronicle> $eventChronicles */
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'sportType')]
-    private $eventChronicles;
+    private ?Collection $eventChronicles;
 
-    /**
-     * @var Collection<int, Blog> $blogs
-     */
+    /** @var ?Collection<int, Blog> $blogs */
     #[ORM\ManyToMany(targetEntity: Blog::class, mappedBy: 'sportType')]
-    private $blogs;
+    private ?Collection $blogs;
 
-    /**
-     * @var Collection<int, EventInvitation> $eventInvitations
-     */
+    /** @var ?Collection<int, EventInvitation> $eventInvitations */
     #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'sportType')]
-    private $eventInvitations;
+    private ?Collection $eventInvitations;
 
     public function __construct()
     {
@@ -140,9 +128,7 @@ class SportType
         return $this;
     }
 
-    /**
-     * @return Collection<int, Event>
-     */
+    /** @return ?Collection<int, Event> */
     public function getEvents(): ?Collection
     {
         return $this->events;
@@ -168,9 +154,7 @@ class SportType
         return $this;
     }
 
-    /**
-     * @return Collection<int, EventChronicle>
-     */
+    /** @return ?Collection<int, EventChronicle> */
     public function getEventChronicles(): ?Collection
     {
         return $this->eventChronicles;
@@ -196,9 +180,7 @@ class SportType
         return $this;
     }
 
-    /**
-     * @return Collection<int, Blog>
-     */
+    /** @return ?Collection<int, Blog> */
     public function getBlogs(): ?Collection
     {
         return $this->blogs;
@@ -224,9 +206,7 @@ class SportType
         return $this;
     }
 
-    /**
-     * @return Collection<int, EventInvitation>
-     */
+    /** @return ?Collection<int, EventInvitation> */
     public function getEventInvitations(): ?Collection
     {
         return $this->eventInvitations;

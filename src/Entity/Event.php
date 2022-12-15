@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ORM\Table(name: '`event`')]
@@ -18,145 +21,70 @@ class Event
     #[ORM\Column]
     private ?int $id = null;
 
-
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $title;
+    #[Assert\NotBlank]
+    private ?string $title = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?DateTimeImmutable $startDate = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $startDate = null;
-
-
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $endDate = null;
-
-
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $endDate = null;
 
     #[ORM\OneToOne(targetEntity: EventInvitation::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
-    private $eventInvitation;
+    private ?EventInvitation $eventInvitation;
 
-
-    /**
-     * @var \App\Entity\EventChronicle $eventChronicle
-     * 
-     * @ORM\OneToOne(targetEntity=EventChronicle::class, inversedBy="event", cascade={"persist", "remove"})
-     */
     #[ORM\OneToOne(targetEntity: EventChronicle::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
-    private $eventChronicle;
+    private ?EventChronicle $eventChronicle;
 
-
-    /**
-     * @var \App\Entity\Blog $blog
-     * 
-     * @ORM\OneToOne(targetEntity=Blog::class, inversedBy="event", cascade={"persist", "remove"})
-     */
     #[ORM\OneToOne(targetEntity: Blog::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
-    private $blog;
+    private ?Blog $blog;
 
-
-    /**
-     * @var \App\Entity\User $createdBy
-     * 
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsCreatedBy")
-     * @ORM\JoinColumn(nullable=false)
-     */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
-    private $createdBy;
+    private User $createdBy;
 
-
-    /**
-     * @var Collection<int, SportType>
-     * 
-     * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="events")
-     * @ORM\JoinTable(name="event_sport_type")
-     */
+    /** @var Collection<int, SportType> */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'events')]
     #[ORM\JoinTable(name: 'event_sport_type')]
-    private $sportType;
-
+    private Collection $sportType;
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $publish = true;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var \DateTimeImmutable $createdAt
-     * 
-     * @ORM\Column(type="datetime")
-     */
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
     #[ORM\Column(type: 'boolean')]
     private ?bool $showDate = true;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $modifiedAt = null;
 
-    /**
-     * @var \DateTimeImmutable $modifiedAt
-     * 
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $modifiedAt = null;
-
-
-    /**
-     * @var string $content
-     * 
-     * @ORM\Column(type="text", nullable=true)
-     */
     #[ORM\Column(type: 'text', nullable: true)]
-    private $content;
+    private ?string $content = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $publishedAt = null;
 
-    /**
-     * @var \DateTimeImmutable $publishedAt
-     * 
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $publishedAt = null;
-
-
-    /**
-     * @var \App\Entity\User
-     * 
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="eventsAuthorBy")
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
-    private $authorBy;
-
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
+    private User $authorBy;
 
     public function __construct()
     {
         $this->sportType = new ArrayCollection();
     }
 
-    /**
-     * @return int $id
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return string $title
-     */
-    public function getTitle(): ?string
+     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -164,47 +92,35 @@ class Event
         return $this;
     }
 
-    /**
-     * @return \DateTimeImmutable $startDate
-     */
-    public function getStartDate(): ?\DateTimeImmutable
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    /**
-     * @param \DateTimeImmutable $startDate
-     */
-    public function setStartDate(\DateTimeImmutable $startDate): self
+    public function setStartDate(DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTimeImmutable
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTimeImmutable $endDate): self
+    public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
 
         return $this;
     }
 
-    /**
-     * @return App\Entity\EventInvitation $eventInvitation
-     */
     public function getEventInvitation(): ?EventInvitation
     {
         return $this->eventInvitation;
     }
 
-    /**
-     * @param @var App\Entity\EventInvitation $eventInvitation
-     */
     public function setEventInvitation(?EventInvitation $eventInvitation): self
     {
         $this->eventInvitation = $eventInvitation;
@@ -214,23 +130,17 @@ class Event
 
     public function removeEventInvitation(): self
     {
-        $this->eventInvitation = \null;
+        $this->eventInvitation = null;
 
         return $this;
 
     }
 
-    /**
-     * @return App\Entity\EventChronicle
-     */
     public function getEventChronicle(): ?EventChronicle
     {
         return $this->eventChronicle;
     }
 
-    /**
-     * @param App\Entity\EventChronicle
-     */
     public function setEventChronicle(?EventChronicle $eventChronicle): self
     {
         $this->eventChronicle = $eventChronicle;
@@ -240,22 +150,16 @@ class Event
 
     public function removeEventChronicle(): self
     {
-        $this->eventChronicle = \null;
+        $this->eventChronicle = null;
 
         return $this;
     }
 
-    /**
-     * @return App\Entity\Blog
-     */
     public function getBlog(): ?Blog
     {
         return $this->blog;
     }
 
-    /**
-     * @param App\Entity\Blog
-     */
     public function setBlog(?Blog $blog): self
     {
         $this->blog = $blog;
@@ -265,23 +169,17 @@ class Event
 
     public function removeBlog(): self
     {
-        $this->eventBlog = \null;
+        $this->eventBlog = null;
 
         return $this;
 
     }
 
-    /**
-     * @return App\Entity\User
-     */
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;
     }
 
-    /**
-     * @param App\Entity\User
-     */
     public function setCreatedBy(?User $createdBy): self
     {
         $this->createdBy = $createdBy;
@@ -289,17 +187,11 @@ class Event
         return $this;
     }
 
-    /**
-     * @return ArrayCollectionction<SportType>
-     */
     public function getSportType(): Collection
     {
         return $this->sportType;
     }
 
-    /**
-     * @param App\Entity\SportType $sportType
-     */
     public function addSportType(SportType $sportType): self
     {
         if (!$this->sportType->contains($sportType)) {
@@ -330,29 +222,23 @@ class Event
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    /**
-     * @return bool $showDate
-     */
     public function getShowDate(): ?bool
     {
         return $this->showDate;
     }
 
-    /**
-     * @param bool $showDate
-     */
     public function setShowDate(bool $showDate): self
     {
         $this->showDate = $showDate;
@@ -360,35 +246,23 @@ class Event
         return $this;
     }
 
-    /**
-     * @return \DateTime $modifiedAt
-     */
-    public function getModifiedAt(): ?\DateTimeImmutable
+    public function getModifiedAt(): ?DateTimeImmutable
     {
         return $this->modifiedAt;
     }
 
-    /**
-     * @param \DateTime $modifiedAt
-     */
-    public function setModifiedAt(?\DateTimeImmutable $modifiedAt): self
+    public function setModifiedAt(?DateTimeImmutable $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
         return $this;
     }
 
-    /**
-     * @return string $content
-     */
     public function getContent(): ?string
     {
         return $this->content;
     }
 
-    /**
-     * @param string $content
-     */
     public function setContent(?string $content): self
     {
         $this->content = $content;
@@ -396,42 +270,27 @@ class Event
         return $this;
     }
 
-    /**
-     * @return \DateTimeImmutable $publishedAt
-     */
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getPublishedAt(): ?DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    /**
-     * @param \DateTimeImmutable $publishedAt
-     * @return \App\Entity\Event
-     */
-    public function setPublishedAt(?\DateTimeImmutable $publishedAt): self
+    public function setPublishedAt(?DateTimeImmutable $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 
         return $this;
     }
 
-    /**
-     * @return \App\Entity\User $authorBy
-     */
     public function getAuthorBy(): ?User
     {
         return $this->authorBy;
     }
 
-    /**
-     * @param \App\Entity\User $authorBy
-     * @return \App\Entity\Event
-     */
     public function setAuthorBy(?User $authorBy): self
     {
         $this->authorBy = $authorBy;
 
         return $this;
     }
-
 }

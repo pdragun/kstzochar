@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\EventInvitationRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,117 +23,73 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`event_invitation`')]
 class EventInvitation
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank]
+    private string $title;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $title;
-
-
-    #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $slug;
-
+    #[Assert\NotBlank]
+    private string $slug;
 
     #[ORM\Column(type: 'string', length: 190)]
     #[Assert\NotBlank(message: 'post.blank_summary')]
-    private $summary;
-
+    private string $summary;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
-    private $content;
+    private string $content;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
+    private ?DateTimeImmutable $publishedAt = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\Type('DateTimeImmutable')]
+    private DateTimeImmutable $startDate;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $publishedAt = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
+    private ?DateTimeImmutable $endDate = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\Type('DateTimeImmutable')]
+    private DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $startDate = null;
-
-
-    #[ORM\Column(nullable: true)]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $endDate = null;
-
-
-    #[ORM\Column]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $createdAt = null;
-
-
-    /**
-     * @var \App\Entity\User $createdBy
-     * 
-     * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsCreatedBy")
-     * @ORM\JoinColumn(nullable=false)
-     */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
-    private $createdBy;
+    private User $createdBy;
 
-    /**
-     * @var \App\Entity\Event $event
-     * 
-     * @ORM\OneToOne(targetEntity=Event::class, mappedBy="eventInvitation", cascade={"persist"})
-     */
     #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'eventInvitation', cascade: ['persist'])]
-    private $event;
+    private ?Event $event = null;
 
-    /**
-     * @var Collection<int, SportType> $sportType
-     * 
-     * @ORM\ManyToMany(targetEntity=SportType::class, inversedBy="eventInvitations")
-     */
+    /** @var ?Collection<int, SportType> $sportType */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
-    private $sportType;
+    private ?Collection $sportType;
 
-    /**
-     * @var boolean $publish
-     * 
-     * @ORM\Column(type="boolean")
-     */    
     #[ORM\Column(type: 'boolean')]
-    private ?bool $publish = true;
+    private bool $publish = true;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    #[ORM\Column(nullable: true)]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $modifiedAt = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
+    private ?DateTimeImmutable $modifiedAt = null;
 
-    /**
-     * @var \App\Entity\User $authorBy
-     * 
-     * @ORM\ManyToOne(targetEntity=App\Entity\User::class, inversedBy="eventInvitationsAuthorBy")
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
-    private $authorBy;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
+    private User $authorBy;
 
-    /**
-     * @var Collection<int, EventRoute> $routes
-     * @ORM\ManyToMany(targetEntity=EventRoute::class, inversedBy="eventInvitations", cascade={"persist"})
-     */
+    /** @var ?Collection<int, EventRoute> $routes */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
-    private $routes;
-
+    private ?Collection $routes;
 
     public function __construct()
     {
          $this->sportType = new ArrayCollection();
          $this->routes = new ArrayCollection();
-     }
+    }
 
     public function getId(): ?int
     {
@@ -174,12 +132,12 @@ class EventInvitation
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTime
+    public function getPublishedAt(): ?DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    public function setPublishedAt(\DateTime $publishedAt): self
+    public function setPublishedAt(DateTimeImmutable $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 
@@ -199,36 +157,36 @@ class EventInvitation
         return $this;
     }
 
-    public function getStartDate(): ?\DateTime
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTime $startDate): self
+    public function setStartDate(DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
         return $this;
     }
     
-    public function getEndDate(): ?\DateTime
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTime $endDate): self
+    public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
 
         return $this;
     }
     
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTime $createdAt): self
+    public function setCreatedAt(?DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -240,9 +198,6 @@ class EventInvitation
         return $this->createdBy;
     }
 
-    /**
-     * @var App\Entity\User $createdBy
-     */
     public function setCreatedBy(?User $createdBy): self
     {
         $this->createdBy = $createdBy;
@@ -250,17 +205,11 @@ class EventInvitation
         return $this;
     }
 
-    /**
-     * @return Event|null $event
-     */
     public function getEvent(): ?Event
     {
         return $this->event;
     }
 
-    /**
-     * @var App\Entity\Event $event
-     */
     public function setEvent(?Event $event): self
     {
         $this->event = $event;
@@ -278,23 +227,18 @@ class EventInvitation
     {
         if($this->event) {
             $this->event->removeEventInvitation();
-            $this->event = \null;
+            $this->event = null;
         }
 
         return $this;
     }
 
-    /**
-     * @return ArrayCollection<SportType>
-     */
+    /** @return ?Collection<int, SportType> */
     public function getSportType(): ?Collection
     {
         return $this->sportType;
     }
 
-    /**
-     * @var App\Entity\SportType $sportType
-     */
     public function addSportType(SportType $sportType): self
     {
         if (!$this->sportType->contains($sportType)) {
@@ -304,9 +248,6 @@ class EventInvitation
         return $this;
     }
 
-    /**
-     * @var App\Entity\SportType $sportType
-     */
     public function removeSportType(SportType $sportType): self
     {
         if ($this->sportType->contains($sportType)) {
@@ -328,12 +269,12 @@ class EventInvitation
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTime
+    public function getModifiedAt(): ?DateTimeImmutable
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(?\DateTime $modifiedAt): self
+    public function setModifiedAt(?DateTimeImmutable $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -345,9 +286,6 @@ class EventInvitation
         return $this->authorBy;
     }
 
-    /**
-     * @param App\Entity\User|null $authorBy
-     */
     public function setAuthorBy(?User $authorBy): self
     {
         $this->authorBy = $authorBy;
@@ -355,30 +293,21 @@ class EventInvitation
         return $this;
     }
 
-    /**
-     * @return ArrayCollection<EventRoute>
-     */
     public function getRoutes(): ?Collection
     {
         return $this->routes;
     }
 
-    /**
-     * @var App\Entity\EventRoute $route
-     */
     public function addRoute(EventRoute $route): self
     {
         if (!$this->routes->contains($route)) {
-            $route->setCreatedAt(new \DateTime('now')); //Ugly hack :( createdAt can not be NULL
+            $route->setCreatedAt(new DateTimeImmutable('now')); //Ugly hack :( createdAt can not be NULL
             $this->routes[] = $route;
         }
 
         return $this;
     }
 
-    /**
-     * @var App\Entity\EventRoute $route
-     */
     public function removeRoute(EventRoute $route): self
     {
         if ($this->routes->contains($route)) {

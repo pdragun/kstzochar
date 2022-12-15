@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\EventRouteRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,63 +19,49 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Route can be different for invitation or for chronicle even for the same event.
  * 
  * @author Peter Dragúň jr. <peter.dragun@gmail.com>
- * 
  */
 #[ORM\Entity(repositoryClass: EventRouteRepository::class)]
 #[ORM\Table(name: '`event_route`')]
 class EventRoute
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-
     #[ORM\Column(type: 'text')]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private $title;
-
+    private ?string $title = null;
 
     #[ORM\Column(type: 'integer')]
+    #[Assert\Type('integer')]
     #[Assert\NotBlank]
     #[Assert\Positive]
-    private $length;
+    private ?int $length = null;
 
-
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\DateTime]
     #[Assert\NotBlank]
-    private ?\DateTimeImmutable $createdAt = null;
-
+    private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\IsNull]
-    private $gpxSlug;
+    #[Assert\Type('string')]
+    private ?string $gpxSlug = null;
 
-
-    #[ORM\Column]
-    #[Assert\IsNull]
-    #[Assert\DateTime]
-    private ?\DateTimeImmutable $eventDate = null;
-
-    /**
-     * @var Collection<int, EventInvitation> $eventInvitations
-     */
+    /** @var ?Collection<int, EventInvitation> $eventInvitations */
     #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
-    private $eventInvitations;
+    private ?Collection $eventInvitations;
 
-    /**
-     * @var Collection<int, EventChronicle> $eventChronicles
-     */
+    /** @var ?Collection<int, EventChronicle> $eventChronicles */
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
-    private $eventChronicles;
+    private ?Collection $eventChronicles;
 
     public function __construct()
     {
         $this->eventInvitations = new ArrayCollection();
         $this->eventChronicles = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -104,12 +92,12 @@ class EventRoute
         return $this;
     }
     
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -128,17 +116,12 @@ class EventRoute
         return $this;
     }
 
-    /**
-     * @return Collection<int, EventInvitation>
-     */
+    /** @return ?Collection<int, EventInvitation> */
     public function getEventInvitations(): ?Collection
     {
         return $this->eventInvitations;
     }
 
-    /**
-     * @var \App\Entity\EventInvitation $eventInvitation
-     */
     public function addEventInvitation(EventInvitation $eventInvitation): self
     {
         if (!$this->eventInvitations->contains($eventInvitation)) {
@@ -149,9 +132,6 @@ class EventRoute
         return $this;
     }
 
-    /**
-     * @var \App\Entity\EventInvitation $eventInvitation
-     */
     public function removeEventInvitation(EventInvitation $eventInvitation): self
     {
         if ($this->eventInvitations->contains($eventInvitation)) {
@@ -162,17 +142,11 @@ class EventRoute
         return $this;
     }
 
-    /**
-     * @return Collection<int, EventChronicle>
-     */
     public function getEventChronicles(): ?Collection
     {
         return $this->eventChronicles;
     }
 
-    /**
-     * @var \App\Entity\EventChronicle $eventChronicle
-     */
     public function addEventChronicle(EventChronicle $eventChronicle): self
     {
         if (!$this->eventChronicles->contains($eventChronicle)) {
@@ -183,9 +157,6 @@ class EventRoute
         return $this;
     }
 
-    /**
-     * @var \App\Entity\EventChronicle $eventChronicle
-     */
     public function removeEventChronicle(EventChronicle $eventChronicle): self
     {
         if ($this->eventChronicles->contains($eventChronicle)) {
@@ -195,5 +166,4 @@ class EventRoute
 
         return $this;
     }
- 
-}
+ }

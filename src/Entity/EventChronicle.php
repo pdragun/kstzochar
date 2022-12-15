@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\EventChronicleRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,136 +16,77 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Defines the properties of the Event Invitation entity to represent the event invitation posts.
  *
  * @author Peter Dragúň jr. <peter.dragun@gmail.com>
- * 
- * @ORM\Entity(repositoryClass=EventChronicleRepository::class)
- * @ORM\Table(name="event_chronicle")
  */
 #[ORM\Entity(repositoryClass: EventChronicleRepository::class)]
 #[ORM\Table(name: '`event_chronicle`')]
 class EventChronicle
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\NotBlank]
+    private string $title;
 
     #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $title;
-
-
-    #[ORM\Column(type: 'string', length: 190)]
-    #[Assert\NotBlank()]
-    private $slug;
-
+    #[Assert\NotBlank]
+    private string $slug;
 
     #[ORM\Column(type: 'string', length: 190)]
     #[Assert\NotBlank(message: 'post.blank_summary')]
-    private $summary;
-
+    private string $summary;
 
     #[ORM\Column(type: 'text')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
-    private $content;
+    private string $content;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
+    private ?DateTimeImmutable $publishedAt = null;
 
-    /**
-     * //string $publishedAt A "Y-m-d H:i:s" formatted value
-     * @var \DateTime $publishedAt
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    #[ORM\Column(nullable: true)]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $publishedAt = null;
-
-
-    /**
-     * @var \DateTime $startDate
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    #[ORM\Column]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $startDate = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\Type('DateTimeImmutable')]
+    private DateTimeImmutable $startDate;
     
-
-    /**
-     * @var \DateTime $endDate
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\Type("\DateTimeInterface")
-     */
-    #[ORM\Column(nullable: true)]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $endDate = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
+    private ?DateTimeImmutable $endDate = null;
     
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\Type('DateTimeImmutable')]
+    private DateTimeImmutable $createdAt;
 
-    /**
-     * @var \DateTime $createdAt
-     *
-     * @Assert\Type("\DateTimeImmutable")
-     */
-    #[ORM\Column]
-    #[Assert\Type('\DateTimeImmutable')]
-    private ?\DateTimeImmutable $createdAt = null;
+   /** @var ?string $photoAlbumG URL to Google photos album */
+    #[ORM\Column(type: 'string', length: 190, unique: true, nullable: true)]
+    private ?string $photoAlbumG;
 
-
-   /**
-     * @var string $photoAlbumG URL to Google photos album
-     */
-    #[ORM\Column(type: 'string', length: 190, unique: true)]
-    private $photoAlbumG;
-
-
-    /**
-     * @var \App\Entity\User $createdBy
-     */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
-    private $createdBy;
+    private User $createdBy;
 
+    #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'eventChronicle', cascade: ['persist', 'remove'])]
+    private ?Event $event;
 
-    /**
-     * @var \App\Entity\Event $event
-     */
-    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'eventChronicle', cascade: ['persist', 'remove'])]
-    private $event;
-
-
-    /**
-     * @var Collection<int, SportType> $sportType
-     */
-    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicle')]
-    private $sportType;
-
+    /** @var Collection<int, SportType> $sportType */
+    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Collection $sportType;
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $publish = true;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private ?DateTimeImmutable $modifiedAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $modifiedAt = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
+    private ?User $authorBy;
 
-
-    /**
-     * @var \App\Entity\User $authorBy
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
-    private $authorBy;
-
-
-    /**
-     * @var Collection<int, EventRoute> $routes
-     */
+    /** @var ?Collection<int, EventRoute> $routes */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
-    private $routes;
-
+    private ?Collection $routes;
 
     public function __construct()
     {
@@ -204,12 +147,12 @@ class EventChronicle
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getPublishedAt(): ?DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    public function setPublishedAt(?\DateTimeImmutable $publishedAt): self
+    public function setPublishedAt(?DateTimeImmutable $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 
@@ -228,36 +171,36 @@ class EventChronicle
         return $this;
     }
 
-    public function getStartDate(): ?\DateTimeImmutable
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTimeImmutable $startDate): self
+    public function setStartDate(DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
         return $this;
     }
     
-    public function getEndDate(): ?\DateTimeImmutable
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTimeImmutable $endDate): self
+    public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
 
         return $this;
     }
     
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(?DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -276,9 +219,6 @@ class EventChronicle
         return $this;
     }
 
-    /**
-     * @return App\Entity\User|null $createdBy
-     */
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;
@@ -314,15 +254,13 @@ class EventChronicle
     {
         if($this->event) {
             $this->event->removeEventChronicle();
-            $this->event = \null;
+            $this->event = null;
         }
 
         return $this;
     }
 
-    /**
-     * @return ArrayCollection<SportType>
-     */
+    /** @return Collection<int, SportType> */
     public function getSportType(): Collection
     {
         return $this->sportType;
@@ -358,12 +296,12 @@ class EventChronicle
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTimeImmutable
+    public function getModifiedAt(): ?DateTimeImmutable
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(?\DateTimeImmutable $modifiedAt): self
+    public function setModifiedAt(?DateTimeImmutable $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -382,9 +320,7 @@ class EventChronicle
         return $this;
     }
 
-    /**
-     * @return ArrayCollection<EventRoute>
-     */
+    /** @return ?Collection<int, EventRoute> */
     public function getRoutes(): ?Collection
     {
         return $this->routes;
@@ -393,7 +329,7 @@ class EventChronicle
     public function addRoute(EventRoute $route): self
     {
         if (!$this->routes->contains($route)) {
-            $route->setCreatedAt(new \DateTimeImmutable('now')); //Ugly hack :( createdAt can not be NULL
+            $route->setCreatedAt(new DateTimeImmutable('now')); //Ugly hack :( createdAt can not be NULL
             $this->routes[] = $route;
         }
 

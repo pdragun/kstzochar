@@ -26,12 +26,9 @@ class BlogSection
     #[ORM\Column(type: 'string', length: 190, unique: true)]
     private ?string $slug = null;
 
-    /**
-     * @var Collection<int, Blog> $blog
-     */
+    /** @var ?Collection<int, Blog> $blog */
     #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'section')]
-
-    private $blog;
+    private ?Collection $blog;
 
     public function __construct()
     {
@@ -67,17 +64,12 @@ class BlogSection
         return $this;
     }
 
-    /**
-     * @return Collection<int, Blog> $blog
-     */
+    /** @return ?Collection<int, Blog> $blog */
     public function getBlog(): ?Collection
     {
         return $this->blog;
     }
 
-    /**
-     * @param \App\Entity\Blog $blog
-     */
     public function addBlog(Blog $blog): self
     {
         if (!$this->blog->contains($blog)) {
@@ -88,16 +80,13 @@ class BlogSection
         return $this;
     }
 
-    /**
-     * @param \App\Entity\Blog $blog
-     */
     public function removeBlog(Blog $blog): self
     {
         if ($this->blog->contains($blog)) {
             $this->blog->removeElement($blog);
             // set the owning side to null (unless already changed)
             if ($blog->getSection() === $this) {
-                $blog->setSection(\null);
+                $blog->setSection(null);
             }
         }
 

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
@@ -18,88 +20,50 @@ class Blog
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', length: 190)]
+    private ?string $title;
 
     #[ORM\Column(type: 'string', length: 190)]
-    private ?string $title = null;
-
-
-    #[ORM\Column(type: 'string', length: 190)]
-    private ?string $summary = null;
-
+    private ?string $summary;
 
     #[ORM\Column(type: 'string', length: 190)]
-    private ?string $slug = null;
-
+    private ?string $slug;
 
     #[ORM\Column(type: 'text')]
-    private ?string $content = null;
-
+    private ?string $content;
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $publish = null;
+    private ?bool $publish;
 
-
-    #[ORM\OneToMany(targetEntity: BlogSection::class, inversedBy: 'blog')]
+    #[ORM\ManyToOne(targetEntity: BlogSection::class, inversedBy: 'blog')]
     #[ORM\JoinColumn(nullable: false)]
     private ?BlogSection $section = null;
 
-
-    #[ORM\OneToMany(targetEntity: User::class, inversedBy: 'blogsCreatedBy')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
-
-    /**
-     * @var \App\Entity\Event $event
-     * 
-     * @ORM\OneToOne(targetEntity=Event::class, mappedBy="blog", cascade={"persist", "remove"})
-     */
-    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'blog', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'blog', cascade: ['persist', 'remove'])]
     private ?Event $event = null;
 
+    /** @var ?Collection<int, SportType> $sportType */
+    #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
+    private ?Collection $sportType;
 
-    /**
-     * @var Collection<int, SportType> $sportType
-     * 
-     */
-    #[ORM\OneToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
-    private $sportType;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $publishedAt = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $modifiedAt = null;
 
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $publishedAt = null;
-
-
-    /**
-     * @var \DateTimeImmutable $createdAt
-     * 
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $modifiedAt = null;
-
-
-    /**
-     * @var \App\Entity\User|null $authorBy
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
     private ?User $authorBy = null;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $startDate = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $startDate = null;
 
     public function __construct()
     {
@@ -171,17 +135,11 @@ class Blog
         return $this;
     }
 
-    /**
-     * @return \App\Entity\BlogSection $section
-     */
     public function getSection(): ?BlogSection
     {
         return $this->section;
     }
 
-    /**
-     * @var \App\Entity\BlogSection $section
-     */
     public function setSection(?BlogSection $section): self
     {
         $this->section = $section;
@@ -194,10 +152,7 @@ class Blog
         return $this->createdBy;
     }
 
-    /**
-     * @var \App\Entity\User $createdBy
-     */
-    public function setCreatedBy(User $createdBy): self
+    public function setCreatedBy(?User $createdBy): self
     {
         $this->createdBy = $createdBy;
 
@@ -209,9 +164,6 @@ class Blog
         return $this->event;
     }
 
-    /**
-     * @var \App\Entity\Event $event
-     */
     public function setEvent(?Event $event): self
     {
         $this->event = $event;
@@ -229,23 +181,18 @@ class Blog
     {
         if($this->event) {
             $this->event->removeBlog();
-            $this->event = \null;
+            $this->event = null;
         }
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, SportType> $sportType
-     */
+    /** @return ?Collection<int, SportType> $sportType */
     public function getSportType(): ?Collection
     {
         return $this->sportType;
     }
 
-    /**
-     * @var \App\Entity\SportType $sportType
-     */
     public function addSportType(SportType $sportType): self
     {
         if (!$this->sportType->contains($sportType)) {
@@ -255,9 +202,6 @@ class Blog
         return $this;
     }
 
-    /**
-     * @var \App\Entity\SportType $sportType
-     */
     public function removeSportType(SportType $sportType): self
     {
         if ($this->sportType->contains($sportType)) {
@@ -267,36 +211,36 @@ class Blog
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getPublishedAt(): ?\DateTimeImmutable
+    public function getPublishedAt(): ?DateTimeImmutable
     {
         return $this->publishedAt;
     }
 
-    public function setPublishedAt(?\DateTimeImmutable $publishedAt): self
+    public function setPublishedAt(?DateTimeImmutable $publishedAt): self
     {
         $this->publishedAt = $publishedAt;
 
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTimeImmutable
+    public function getModifiedAt(): ?DateTimeImmutable
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(?\DateTimeImmutable $modifiedAt): self
+    public function setModifiedAt(?DateTimeImmutable $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -315,12 +259,12 @@ class Blog
         return $this;
     }
 
-    public function getStartDate(): ?\DateTimeImmutable
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(?\DateTimeImmutable $startDate): self
+    public function setStartDate(?DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
