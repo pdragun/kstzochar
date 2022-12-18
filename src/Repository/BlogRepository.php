@@ -22,8 +22,6 @@ class BlogRepository extends ServiceEntityRepository
 
     /**
      * Get Blog from section with the lowest createdAt date
-     * @var int $sectionId
-     * @return Blog
      */
     public function findLatestByBlogSectionId(int $sectionId): ?Blog
     {
@@ -40,8 +38,6 @@ class BlogRepository extends ServiceEntityRepository
 
     /**
      * Get Blog from section with the latest by start date
-     * @var int $sectionId
-     * @return Blog
      */
     public function findLatestByBlogSectionIdStartDate(int $sectionId): ?Blog
     {
@@ -62,10 +58,7 @@ class BlogRepository extends ServiceEntityRepository
     }
 
 
-    /**
-     * @var int $sectionId
-     */
-    public function findAllByBlogSectionId(int $sectionId)
+    public function findAllByBlogSectionId(int $sectionId): float|int|array|string
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.publish = 1')
@@ -77,10 +70,7 @@ class BlogRepository extends ServiceEntityRepository
     }
 
 
-    /**
-     * @var int $sectionId
-     */
-    public function findAllByBlogSectionIdOrderByStartDate(int $sectionId)
+    public function findAllByBlogSectionIdOrderByStartDate(int $sectionId): array|float|int|string
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.publish = 1')
@@ -97,7 +87,7 @@ class BlogRepository extends ServiceEntityRepository
      * @var int $sectionId
      * @return Blog[] Returns an prepared array of Blogs for table
      */
-    public function getPreparedByYear(int $sectionId)
+    public function getPreparedByYear(int $sectionId): array
     {
         $clearResults = [];
 

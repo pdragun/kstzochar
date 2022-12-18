@@ -1,8 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Blog;
+use App\Entity\BlogSection;
+use App\Entity\Event;
+use App\Entity\EventChronicle;
+use App\Entity\EventInvitation;
+use App\Repository\BlogRepository;
+use App\Repository\BlogSectionRepository;
+use App\Repository\EventChronicleRepository;
+use App\Repository\EventInvitationRepository;
+use App\Repository\EventRepository;
 use App\Utils\SecondLevelCachePDO;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,71 +26,61 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class HomePageController extends AbstractController
 {
+    public function __construct(private readonly ManagerRegistry $doctrine) {}
+
     /**
      * Home page
-     * 
-     * @Route("/", name="home_page")
-     * 
-     * @param App\Repository\EventRepository $eventRepository
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @param App\Repository\BlogRepository $blogRepository
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @return Symfony\Component\HttpFoundation\Response Show home page
      */
+    #[Route('/', name: 'home_page')]
     public function index(): Response
     {
 
-        $cached = [];
         $cache = SecondLevelCachePDO::getInstance()->getCache();
-
         $cached = $cache->get('home-page', function (ItemInterface $item) {
-            
-            $entityManager = $this->getDoctrine()->getManager();
-            
+
             $fromDB = [];
-            $fromDB['latestEventPlanYear'] = $entityManager->getRepository(\App\Entity\Event::class)->findMaxStartYear();
+            $fromDB['latestEventPlanYear'] = $this->doctrine->getRepository(Event::class)->findMaxStartYear();
 
             /**
              * The latest Event Invitation
-             * @var App\Entity\EventChronicle[] $fromDB['latestInvitations']
+             * @var EventChronicle[] $fromDB['latestInvitations']
              */
-            $fromDB['latestInvitations'] = $entityManager->getRepository(\App\Entity\EventInvitation::class)->findLatest();
+            $fromDB['latestInvitations'] = $this->doctrine->getRepository(EventInvitation::class)->findLatest();
 
             /**
              * The latest Event chronicle articles
-             * @var App\Entity\EventChronicle $fromDB['latestChronicle']
+             * @var EventChronicle $fromDB['latestChronicle']
              */
-            $fromDB['latestChronicle'] = $entityManager->getRepository(\App\Entity\EventChronicle::class)->findLatest();
+            $fromDB['latestChronicle'] = $this->doctrine->getRepository(EventChronicle::class)->findLatest();
 
             /**
              * The latest blog articles from the section 'z klubovej kuchyne'
-             * @var App\Entity\Blog $fromDB['latestBlogSectionId1']
+             * @var Blog $fromDB['latestBlogSectionId1']
              */
-            $idFirstSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('z-klubovej-kuchyne');
+            $idFirstSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('z-klubovej-kuchyne');
             $fromDB['latestBlogSectionId1'] = null;
-            if($idFirstSection) {
-                $fromDB['latestBlogSectionId1'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
+            if ($idFirstSection) {
+                $fromDB['latestBlogSectionId1'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
             }
 
             /**
              * The latest blog articles from the section 'viacdňové akcie'
-             * @var App\Entity\Blog $fromDB['latestBlogSectionId2']
+             * @var Blog $fromDB['latestBlogSectionId2']
              */
-            $idSecondSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('viacdnove-akcie');
+            $idSecondSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('viacdnove-akcie');
             $fromDB['latestBlogSectionId2'] = null;
-            if($idSecondSection) {
-                $fromDB['latestBlogSectionId2'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
+            if ($idSecondSection) {
+                $fromDB['latestBlogSectionId2'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
             }
 
             /**
              * The latest blog articles from the section 'receptúry na túry'
-             * @var App\Entity\Blog $fromDB['latestBlogSectionId3']
+             * @var Blog $fromDB['latestBlogSectionId3']
              */
-            $idThirdSection = $entityManager->getRepository(\App\Entity\BlogSection::class)->findBySlug('receptury-na-tury');
+            $idThirdSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('receptury-na-tury');
             $fromDB['latestBlogSectionId3'] = null;
-            if($idThirdSection) {
-                $fromDB['latestBlogSectionId3'] = $entityManager->getRepository(\App\Entity\Blog::class)->findLatestByBlogSectionId($idThirdSection->getId());
+            if ($idThirdSection) {
+                $fromDB['latestBlogSectionId3'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idThirdSection->getId());
             }
 
             return $fromDB;
@@ -91,18 +94,16 @@ class HomePageController extends AbstractController
             'latestBlogSectionId1' => $cached['latestBlogSectionId1'],
             'latestBlogSectionId2' => $cached['latestBlogSectionId2'],
             'latestBlogSectionId3' => $cached['latestBlogSectionId3'],
-            'homepage' => \true,
+            'homepage' => true,
         ]);
     }
 
     /**
      * Redirect favicon.ico
-     * 
-     * @Route("/favicon.ico", name="favicon")
-     * 
-     * @return Symfony\Component\HttpFoundation\Response Redirect to real favicon
      */
-    public function favicon(): Response {
+    #[Route('/favicon.ico', name: 'favicon')]
+    public function favicon(): Response
+    {
         return $this->redirect('/build/images/favicon.svg');
     }
 }

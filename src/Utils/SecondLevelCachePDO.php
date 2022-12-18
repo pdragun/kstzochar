@@ -1,17 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Utils;
 
-use Symfony\Component\Cache\Adapter\PdoAdapter;
-
+use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 
 class SecondLevelCachePDO {
 
     protected static $instance = null;
-    private $cache;
+    private DoctrineDbalAdapter $cache;
 
     protected function __construct() {
-        $this->cache = new PdoAdapter($_ENV['DATABASE_URL'], 'app');
+        $this->cache = new DoctrineDbalAdapter($_ENV['DATABASE_URL'], 'app');
     }
 
     protected function __clone() {
@@ -26,12 +28,16 @@ class SecondLevelCachePDO {
         return static::$instance;
     }
 
-
-    public function getCache() {
+    public function getCache(): DoctrineDbalAdapter
+    {
         return $this->cache;
     }
 
-    public function clearAllCache() {
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function clearAllCache(): void
+    {
         $this->cache->delete('home-page');
         $this->cache->delete('main-menu-data');
     }
