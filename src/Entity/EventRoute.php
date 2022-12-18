@@ -43,11 +43,15 @@ class EventRoute
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\DateTime]
     #[Assert\NotBlank]
-    private ?DateTimeImmutable $createdAt = null;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'string', length: 190)]
     #[Assert\Type('string')]
     private ?string $gpxSlug = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\DateTime]
+    private ?DateTimeImmutable $eventDate = null;
 
     /** @var ?Collection<int, EventInvitation> $eventInvitations */
     #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
@@ -92,7 +96,7 @@ class EventRoute
         return $this;
     }
     
-    public function getCreatedAt(): ?DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -112,6 +116,18 @@ class EventRoute
     public function setGpxSlug(string $gpxSlug): self
     {
         $this->gpxSlug = $gpxSlug;
+
+        return $this;
+    }
+
+    public function getEventAt(): ?DateTimeImmutable
+    {
+        return $this->eventDate;
+    }
+
+    public function setEventAt(DateTimeImmutable $eventDate): self
+    {
+        $this->eventDate = $eventDate;
 
         return $this;
     }

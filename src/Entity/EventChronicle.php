@@ -78,7 +78,7 @@ class EventChronicle
     #[ORM\Column(type: 'boolean')]
     private ?bool $publish = true;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
