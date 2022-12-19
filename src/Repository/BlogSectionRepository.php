@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repository;
 
@@ -19,8 +21,7 @@ class BlogSectionRepository extends ServiceEntityRepository
         parent::__construct($registry, BlogSection::class);
     }
 
-
-    public function findBySlug($slug): ?BlogSection
+    public function findBySlug(string $slug): ?BlogSection
     {
         return $this->createQueryBuilder('p')
             ->where('p.slug = :slug')

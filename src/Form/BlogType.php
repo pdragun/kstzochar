@@ -14,7 +14,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
-
 class BlogType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

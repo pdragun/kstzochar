@@ -9,29 +9,22 @@ use App\Entity\BlogSection;
 use App\Entity\Event;
 use App\Entity\EventChronicle;
 use App\Entity\EventInvitation;
-use App\Repository\BlogRepository;
-use App\Repository\BlogSectionRepository;
-use App\Repository\EventChronicleRepository;
-use App\Repository\EventInvitationRepository;
-use App\Repository\EventRepository;
 use App\Utils\SecondLevelCachePDO;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Home page
- */
 class HomePageController extends AbstractController
 {
     public function __construct(private readonly ManagerRegistry $doctrine) {}
 
-    /**
-     * Home page
+    /** Home page
+     * @throws InvalidArgumentException
      */
-    #[Route('/', name: 'home_page')]
+    #[Route('/', name: 'home_page', methods: ['GET'])]
     public function index(): Response
     {
 
@@ -98,10 +91,8 @@ class HomePageController extends AbstractController
         ]);
     }
 
-    /**
-     * Redirect favicon.ico
-     */
-    #[Route('/favicon.ico', name: 'favicon')]
+    /** Redirect favicon.ico */
+    #[Route('/favicon.ico', name: 'favicon', methods: ['GET'])]
     public function favicon(): Response
     {
         return $this->redirect('/build/images/favicon.svg');

@@ -50,17 +50,17 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
 
         $manager->persist($invitation1);
 
-        // new upcomming event
+        // new upcoming event
         $invitation2 = new EventInvitation();
-        $invitation2->setTitle('Upcomming event');
-        $invitation2->setSlug('Upcomming-event');
-        $invitation2->setSummary('Upcomming test event');
+        $invitation2->setTitle('Upcoming event');
+        $invitation2->setSlug('Upcoming-event');
+        $invitation2->setSummary('Upcoming test event');
         $invitation2->setStartDate(new \DateTime('tomorrow')); // start date always tomorrow
         $invitation2->setPublishedAt(new \DateTime()); // now
         $invitation2->setCreatedAt(new \DateTime()); // now
         $invitation2->setModifiedAt(\null);
         $invitation2->setPublish(TRUE);
-        $invitation2->setContent('<p>Test upcomming event. Everyone is welcome.</p>');
+        $invitation2->setContent('<p>Test upcoming event. Everyone is welcome.</p>');
         $invitation2->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $invitation2->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $invitation2->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE));

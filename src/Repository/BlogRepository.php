@@ -1,9 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repository;
 
 use App\Entity\Blog;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,6 +26,7 @@ class BlogRepository extends ServiceEntityRepository
 
     /**
      * Get Blog from section with the lowest createdAt date
+     * @throws NonUniqueResultException
      */
     public function findLatestByBlogSectionId(int $sectionId): ?Blog
     {
@@ -42,7 +47,7 @@ class BlogRepository extends ServiceEntityRepository
     public function findLatestByBlogSectionIdStartDate(int $sectionId): ?Blog
     {
 
-        $currentDate = new \DateTime();
+        $currentDate = new DateTimeImmutable();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
 
         return $this->createQueryBuilder('b')
@@ -57,7 +62,6 @@ class BlogRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-
     public function findAllByBlogSectionId(int $sectionId): float|int|array|string
     {
         return $this->createQueryBuilder('b')
@@ -68,7 +72,6 @@ class BlogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
     }
-
 
     public function findAllByBlogSectionIdOrderByStartDate(int $sectionId): array|float|int|string
     {
@@ -81,11 +84,8 @@ class BlogRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-
-
     /**
-     * @var int $sectionId
-     * @return Blog[] Returns an prepared array of Blogs for table
+     * @return array<int <int, Blog>> Returns prepared array of Blogs for table
      */
     public function getPreparedByYear(int $sectionId): array
     {
@@ -101,13 +101,11 @@ class BlogRepository extends ServiceEntityRepository
     }
 
     /**
-     * @var int $sectionId
-     * @return Blog[] Returns an prepared array of Blogs for table
+     * @return array<int, Blog> Returns prepared array of Blogs for table
      */
-    public function getPreparedByYearStartDate(int $sectionId)
+    public function getPreparedByYearStartDate(int $sectionId): array
     {
         $clearResults = [];
-
         $res = $this->findAllByBlogSectionIdOrderByStartDate($sectionId);
         foreach ($res as $blog) {
             $year = $blog['startDate']->format('Y');
@@ -117,12 +115,10 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-
-
     /**
-     * 
+     * @throws NonUniqueResultException
      */
-    public function findBySectionYearSlug($sectionId, $year, $slug): ?Blog
+    public function findBySectionYearSlug(int $sectionId, int $year, string $slug): ?Blog
     {
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
@@ -139,5 +135,4 @@ class BlogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();        
     }
-
 }

@@ -8,6 +8,7 @@ use App\Repository\BlogSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\AbstractUnicodeString;
 
 #[ORM\Entity(repositoryClass: BlogSectionRepository::class)]
 #[ORM\Table(name: '`blog_section`')]
@@ -57,9 +58,9 @@ class BlogSection
         return $this->slug;
     }
 
-    public function setSlug(string $slug): self
+    public function setSlug(AbstractUnicodeString $slug): self
     {
-        $this->slug = $slug;
+        $this->slug = strval($slug);
 
         return $this;
     }

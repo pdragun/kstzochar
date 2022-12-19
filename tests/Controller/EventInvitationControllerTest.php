@@ -90,7 +90,7 @@ class EventInvitationControllerTest extends WebTestCase
     }
 
     /**
-     * Test uppcomming invitations
+     * Test upcoming invitations
      */
     public function testShowLatestInvitation()
     {
@@ -102,14 +102,14 @@ class EventInvitationControllerTest extends WebTestCase
 
         $tomorrow = new \DateTime('tomorrow');
 
-        $this->assertEquals($tomorrow->format('j. n. Y'), $crawler->filterXPath('//*[@id="invitations-upcomming"]/table/tr/td[1]')->text());
-        $this->assertEquals('Upcomming event', $crawler->filterXPath('//*[@id="invitations-upcomming"]/table/tr/td[2]')->text());
+        $this->assertEquals($tomorrow->format('j. n. Y'), $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[1]')->text());
+        $this->assertEquals('Upcoming event', $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]')->text());
 
-        $link = $crawler->filterXPath('//*[@id="invitations-upcomming"]/table/tr/td[2]/a')->link();
+        $link = $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]/a')->link();
         $crawler = $client->click($link);
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertSelectorTextContains('html h1', 'Upcomming event');
+        $this->assertSelectorTextContains('html h1', 'Upcoming event');
     }
 
 

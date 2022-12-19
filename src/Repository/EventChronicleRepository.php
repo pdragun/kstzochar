@@ -1,9 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repository;
 
 use App\Entity\EventChronicle;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,9 +24,7 @@ class EventChronicleRepository extends ServiceEntityRepository
     }
 
 
-   /**
-    * @return EventChronicle[] Returns an array of EventChronicle objects
-    */
+   /** @return EventChronicle[] Returns an array of EventChronicle objects */
    
     public function findByStartDate($value)
     {
@@ -37,13 +39,9 @@ class EventChronicleRepository extends ServiceEntityRepository
     }
 
 
-   /**
-     * @return Event[] EventChronicle an array of EventChronicle objects
-     *
-     */
-    public function findByYear($year)
+    /** @return Event[] EventChronicle an array of EventChronicle objects */
+    public function findByYear($year): array
     {
-
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
 
@@ -57,15 +55,10 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-
-    /**
-     * @return Event[] Returns an prepared array of Events for table
-     */
-    public function getPreparedByYear($year)
+    /** @return array<int, <int, EventChronicle>> Returns prepared array of Events for table */
+    public function getPreparedByYear($year): array
     {
-
         $clearResults = [];
-
         $res = $this->findByYear($year);
         foreach ($res as $event) {
             $month = $event['startDate']->format('n');
@@ -75,11 +68,8 @@ class EventChronicleRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    
-    /**
-     * 
-     */
-    public function findByYearSlug($year, $slug): ?EventChronicle
+    /** @throws NonUniqueResultException */
+    public function findByYearSlug(int $year, string $slug): ?EventChronicle
     {
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
@@ -96,13 +86,9 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-
-    /**
-     * 
-     */
-    public function findLatest()
+    public function findLatest(): ?EventChronicle
     {
-        $currentDate = new \DateTime();
+        $currentDate = new DateTimeImmutable();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
 
         $qb = $this->createQueryBuilder('p')
@@ -112,22 +98,23 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->orderBy('p.startDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery();
+
         return $qb->getResult();
     }
 
 
-    public function getUniqueYearsFromDB(){
-
+    public function getUniqueYearsFromDB(): array
+    {
         $em = $this->getEntityManager();
         $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
+
         return $query->getArrayResult();
     }
 
 
-    public function findUniqueYears() {
+    public function findUniqueYears(): array {
 
         $years = $this->getUniqueYearsFromDB();
-
         $clearYears = [];
         foreach( $years as $year ) {
             $clearYears[] = $year['y'];
@@ -135,5 +122,4 @@ class EventChronicleRepository extends ServiceEntityRepository
 
         return $clearYears;
     }
-
 }

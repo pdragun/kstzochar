@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -8,51 +10,52 @@ use App\Repository\EventRepository;
 use App\Form\EventChronicleType;
 use App\Form\SetDateType;
 use App\Utils\SecondLevelCachePDO;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-
 
 /**
  * Stories about past events
  */
 class EventChronicleController extends AbstractController
 {
-
     /**
      * Show list of all years
-     * 
-     * @Route("/kronika", name="chronicle_show")
-     * 
-     * @return Symfony\Component\HttpFoundation\Response Show list of all years
+     * @return Response Show list of all years
      */
+    #[Route('/kronika', name: 'chronicle_show', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('event_chronicle/showChronicle.html.twig');
     }
 
-
     /**
      * Show chronicle
-     * 
-     * @Route("/kronika/{year}/{slug}", name="chronicle_show_by_Year_Slug", requirements={"year"="\d+"})
-     * 
-     * @param int $year Year
-     * @param string $slug Event chronicle slug
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @return Symfony\Component\HttpFoundation\Response Show chronicle
+     * @return Response Show chronicle
+     * @throws NonUniqueResultException
      */
-    public function showChronicleByYearSlug(int $year, string $slug, EventChronicleRepository $eventChronicleRepository): Response
-    {
-
-        /** @var \App\Entity\EventChronicle $chronicle **/
+    #[Route(
+        '/kronika/{year}/{slug}',
+        name: 'chronicle_show_by_Year_Slug',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    public function showChronicleByYearSlug(
+        int $year,
+        string $slug,
+        EventChronicleRepository $eventChronicleRepository
+    ): Response {
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
-        if(!$chronicle) { // 404
+        if ($chronicle === null) {
             throw $this->createNotFoundException();
         }
 
@@ -62,24 +65,24 @@ class EventChronicleController extends AbstractController
         ]);
     }
 
-
     /**
      * Show list of all chronicles in year
-     * 
-     * @Route("/kronika/{year}", name="chronicle_list_by_Year", requirements={"year"="\d+"})
-     * 
-     * @param int $year Year
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @return Symfony\Component\HttpFoundation\Response Show all chronicle in year
+     * @return Response Show all chronicle in year
      */
-    public function showChroniclesByYear(int $year, EventChronicleRepository $eventChronicleRepository): Response
-    {
-        /** @var App\Entity\EventChronicle[] $chronicle */
+    #[Route(
+        '/kronika/{year}',
+        name: 'chronicle_list_by_Year',
+        requirements: ['year' => '\d'],
+        methods: ['GET']
+    )]
+    public function showChroniclesByYear(
+        int $year,
+        EventChronicleRepository $eventChronicleRepository
+    ): Response {
         $chronicles = $eventChronicleRepository->getPreparedByYear($year);
-        if(!$chronicles) { // 404
+        if ($chronicles === []) {
             throw $this->createNotFoundException();
         }
-
 
   		return $this->render('event_chronicle/showChroniclesByYear.html.twig', [
             'yearInUrl' => $year,
@@ -87,22 +90,21 @@ class EventChronicleController extends AbstractController
         ]);
     }
 
+    /** Show form for chronicle start date or if is already set redirect to create chronicle */
+    #[Route(
+        '/kronika/{year}/pridat-novu/add',
+        name: 'chronicle_create_from_date',
+        requirements: ['year' => '\d'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function createChronicleFromDate(
+        int $year,
+        Request $request
+    ): RedirectResponse|Response {
 
-    /**
-     * Show form for chronicle start date or if is already set redirect to create chronicle
-     * 
-     * @Route("/kronika/{year}/pridat-novu/add", name="chronicle_create_from_date", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @return Symfony\Component\HttpFoundation\Response Show form for date or redirect
-     */
-    public function createChronicleFromDate(int $year, Request $request): Response
-    {
-
-        /** @var App\Form\SetDateType; $form */
-        $form = $this->createForm(SetDateType::class, NULL, [
+        /** @var $form SetDateType */
+        $form = $this->createForm(SetDateType::class, null, [
             'save_button_label' => 'Vytvor kroniku',
         ]);
         $form->handleRequest($request);
@@ -125,46 +127,42 @@ class EventChronicleController extends AbstractController
         ]);
     }
 
-
     /**
      * Create chronicle
-     * 
      * Take start date from previous form, check if exist Event (from plan), if yes set Event data to form.
-     * 
-     * 
-     * @Route("/kronika/{year}/pridat-novu/{date}/add", name="chronicle_create_from_event", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $date Event start date
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @param App\Repository\EventRepository $eventRepository
-     * @return Symfony\Component\HttpFoundation\Response Show form or redirect to new chronicle
+     * @return RedirectResponse|Response Show form or redirect to new chronicle
+     * @throws InvalidArgumentException
      */
-    public function createChronicleFromEvent(int $year, string $date, Request $request, EventRepository $eventRepository): Response
-    {
-        $dateTime = \DateTime::createFromFormat('Y-m-d', $date);
-        $now = new \DateTime();
-        
-        /** @var App\Entity\Event[] $events */
+    #[Route(
+        '/kronika/{year}/pridat-novu/{date}/add',
+        name: 'chronicle_create_from_event',
+        requirements: ['year' => '\d'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function createChronicleFromEvent(
+        int $year,
+        string $date,
+        Request $request,
+        EventRepository $eventRepository
+    ): RedirectResponse|Response {
+        $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        $now = new DateTimeImmutable();
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => NULL]);
-
-        /** @var App\Entity\EventChronicle $chronicle */
         $chronicle = new EventChronicle();
-        if(isset ($events[0])) { //Parent Event exist, get aditionl info from it
+        if (isset ($events[0])) { //Parent Event exist, get aditional info from it
 
-            /** @var App\Entity\Event $firstEvent */
             $firstEvent = $events[0];
 
             $chronicle->setTitle($firstEvent->getTitle());
             $chronicle->setEndDate($firstEvent->getEndDate());
             $chronicle->setStartDate($firstEvent->getStartDate());
-            if( NULL !== $firstEvent->getSportType() ){
+            if ($firstEvent->getSportType() !== null) {
                 foreach ($firstEvent->getSportType() as $key => $value) {
                     $chronicle->addSportType($firstEvent->getSportType()[$key]);        
                 }
             }
-            if (NULL !== $firstEvent->getEventChronicle()) {
+            if ($firstEvent->getEventChronicle() !== null) {
                 foreach ($firstEvent->getEventChronicle()->getRoutes() as $key => $value) {
                     $chronicle->addRoute($firstEvent->getEventChronicle()->getRoutes()[$key]);
                 }
@@ -184,22 +182,22 @@ class EventChronicleController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var App\Form\EventChronicleType; $form */
+        /* @var $form EventChronicleType */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var App\Entity\EventChronicle $chronicle */
+            /* @var $chronicle EventChronicle */
             $chronicle = $form->getData();
 
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
-            $chronicle->setSlug(\strval($slug));
+            $chronicle->setSlug($slug);
             $chronicle->setPublishedAt($now);
             $chronicle->setCreatedAt($now);
             $chronicle->setModifiedAt($now);
-            $chronicle->setPublish(TRUE);
+            $chronicle->setPublish(true);
             $chronicle->setCreatedBy($this->getUser());
             
             /** @var Doctrine\Persistence\ManagerRegistry $entityManager */
@@ -207,7 +205,7 @@ class EventChronicleController extends AbstractController
 
             // remove or update SportTypes for Chronicle
             foreach ($originalSportTypes as $sportType) {
-                if (FALSE === $chronicle->getSportType()->contains($sportType)) {
+                if ($chronicle->getSportType()->contains($sportType) === false) {
                     $sportType->removeEventChronicle($chronicle);
                     $entityManager->persist($sportType);
                 }
@@ -215,7 +213,7 @@ class EventChronicleController extends AbstractController
 
             // remove or update Routes for Chronicle
             foreach ($originalRoutes as $route) {
-                if (FALSE === $chronicle->getRoutes()->contains($route)) {
+                if ($chronicle->getRoutes()->contains($route) === false) {
                     $route->removeEventChronicle($chronicle);
                     $entityManager->persist($route);
                 }
@@ -248,46 +246,46 @@ class EventChronicleController extends AbstractController
             'dateTime' => $dateTime->format('Y-m-d'),
             'actionName' => 'Pridať'
         ]);
-
     }
 
 
     /**
      * Edit chronicle
-     * 
-     * 
-     * @Route("/kronika/{year}/{slug}/edit", name="chronicle_edit", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event chronicle slug
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Show form or redirect to new chronicle
+     * @return RedirectResponse|Response Show form or redirect to new chronicle
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
-    public function editChronicle(int $year, string $slug, Request $request, EventChronicleRepository $eventChronicleRepository, EntityManagerInterface $entityManager): Response
-    {
+    #[Route(
+        '/kronika/{year}/{slug}/edit',
+        name: 'chronicle_edit',
+        requirements: ['year' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function editChronicle(
+        int $year,
+        string $slug,
+        Request $request,
+        EventChronicleRepository $eventChronicleRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse|Response {
 
-        /** @var App\Entity\EventChronicle $chronicle */
-        if (null === $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug)) {
+        $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
+        if ($chronicle === null) {
             throw $this->createNotFoundException();
         }
-
 
         $originalSportTypes = new ArrayCollection();
         foreach ($chronicle->getSportType() as $sportType) {
             $originalSportTypes->add($sportType);
         }
 
-
         $originalRoutes = new ArrayCollection();
         foreach ($chronicle->getRoutes() as $route) {
             $originalRoutes->add($route);
         }
 
-
-        /** @var App\Form\EventChronicleType $form */
+        /** @var $form EventChronicleType  */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
@@ -295,15 +293,15 @@ class EventChronicleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $chronicle = $form->getData();
-            $chronicle->setModifiedAt(new \DateTime('now'));
+            $chronicle->setModifiedAt(new DateTimeImmutable('now'));
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
-            $chronicle->setSlug(\strval($slug));
+            $chronicle->setSlug($slug);
 
 
             // remove or update SportTypes for Chronicle
             foreach ($originalSportTypes as $sportType) {
-                if (FALSE === $chronicle->getSportType()->contains($sportType)) {
+                if ($chronicle->getSportType()->contains($sportType) === false) {
                     $sportType->removeEventChronicle($chronicle);
                     $entityManager->persist($sportType);
                 }
@@ -311,7 +309,7 @@ class EventChronicleController extends AbstractController
 
             // remove or update Routes for Chronicle
             foreach ($originalRoutes as $route) {
-                if (FALSE === $chronicle->getRoutes()->contains($route)) {
+                if ($chronicle->getRoutes()->contains($route) === false) {
                     $route->removeEventChronicle($chronicle);
                     $entityManager->persist($route);
                 }
@@ -347,21 +345,23 @@ class EventChronicleController extends AbstractController
 
     /**
      * Confirmation to delete chronicle
-     * 
-     * @Route("/kronika/{year}/{slug}/delete", name="chronicle_delete", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event chronicle slug
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @return Symfony\Component\HttpFoundation\Response Show confirmation to delete chronicle
+     * @return Response Show confirmation to delete chronicle
+     * @throws NonUniqueResultException
      */
-    public function prepareDeleteChronicle(int $year, string $slug, EventChronicleRepository $eventChronicleRepository): Response
-    {
-
-        /** @var App\Entity\EventChronicle $chronicle */
+    #[Route(
+        '/kronika/{year}/{slug}/delete',
+        name: 'chronicle_delete',
+        requirements: ['year' => '\d'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function prepareDeleteChronicle(
+        int $year,
+        string $slug,
+        EventChronicleRepository $eventChronicleRepository
+    ): Response {
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
-        if(!$chronicle) { // 404
+        if ($chronicle === null) {
             throw $this->createNotFoundException();
         }
 
@@ -371,25 +371,28 @@ class EventChronicleController extends AbstractController
         ]);
     }
 
-
     /**
      * Delete chronicle
-     * 
-     * @Route("/kronika/{year}/{slug}/delete/yes", name="chronicle_delete_yes", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event chronicle slug
-     * @param App\Repository\EventChronicleRepository $eventChronicleRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Redirect to list of chronicles for year
+     * @return RedirectResponse Redirect to list of chronicles for year
+     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException
      */
-    public function deleteChronicle(int $year, string $slug, EventChronicleRepository $eventChronicleRepository, EntityManagerInterface $entityManager): Response
-    {
+    #[Route(
+        '/kronika/{year}/{slug}/delete/yes',
+        name: 'chronicle_delete_yes',
+        requirements: ['year' => '\d'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function deleteChronicle(
+        int $year,
+        string $slug,
+        EventChronicleRepository $eventChronicleRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse {
 
-        /** @var App\Entity\EventChronicle $chronicle */
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
-        if(!$chronicle) { // 404
+        if ($chronicle === null) {
             throw $this->createNotFoundException();
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -8,47 +10,46 @@ use App\Form\SetDateType;
 use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
 use App\Utils\SecondLevelCachePDO;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\AsciiSlugger;
-
 
 /**
  * Invitation to event
  */
 class EventInvitationController extends AbstractController
 {
-
-    /**
-     * @Route("/pozvanky", name="invitation_show")
-     * 
-     * @return Symfony\Component\HttpFoundation\Response Show list of all years
-     */
+    #[Route('/pozvanky', name: 'invitation_show', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('event_invitation/showEventInvitation.html.twig');
     }
 
-
     /**
      * Show list of all invitations in year
-     * 
-     * @Route("/pozvanky/{year}", name="invitation_list_by_Year", requirements={"year"="\d+"})
-     * 
-     * @param int $year Year
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @return Symfony\Component\HttpFoundation\Response Show all invitations in year
+     * @return Response Show all invitations in year
      */
-    public function showEventInvitationsByYear(int $year, EventInvitationRepository $eventInvitationRepository): Response
-    {
-        /** @var \App\Entity\EventInvitation[] $invitation **/
+    #[Route(
+        '/pozvanky/{year}',
+        name: 'invitation_list_by_Year',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    public function showEventInvitationsByYear(
+        int $year,
+        EventInvitationRepository $eventInvitationRepository
+    ): Response {
         $invitations = $eventInvitationRepository->getPreparedByYear($year);
-        if(!$invitations) { // 404
+        if ($invitations === null) {
             throw $this->createNotFoundException();
         }
   
@@ -58,22 +59,24 @@ class EventInvitationController extends AbstractController
         ]);
     }
 
-
     /**
      * Show invitation
-     * 
-     * @Route("/pozvanky/{year}/{slug}", name="invitation_show_by_Year_by_Slug", requirements={"year"="\d+"})
-     * 
-     * @param int $year Year
-     * @param string $slug Event invitation slug
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @return Symfony\Component\HttpFoundation\Response Show invitation
+     * @return Response Show invitation
+     * @throws NonUniqueResultException
      */
-    public function showEventInvitationByYearBySlug(int $year, string $slug, EventInvitationRepository $eventInvitationRepository): Response
-    {
-        /** @var \App\Entity\EventInvitation $invitation **/
+    #[Route(
+        '/pozvanky/{year}/{slug}',
+        name: 'invitation_show_by_Year_by_Slug',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    public function showEventInvitationByYearBySlug(
+        int $year,
+        string $slug,
+        EventInvitationRepository $eventInvitationRepository
+    ): Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
-        if(!$invitation) { // 404
+        if ($invitation === null) {
             throw $this->createNotFoundException();
         }
 
@@ -83,43 +86,37 @@ class EventInvitationController extends AbstractController
         ]);
     }
 
-
     /**
      * Show list of invitation with start date in future
-     * 
-     * @Route("/pozvanky/aktualne", name="invitation_list_upcomming")
-     * 
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @return Symfony\Component\HttpFoundation\Response Show list invitations
+     * @return Response Show list invitations
      */
-    public function showEventInvitationUpcomming(EventInvitationRepository $eventInvitationRepository): Response
-    {
+    #[Route('/pozvanky/aktualne', name: 'invitation_list_upcoming', methods: ['GET'])]
+    public function showEventInvitationUpcoming(
+        EventInvitationRepository $eventInvitationRepository
+    ): Response {
+        $upcomingInvitations = $eventInvitationRepository->findLatest();
 
-        /** @var \App\Entity\EventInvitation[] $invitation **/
-        $upcommingInvitations = $eventInvitationRepository->findLatest();
-
-        return $this->render('event_invitation/showEventInvitationUpcomming.html.twig', [
-            'upcommingInvitations' => $upcommingInvitations,
+        return $this->render('event_invitation/showEventInvitationUpcoming', [
+            'upcomingInvitations' => $upcomingInvitations,
         ]);
 
     }
 
-
     /**
      * Show form for invitation start date or if is already set redirect to create invitation
-     * 
-     * @Route("/pozvanky/{year}/pridat-novu/add", name="invitation_create_from_date", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @return Symfony\Component\HttpFoundation\Response Show form for date or redirect
+     * @return RedirectResponse|Response Show form for date or redirect
      */
-    public function createInvitationFromDate(int $year, Request $request): Response
+    #[Route(
+        '/pozvanky/{year}/pridat-novu/add"',
+        name: 'invitation_create_from_date',
+        requirements: ['year' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function createInvitationFromDate(int $year, Request $request): RedirectResponse|Response
     {
-
-        /** @var App\Form\SetDateType $form */
-        $form = $this->createForm(SetDateType::class, NULL, [
+        /** @var $form SetDateType */
+        $form = $this->createForm(SetDateType::class, null, [
             'save_button_label' => 'Vytvor pozvánku',
         ]);
 
@@ -146,42 +143,39 @@ class EventInvitationController extends AbstractController
 
     /**
      * Create invitation
-     * 
-     * 
-     * @Route("/pozvanky/{year}/pridat-novu/{date}/add", name="invitation_create_from_event", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $date Event start date
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @param App\Repository\EventRepository $eventRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Show form or redirect to new invitation
+     * @return RedirectResponse|Response Show form or redirect to new invitation
+     * @throws InvalidArgumentException
      */
-    public function createInvitationFromEvent(int $year, string $date, Request $request, EventRepository $eventRepository, EntityManagerInterface $entityManager): Response
-    {
-        $dateTime = \DateTime::createFromFormat('Y-m-d', $date);
-        $now = new \DateTime();
-
-        /** @var \App\Entity\Event[] $event **/
-        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => NULL]);
-
-        /** @var \App\Entity\EventInvitation $invitation **/
+    #[Route(
+        '/pozvanky/{year}/pridat-novu/{date}/add',
+        name: 'invitation_create_from_event',
+        requirements: ['year' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function createInvitationFromEvent(
+        int $year,
+        string $date,
+        Request $request,
+        EventRepository $eventRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse|Response {
+        $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        $now = new DateTimeImmutable();
+        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => null]);
         $invitation = new EventInvitation();
-        if(isset ($events[0])) { //Parent Event exist, get aditionl info from it
-
-            /** @var \App\Entity\Event $firstEvent **/
+        if (isset($events[0])) { //Parent Event exist, get aditionl info from it
             $firstEvent = $events[0];
 
             $invitation->setTitle($firstEvent->getTitle());
             $invitation->setEndDate($firstEvent->getEndDate());
             $invitation->setStartDate($firstEvent->getStartDate());
-            if( NULL !== $firstEvent->getSportType() ){
+            if ($firstEvent->getSportType() !== null) {
                 foreach ($firstEvent->getSportType() as $key => $value) {
                     $invitation->addSportType($firstEvent->getSportType()[$key]);        
                 }
             }
-            if (NULL !== $firstEvent->getEventInvitation()) {
+            if ($firstEvent->getEventInvitation() !== null) {
                 foreach ($firstEvent->getEventInvitation()->getRoutes() as $key => $value) {
                     $invitation->addRoute($firstEvent->getEventInvitation()->getRoutes()[$key]);        
                 }
@@ -201,26 +195,26 @@ class EventInvitationController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var App\Form\EventInvitationType $form */
+        /* @var $form EventInvitationType */
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var App\Entity\Event $invitation */
+            /** @var $invitation EventInvitation */
             $invitation = $form->getData();
 
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
-            $invitation->setSlug(\strval($slug));
+            $invitation->setSlug($slug);
             $invitation->setPublishedAt($now);
             $invitation->setCreatedAt($now);
             $invitation->setModifiedAt($now);
-            $invitation->setPublish(TRUE);
+            $invitation->setPublish(true);
             $invitation->setCreatedBy($this->getUser());
             
             // remove or update SportTypes for Invitation
             foreach ($originalSportTypes as $sportType) {
-                if (FALSE === $invitation->getSportType()->contains($sportType)) {
+                if ($invitation->getSportType()->contains($sportType) === false) {
                     $sportType->removeEventInvitation($invitation);
                     $entityManager->persist($sportType);
                 }
@@ -228,7 +222,7 @@ class EventInvitationController extends AbstractController
 
             // remove or update Routes for Invitation
             foreach ($originalRoutes as $route) {
-                if (FALSE === $invitation->getRoutes()->contains($route)) {
+                if ($invitation->getRoutes()->contains($route) === false) {
                     $route->removeEventInvitation($invitation);
                     $entityManager->persist($route);
                 }
@@ -266,23 +260,25 @@ class EventInvitationController extends AbstractController
 
     /**
      * Edit invitation
-     * 
-     * 
-     * @Route("/pozvanky/{year}/{slug}/edit", name="invitation_edit", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event invitation slug
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Show form or redirect to new invitation
+     * @return RedirectResponse|Response Show form or redirect to new invitation
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
-    public function editInvitation(int $year, string $slug, Request $request, EventInvitationRepository $eventInvitationRepository, EntityManagerInterface $entityManager): Response
-    {
-
-        /** @var \App\Entity\EventInvitation $invitation **/
-        if (null === $invitation = $eventInvitationRepository->findByYearSlug($year, $slug)){ // 404
+    #[Route(
+        '/pozvanky/{year}/{slug}/edit"',
+        name: 'invitation_edit',
+        requirements: ['year' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function editInvitation(
+        int $year,
+        string $slug,
+        Request $request,
+        EventInvitationRepository $eventInvitationRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse|Response {
+        $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
+        if ($invitation === null) {
             throw $this->createNotFoundException();
         }
 
@@ -296,22 +292,22 @@ class EventInvitationController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var App\Form\EventInvitationType $form */
+        /* @var $form EventInvitationType */
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var \App\Entity\EventInvitation $invitation **/
+            /* @var $invitation EventInvitation */
             $invitation = $form->getData();
-            $invitation->setModifiedAt(new \DateTime('now'));
+            $invitation->setModifiedAt(new DateTimeImmutable());
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
-            $invitation->setSlug(\strval($slug));
+            $invitation->setSlug($slug);
 
             // remove or update SportTypes for Invitation
             foreach ($originalSportTypes as $sportType) {
-                if (FALSE === $invitation->getSportType()->contains($sportType)) {
+                if ($invitation->getSportType()->contains($sportType) === false) {
                     $sportType->removeEventInvitation($invitation);
                     $entityManager->persist($sportType);
                 }
@@ -319,7 +315,7 @@ class EventInvitationController extends AbstractController
 
             // remove or update Routes for Invitation
             foreach ($originalRoutes as $route) {
-                if (FALSE === $invitation->getRoutes()->contains($route)) {
+                if ($invitation->getRoutes()->contains($route) === false) {
                     $route->removeEventInvitation($invitation);
                     $entityManager->persist($route);
                 }
@@ -352,22 +348,23 @@ class EventInvitationController extends AbstractController
         ]);
     }
 
-
     /**
      * Confirmation to delete invitation
-     * 
-     * @Route("/pozvanky/{year}/{slug}/delete", name="invitation_delete", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event invitation slug
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @return Symfony\Component\HttpFoundation\Response Show confirmation to delete invitation
+     * @return Response Show confirmation to delete invitation
+     * @throws NonUniqueResultException
      */
-    public function prepareDeleteInvitation(int $year, string $slug, EventInvitationRepository $eventInvitationRepository): Response
-    {
-
-        /** @var \App\Entity\EventInvitation $invitation **/
+    #[Route(
+        '/pozvanky/{year}/{slug}/delete',
+        name: 'invitation_delete',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function prepareDeleteInvitation(
+        int $year,
+        string $slug,
+        EventInvitationRepository $eventInvitationRepository
+    ): Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if(!$invitation) { // 404
             throw $this->createNotFoundException();
@@ -379,24 +376,23 @@ class EventInvitationController extends AbstractController
         ]);
     }
 
-
     /**
      * Delete invitation
-     * 
-     * @Route("/pozvanky/{year}/{slug}/delete/yes", name="invitation_delete_yes", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param int $year Year
-     * @param string $slug Event invitation slug
-     * @param App\Repository\EventInvitationRepository $eventInvitationRepository
-     * @return Symfony\Component\HttpFoundation\Response Redirect to list of invitations for year
+     * @return RedirectResponse Redirect to list of invitations for year
+     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException
      */
-    public function deleteInvitation(int $year, string $slug, EventInvitationRepository $eventInvitationRepository): Response
+    #[Route(
+        '/pozvanky/{year}/{slug}/delete/yes',
+        name: 'invitation_delete_yes',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function deleteInvitation(int $year, string $slug, EventInvitationRepository $eventInvitationRepository): RedirectResponse
     {
-
-        /** @var \App\Entity\EventInvitation $invitation **/
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
-        if(!$invitation) { // 404
+        if ($invitation === null) {
             throw $this->createNotFoundException();
         }
 

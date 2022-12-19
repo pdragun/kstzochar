@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\EventInvitation;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,10 +22,8 @@ class EventInvitationRepository extends ServiceEntityRepository
     }
 
 
-    /**
-     * 
-     */
-    public function findByYearSlug($year, $slug): ?EventInvitation
+    /** @throws NonUniqueResultException */
+    public function findByYearSlug(int $year, string $slug): ?EventInvitation
     {
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
@@ -40,12 +40,9 @@ class EventInvitationRepository extends ServiceEntityRepository
             ->getOneOrNullResult(); 
     }
 
-    /**
-     * 
-     */
-    public function findLatest()
+    public function findLatest(): array
     {
-        $currentDate = new \DateTime();
+        $currentDate = new DateTimeImmutable();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
 
         $qb = $this->createQueryBuilder('p')
@@ -60,9 +57,8 @@ class EventInvitationRepository extends ServiceEntityRepository
 
     /**
      * @return Event[] Returns an array of Event objects
-     *
      */
-    public function findByYear($year)
+    public function findByYear($year): array
     {
 
         $em = $this->getEntityManager()->getConfiguration();

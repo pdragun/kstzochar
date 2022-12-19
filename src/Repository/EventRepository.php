@@ -1,10 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repository;
 
 use App\Entity\Event;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 
 /**
  * @method Event|null find($id, $lockMode = null, $lockVersion = null)
@@ -22,11 +28,9 @@ class EventRepository extends ServiceEntityRepository
     
     /**
      * Find list of events based on year
-     * 
-     * @param $year int
-     * @return Event[] Returns an array of Event objects
+     * @return array<int, Event> Returns an array of Event objects
      */
-    public function findByYear($year)
+    public function findByYear(int $year): array
     {
 
         $em = $this->getEntityManager()->getConfiguration();
@@ -47,21 +51,18 @@ class EventRepository extends ServiceEntityRepository
 
     /**
      * Get list of event from one year ordered according to months
-     * 
-     * @param $year int
-     * @return Event[]|[] Returns an prepared array of Events for table or empty arr
+     * @return array<int, <int, Event>> Returns prepared array of Events for table or empty arrary
      */
-    public function getPreparedByYear($year)
+    public function getPreparedByYear(int $year): array
     {
-
-        $clearResults = [];
-        for( $i = 1; $i <= 12; $i++) {
-            $clearResults[$i] = [];
+        $res = $this->findByYear($year);
+        if ($res === []) {
+            return [];
         }
 
-        $res = $this->findByYear($year);
-        if(!$res) {
-            return [];
+        $clearResults = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $clearResults[$i] = [];
         }
 
         foreach ($res as $event) {
@@ -72,7 +73,10 @@ class EventRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function findMaxStartDate()
     {
         $query = $this->createQueryBuilder('e')
@@ -84,38 +88,38 @@ class EventRepository extends ServiceEntityRepository
         return $query->getSingleResult();
     }
 
-    
     /**
      * Find the latest year from event plan
-     * 
      * @return null|int $year
+     * @throws Exception
      */
-    public function findMaxStartYear()
+    public function findMaxStartYear(): ?int
     {
         $res = $this->findMaxStartDate();
-        if(!$res || $res[0] === null) {
+        if (!$res || $res[0] === null) {
             return null;
         }
+        $date = new DateTimeImmutable($res['maxYear']);
 
-        $dt = new \DateTime($res['maxYear']);
-        return $dt->format('Y');
+        return (int) $date->format('Y');
     }
 
-
-    public function getUniqueYearsFromDB(){
+    public function getUniqueYearsFromDB(): array
+    {
 
         $em = $this->getEntityManager();
         $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
+
         return $query->getArrayResult();
     }
 
-
-    public function findUniqueYears() {
+    /** @return array<int, int> $clearYears */
+    public function findUniqueYears(): array
+    {
 
         $years = $this->getUniqueYearsFromDB();
-
         $clearYears = [];
-        foreach( $years as $year ) {
+        foreach ($years as $year) {
             $clearYears[] = $year['y'];
         }
 

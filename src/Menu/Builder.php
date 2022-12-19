@@ -1,28 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Menu;
 
+use App\Entity\Blog;
+use App\Entity\BlogSection;
+use App\Entity\Event;
+use App\Entity\EventChronicle;
+use App\Entity\EventInvitation;
 use App\Utils\SecondLevelCachePDO;
+use Doctrine\Persistence\ManagerRegistry;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
 use Doctrine\ORM\EntityManagerInterface as DoctrineItemInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class MenuBuilder
+final class Builder implements ContainerAwareInterface
 {
-    private $factory;
-    private $entityManager;
+    use ContainerAwareTrait;
 
-    /**
-     * Add any other dependency you need...
-     */
-    public function __construct(FactoryInterface $factory, DoctrineItemInterface $entityManager)
-    {
-        $this->factory = $factory;
-        $this->entityManager = $entityManager;
-    }
-
-    public function createMainMenu(array $options): ItemInterface
-    {
+    public function __construct(private readonly FactoryInterface $factory, private readonly ManagerRegistry $doctrine)  {}
+    public function createMainMenu(
+     //   FactoryInterface $factory,
+     //   DoctrineItemInterface $entityManager,
+        array $options,
+    ): ItemInterface {
 
         $cachedData = $this->getData();
 
@@ -141,27 +146,27 @@ class MenuBuilder
     private function getData() {
 
         $cache = SecondLevelCachePDO::getInstance()->getCache();
-        $em = $this->entityManager;
- 
-        $cached = $cache->get('main-menu-data', function (CacheItemInterface $item) use ($em) {
+        $doctrine = $this->doctrine;
+
+        $cached = $cache->get('main-menu-data', function (CacheItemInterface $item) use ($doctrine) {
             $data = [];
       
             //Ivitation
-            $invitationList = $em->getRepository(\App\Entity\EventInvitation::class)->findBy(
+            $invitationList = $doctrine->getRepository(EventInvitation::class)->findBy(
                 ['publish' => 1],
                 ['startDate' => 'DESC']
             );
-            $data['Pozvánky'] = $this->addEventsToYars($invitationList);
+            $data['Pozvánky'] = $this->addEventsToYears($invitationList);
             
             //Chronicle
-            $chronicleList = $em->getRepository(\App\Entity\EventChronicle::class)->findBy(
+            $chronicleList = $doctrine->getRepository(EventChronicle::class)->findBy(
                 ['publish' => 1],
                 ['startDate' => 'DESC']
             );
-            $data['Kronika'] = $this->addEventsToYars($chronicleList);
+            $data['Kronika'] = $this->addEventsToYears($chronicleList);
 
             //Plan (Event)
-            $planYears = $em->getRepository(\App\Entity\Event::class)->findUniqueYears();
+            $planYears = $doctrine->getRepository(Event::class)->findUniqueYears();
             foreach( $planYears as $year ) {
                 $data['Plán'][] = $year;
             }
@@ -175,8 +180,8 @@ class MenuBuilder
  
             foreach($blogSections as $blogSection) {
 
-                $idSection1 = $em->getRepository(\App\Entity\BlogSection::class)->findBySlug($blogSection[1]);
-                $blogs = $em->getRepository(\App\Entity\Blog::class)->findAllByBlogSectionId($idSection1->getId());
+                $idSection1 = $doctrine->getRepository(BlogSection::class)->findBySlug($blogSection[1]);
+                $blogs = $doctrine->getRepository(Blog::class)->findAllByBlogSectionId($idSection1->getId());
                 
                 $i = 0;
                 foreach($blogs as $blog) {
@@ -195,11 +200,12 @@ class MenuBuilder
 
 
     /**
-     * Move events from siple object list to multidimensional array according to star date
+     * Move events from simple object list to multidimensional array according to star date
      * 
      * return $data []
      */
-    private function addEventsToYars( $events ) {
+    private function addEventsToYears(array $events): array
+    {
         $data = [];
         $i = 0;
         foreach( $events as $event) {
