@@ -11,8 +11,10 @@ use App\Repository\BlogSectionRepository;
 use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -103,7 +105,7 @@ class BlogController extends AbstractController
         string $blogSectionSlug,
         Request $request,
         BlogSectionRepository $blogSectionRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
         if ($blogSection === null) { // 404
@@ -126,7 +128,8 @@ class BlogController extends AbstractController
         }
 
         $form->handleRequest($request);
-       if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            /* @var $blog Blog */
             $blog = $form->getData();
             $now = new DateTimeImmutable();
             $slugger = new AsciiSlugger();
@@ -140,8 +143,8 @@ class BlogController extends AbstractController
             $blog->setCreatedBy($this->getUser());
             $blog->setSection($blogSection);
             
-            /** @var Doctrine\Persistence\ManagerRegistry $entityManager */
-            $entityManager = $this->getDoctrine()->getManager();
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
 
             if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
@@ -191,7 +194,7 @@ class BlogController extends AbstractController
         Request $request,
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse|Response {
 
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -223,12 +226,13 @@ class BlogController extends AbstractController
 
             /* @var $blog Blog */
             $blog = $form->getData();
-
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($blog->getTitle());
             $blog->setSlug($slug);
             $blog->setModifiedAt(new \DateTime('now'));
-            
+
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
             if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
                 foreach ($originalSportTypes as $sportType) {
@@ -265,7 +269,7 @@ class BlogController extends AbstractController
     /**
      * Delete blog
      * @return RedirectResponse Redirect to list of blogs
-     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException|InvalidArgumentException
      */
     #[Route(
         '/blog/{blogSectionSlug}/{year}/{slug}/delete/yes',
@@ -280,7 +284,7 @@ class BlogController extends AbstractController
         string $slug,
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse {
 
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -296,6 +300,8 @@ class BlogController extends AbstractController
         $blog->removeEvent();
         $blogTitle = $blog->getTitle();
 
+        /* @var $entityManager ObjectManager */
+        $entityManager = $doctrine->getManager();
         $entityManager->remove($blog);
         $entityManager->flush();
 
@@ -314,7 +320,7 @@ class BlogController extends AbstractController
      * @return Response Show blog and ask for confirmation
      * @throws NonUniqueResultException
      */
-    #[Route('/blog/{blogSectionSlug}/pridat-novy/add',
+    #[Route('/blog/{blogSectionSlug}/{year}/{slug}/delete',
         name: 'blog_delete',
         requirements:['year' => '\d+'],
         methods: ['GET']
@@ -328,12 +334,12 @@ class BlogController extends AbstractController
         BlogSectionRepository $blogSectionRepository
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if ($blogSection === null) { // 404
+        if ($blogSection === null) {
             throw $this->createNotFoundException();
         }
 
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
-        if ($blog === null) { // 404
+        if ($blog === null) {
             throw $this->createNotFoundException();
         }
 
