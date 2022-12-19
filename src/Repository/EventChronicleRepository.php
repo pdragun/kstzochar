@@ -39,7 +39,7 @@ class EventChronicleRepository extends ServiceEntityRepository
     }
 
 
-    /** @return Event[] EventChronicle an array of EventChronicle objects */
+    /** @return EventChronicle[] EventChronicle an array of EventChronicle objects */
     public function findByYear($year): array
     {
         $em = $this->getEntityManager()->getConfiguration();
@@ -86,7 +86,7 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findLatest(): ?EventChronicle
+    public function findLatest(): ?array
     {
         $currentDate = new DateTimeImmutable();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);

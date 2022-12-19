@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Form;
 
@@ -17,6 +19,7 @@ class SetDateType extends AbstractType
                 // 'constraints' => new Type(),
                 'label' => 'Dátum konania podujatia',
                 'widget' => 'single_text',
+                'input' => 'datetime_immutable',
             ])
             ->add('save', SubmitType::class, ['label' => $options['save_button_label']]);
     }

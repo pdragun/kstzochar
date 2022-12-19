@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Form;
 
@@ -30,6 +32,7 @@ class BlogType extends AbstractType
             ->add('startDate', DateTimeType::class, [
                 'label' => 'Dátum konania (od):',
                 'widget' => 'single_text',
+                'input' => 'datetime_immutable',
                 'required' => false,
             ])
             // ->add('section')

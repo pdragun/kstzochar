@@ -12,8 +12,9 @@ use App\Form\SetDateType;
 use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -144,10 +145,11 @@ class EventChronicleController extends AbstractController
         int $year,
         string $date,
         Request $request,
-        EventRepository $eventRepository
+        EventRepository $eventRepository,
+        ManagerRegistry $doctrine
     ): RedirectResponse|Response {
         $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
-        $now = new DateTimeImmutable();
+
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => NULL]);
         $chronicle = new EventChronicle();
         if (isset ($events[0])) { //Parent Event exist, get aditional info from it
@@ -190,7 +192,7 @@ class EventChronicleController extends AbstractController
 
             /* @var $chronicle EventChronicle */
             $chronicle = $form->getData();
-
+            $now = new DateTimeImmutable();
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
             $chronicle->setSlug($slug);
@@ -199,9 +201,9 @@ class EventChronicleController extends AbstractController
             $chronicle->setModifiedAt($now);
             $chronicle->setPublish(true);
             $chronicle->setCreatedBy($this->getUser());
-            
-            /** @var Doctrine\Persistence\ManagerRegistry $entityManager */
-            $entityManager = $this->getDoctrine()->getManager();
+
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
             foreach ($originalSportTypes as $sportType) {
@@ -267,7 +269,7 @@ class EventChronicleController extends AbstractController
         string $slug,
         Request $request,
         EventChronicleRepository $eventChronicleRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse|Response {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -292,12 +294,15 @@ class EventChronicleController extends AbstractController
         
         if ($form->isSubmitted() && $form->isValid()) {
 
+            /* @var $chronicle EventChronicle */
             $chronicle = $form->getData();
             $chronicle->setModifiedAt(new DateTimeImmutable('now'));
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
             $chronicle->setSlug($slug);
 
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
             foreach ($originalSportTypes as $sportType) {
@@ -341,7 +346,6 @@ class EventChronicleController extends AbstractController
             'dateTime' => $chronicle->getStartDate()->format('Y-m-d'),
         ]);
     }
-
 
     /**
      * Confirmation to delete chronicle
@@ -388,7 +392,7 @@ class EventChronicleController extends AbstractController
         int $year,
         string $slug,
         EventChronicleRepository $eventChronicleRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -398,7 +402,9 @@ class EventChronicleController extends AbstractController
 
         $chronicle->removeEvent();
         $chronicleTitle = $chronicle->getTitle();
-        
+
+        /* @var $entityManager ObjectManager */
+        $entityManager = $doctrine->getManager();
         $entityManager->remove($chronicle);
         $entityManager->flush();
 

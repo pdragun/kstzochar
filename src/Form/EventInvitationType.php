@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Form;
 
@@ -17,7 +19,7 @@ use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
 class EventInvitationType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('title', TextType::class, ['label' => 'Nadpis:'])
@@ -32,6 +34,7 @@ class EventInvitationType extends AbstractType
             ->add('endDate', DateTimeType::class, [
                 'label' => 'Dátum konania (do):',
                 'widget' => 'single_text',
+                'input' => 'datetime_immutable',
                 'required' => false,
             ])
             // ->add('createdAt')
@@ -59,7 +62,7 @@ class EventInvitationType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => EventInvitation::class,

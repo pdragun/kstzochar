@@ -12,8 +12,9 @@ use App\Repository\EventInvitationRepository;
 use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -23,9 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * Invitation to event
- */
+/** Invitation to event */
 class EventInvitationController extends AbstractController
 {
     #[Route('/pozvanky', name: 'invitation_show', methods: ['GET'])]
@@ -158,7 +157,7 @@ class EventInvitationController extends AbstractController
         string $date,
         Request $request,
         EventRepository $eventRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse|Response {
         $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
         $now = new DateTimeImmutable();
@@ -202,7 +201,6 @@ class EventInvitationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var $invitation EventInvitation */
             $invitation = $form->getData();
-
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
             $invitation->setSlug($slug);
@@ -211,7 +209,10 @@ class EventInvitationController extends AbstractController
             $invitation->setModifiedAt($now);
             $invitation->setPublish(true);
             $invitation->setCreatedBy($this->getUser());
-            
+
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
+
             // remove or update SportTypes for Invitation
             foreach ($originalSportTypes as $sportType) {
                 if ($invitation->getSportType()->contains($sportType) === false) {
@@ -275,7 +276,7 @@ class EventInvitationController extends AbstractController
         string $slug,
         Request $request,
         EventInvitationRepository $eventInvitationRepository,
-        EntityManagerInterface $entityManager
+        ManagerRegistry $doctrine
     ): RedirectResponse|Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -304,6 +305,9 @@ class EventInvitationController extends AbstractController
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
             $invitation->setSlug($slug);
+
+            /* @var $entityManager ObjectManager */
+            $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Invitation
             foreach ($originalSportTypes as $sportType) {
@@ -366,7 +370,7 @@ class EventInvitationController extends AbstractController
         EventInvitationRepository $eventInvitationRepository
     ): Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
-        if(!$invitation) { // 404
+        if ($invitation === null) {
             throw $this->createNotFoundException();
         }
 
@@ -389,8 +393,12 @@ class EventInvitationController extends AbstractController
         methods: ['GET']
     )]
     #[IsGranted('ROLE_ADMIN')]
-    public function deleteInvitation(int $year, string $slug, EventInvitationRepository $eventInvitationRepository): RedirectResponse
-    {
+    public function deleteInvitation(
+        int $year,
+        string $slug,
+        EventInvitationRepository $eventInvitationRepository,
+        ManagerRegistry $doctrine
+    ): RedirectResponse {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
             throw $this->createNotFoundException();
@@ -399,7 +407,8 @@ class EventInvitationController extends AbstractController
         $invitation->removeEvent();
         $invitationTitle = $invitation->getTitle();
 
-        $entityManager = $this->getDoctrine()->getManager();
+        /* @var $entityManager ObjectManager */
+        $entityManager = $doctrine->getManager();
         $entityManager->remove($invitation);
         $entityManager->flush();
 
