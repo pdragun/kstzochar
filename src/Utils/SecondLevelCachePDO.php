@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
+use phpDocumentor\Reflection\Types\Static_;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 
 class SecondLevelCachePDO {
 
-    protected static $instance = null;
+    protected static Static_|null $instance = null;
     private DoctrineDbalAdapter $cache;
 
     protected function __construct() {
         $this->cache = new DoctrineDbalAdapter($_ENV['DATABASE_URL'], 'app');
     }
 
-    protected function __clone() {
-        
-    }
+    protected function __clone() {}
 
-    public static function getInstance()
+    public static function getInstance(): static
     {
         if (!isset(static::$instance)) {
             static::$instance = new static;

@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,11 +12,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    /**
-     * @Route("/login", name="login")
-     * @var Symfony\Component\Security\Http\Authentication\AuthenticationUtils $authenticationUtils
-     * @return Symfony\Component\HttpFoundation\Response Show login page
-     */
+    /** @return Response Show login page */
+    #[Route('/login', name: 'login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // if ($this->getUser()) {
@@ -28,15 +28,12 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
-    
-    /**
-     * @Route("/logout", name="logout", methods={"GET"})
-     * 
-     * @return void
-     */
+    /** @throws Exception */
+    #[Route('/logout', name: 'logout', methods: ['GET'])]
     public function logout(): void
     {
         // controller can be blank: it will never be called!
-        throw new \Exception('Don\'t forget to activate logout in security.yaml');
+        throw new Exception('Don\'t forget to activate logout in security.yaml');
     }
 }
+
