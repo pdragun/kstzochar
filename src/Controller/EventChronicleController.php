@@ -72,7 +72,7 @@ class EventChronicleController extends AbstractController
     #[Route(
         '/kronika/{year}',
         name: 'chronicle_list_by_Year',
-        requirements: ['year' => '\d'],
+        requirements: ['year' => '\d+'],
         methods: ['GET']
     )]
     public function showChroniclesByYear(
@@ -94,7 +94,7 @@ class EventChronicleController extends AbstractController
     #[Route(
         '/kronika/{year}/pridat-novu/add',
         name: 'chronicle_create_from_date',
-        requirements: ['year' => '\d'],
+        requirements: ['year' => '\d+'],
         methods: ['GET', 'POST']
     )]
     #[IsGranted('ROLE_ADMIN')]
@@ -136,7 +136,7 @@ class EventChronicleController extends AbstractController
     #[Route(
         '/kronika/{year}/pridat-novu/{date}/add',
         name: 'chronicle_create_from_event',
-        requirements: ['year' => '\d'],
+        requirements: ['year' => '\d+'],
         methods: ['GET', 'POST']
     )]
     #[IsGranted('ROLE_ADMIN')]
@@ -351,7 +351,7 @@ class EventChronicleController extends AbstractController
     #[Route(
         '/kronika/{year}/{slug}/delete',
         name: 'chronicle_delete',
-        requirements: ['year' => '\d'],
+        requirements: ['year' => '\d+'],
         methods: ['GET']
     )]
     #[IsGranted('ROLE_ADMIN')]
@@ -380,7 +380,7 @@ class EventChronicleController extends AbstractController
     #[Route(
         '/kronika/{year}/{slug}/delete/yes',
         name: 'chronicle_delete_yes',
-        requirements: ['year' => '\d'],
+        requirements: ['year' => '\d+'],
         methods: ['GET']
     )]
     #[IsGranted('ROLE_ADMIN')]

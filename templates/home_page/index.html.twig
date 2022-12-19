@@ -50,7 +50,7 @@
       <p class="hp-header">Kronika</p>
       <p class="no-bottom hp-desc">Text a fotky z predchádzajúcich akcií</p>
       {% if latestChronicle %}
-      <p class="hp-header"><a href="{{ path('chronicle_show_by_Year_Slug', {year: latestChronicle[0].startDate|date("Y"), slug: latestChronicle[0].getSlug()}) }}">{{ latestChronicle[0].title }}</a></p>
+      <p class="hp-header"><a href="{{ path('chronicle_show_by_Year_Slug', {year: latestChronicle[0].startDate|date('Y'), slug: latestChronicle[0].getSlug()}) }}">{{ latestChronicle[0].title }}</a></p>
       <div class="hp-button"><a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">Viac z kroniky</a></div>
       {% endif %}
     </div>
@@ -63,7 +63,7 @@
       <p class="hp-header">Viacdňové podujatia</p>
       <p class="no-bottom hp-desc">Bližšie informácie o dlhších podujatiach</p>
       {% if latestBlogSectionId2 %}
-        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date("Y"), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date('Y'), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
         <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">Ďalšie viacdňové akcie</a></div>
       {% else %}
         <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
@@ -84,7 +84,7 @@
       <p class="hp-header">Receptúry na túry</p>
       <p class="no-bottom hp-desc">Obľúbené sladkosti na výletoch</p>
       {% if latestBlogSectionId3 %}
-        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'receptury-na-tury', year: latestBlogSectionId3.createdAt|date("Y"), slug: latestBlogSectionId3.slug}) }}">{{ latestBlogSectionId3.title }}</a></p>
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'receptury-na-tury', year: latestBlogSectionId3.createdAt|date('Y'), slug: latestBlogSectionId3.slug}) }}">{{ latestBlogSectionId3.title }}</a></p>
         <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">Viac receptov</a></div>
       {% else %}
         <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
