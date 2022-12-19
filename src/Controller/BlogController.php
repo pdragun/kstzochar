@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Controller;
 
@@ -7,10 +9,13 @@ use App\Form\BlogType;
 use App\Repository\BlogRepository;
 use App\Repository\BlogSectionRepository;
 use App\Utils\SecondLevelCachePDO;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,48 +24,37 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 class BlogController extends AbstractController
 {
 
-    /**
-     * Let user to choose section
-     * 
-     * @Route("/blog", name="blog")
-     * 
-     * @return Symfony\Component\HttpFoundation\Response Show page with options
-     */
+    /** Let user choose section */
+    #[Route('/blog', name: 'blog', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('blog/index.html.twig', [
             'controller_name' => 'BlogController',
         ]);
     }
-    
 
-    /**
-     * Show blog according to section slug, year and blog slug
-     * 
-     * @Route("/blog/{blogSectionSlug}/{year}/{slug}", name="blog_show_by_BlogSectionSlug_Year_Slug", requirements={"year"="\d+"})
-     * 
-     * @param string $blogSection Section slug
-     * @param int $year Year
-     * @param string $slug Blog slug
-     * @param App\Repository\BlogRepository $blogRepository
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @return Symfony\Component\HttpFoundation\Response Show blog
-     */
-    public function showBlogByBlogSectionSlugYearSlug(string $blogSectionSlug, int $year, string $slug, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository): Response
-    {
-
-        /** @var App\Entity\BlogSection $blogSection **/
+    /** @throws NonUniqueResultException */
+    #[Route(
+        '/blog/{blogSectionSlug}/{year}/{slug}',
+        name: 'blog_show_by_BlogSectionSlug_Year_Slug',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    public function showBlogByBlogSectionSlugYearSlug(
+        string $blogSectionSlug,
+        int $year,
+        string $slug,
+        BlogRepository $blogRepository,
+        BlogSectionRepository $blogSectionRepository
+    ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
 
-
         $blogSectionId = $blogSection->getId();
-
-        /** @var App\Entity\Blog $blog **/
         $blog = $blogRepository->findBySectionYearSlug($blogSectionId, $year, $slug);
-        if(!$blog) { // 404
+        if ($blog === null) { // 404
             throw $this->createNotFoundException();
         }
 
@@ -71,38 +65,26 @@ class BlogController extends AbstractController
         ]);
     }
 
-
-    /**
-     * Display all blogs from blog section
-     *
-     * @Route("/blog/{blogSectionSlug}", name="blog_list_by_BlogSectionSlug")
-     * 
-     * @param string $blogSectionSlug Section slug
-     * @param App\Repository\BlogRepository $blogRepository
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @return Symfony\Component\HttpFoundation\Response Display all blogs from blog section
-     */
-    public function showBlogsByBlogSectionSlug(string $blogSectionSlug, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository): Response
-    {
-        /** @var App\Entity\BlogSection $blogSection **/
+    /** Display all blogs from blog section */
+    #[Route('/blog/{blogSectionSlug}', name: 'blog_list_by_BlogSectionSlug', methods: ['GET'])]
+    public function showBlogsByBlogSectionSlug(
+        string $blogSectionSlug,
+        BlogRepository $blogRepository,
+        BlogSectionRepository $blogSectionRepository
+    ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
 
         $blogSectionId = $blogSection->getId();
-
-       
-        if($blogSection->getId() === 2) { //Multiday events
-            /** @var App\Entity\Blog[] $blog **/
+        if ($blogSection->getId() === 2) { //Multiday events
             $blogs = $blogRepository->getPreparedByYearStartDate($blogSectionId);
         } else {
-            /** @var App\Entity\Blog[] $blog **/
             $blogs = $blogRepository->getPreparedByYear($blogSectionId);
         }
 
-        
-        if(!$blogs) { // 404
+        if ($blogs === []) { // 404
             throw $this->createNotFoundException();
         }
         
@@ -112,71 +94,59 @@ class BlogController extends AbstractController
             'blogs' => $blogs,
             'blogSectionId' => $blogSectionId,
         ]);
-
     }
 
-
-    /**
-     * Create blog
-     * 
-     * @Route("/blog/{blogSectionSlug}/pridat-novy/add", name="blog_create")
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param string $blogSectionSlug Section slug
-     * @param Symfony\Component\HttpFoundation\Request
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Redirect to created blog or display form to create blog
-     */
-    public function createBlog(string $blogSectionSlug, Request $request, BlogSectionRepository $blogSectionRepository, EntityManagerInterface $entityManager): Response
-    {
-        $now = new \DateTime();
-        
-        /** @var App\Entity\BlogSection $blogSection */
+    /** Create blog */
+    #[Route('/blog/{blogSectionSlug}/pridat-novy/add', name: 'blog_create', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function createBlog(
+        string $blogSectionSlug,
+        Request $request,
+        BlogSectionRepository $blogSectionRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
 
-
-        /** @var App\Entity\Blog $blog */
         $blog = new Blog();
-
-        if($blogSection->getId() === 2) { //Only for multiday events
-            $originalSportTypes = new ArrayCollection();
+        $originalSportTypes = new ArrayCollection();
+        if ($blogSection->getId() === 2) { //Only for multiday events
             foreach ($blog->getSportType() as $sportType) {
                 $originalSportTypes->add($sportType);
             }
         }
 
-        /** @var App\Form\BlogType; $form **/
+        /* @var $form BlogType */
         $form = $this->createForm(BlogType::class, $blog);
-        if($blogSection->getId() !== 2) {//Only for multiday events
+        if ($blogSection->getId() !== 2) {//Only for multiday events
             $form->remove('sportType');
             $form->remove('startDate');
         }
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+       if ($form->isSubmitted() && $form->isValid()) {
             $blog = $form->getData();
-
+            $now = new DateTimeImmutable();
             $slugger = new AsciiSlugger();
+
             $slug = $slugger->slug($blog->getTitle());
-            $blog->setSlug(\strval($slug));
+            $blog->setSlug($slug);
             $blog->setPublishedAt($now);
             $blog->setCreatedAt($now);
             $blog->setModifiedAt($now);
-            $blog->setPublish(TRUE);
+            $blog->setPublish(true);
             $blog->setCreatedBy($this->getUser());
             $blog->setSection($blogSection);
             
             /** @var Doctrine\Persistence\ManagerRegistry $entityManager */
             $entityManager = $this->getDoctrine()->getManager();
 
-            if($blogSection->getId() === 2) {//Only for multiday events
+            if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
                 foreach ($originalSportTypes as $sportType) {
-                    if (FALSE === $blog->getSportType()->contains($sportType)) {
+                    if ($blog->getSportType()->contains($sportType) === false) {
                         $sportType->removeBlog($blog);
                         $entityManager->persist($sportType);
                     }
@@ -204,49 +174,46 @@ class BlogController extends AbstractController
             'title' => 'Vytvoriť nový článok',
             'actionName' => 'Pridať'
         ]);
-
     }
 
+    /** @throws NonUniqueResultException */
+    #[Route(
+        '/blog/{blogSectionSlug}/{year}/{slug}/edit',
+        name: 'blog_edit',
+        requirements: ['year' => '\d+'],
+        methods: ['GET', 'POST']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function editInvitation(
+        string $blogSectionSlug,
+        int $year,
+        string $slug,
+        Request $request,
+        BlogRepository $blogRepository,
+        BlogSectionRepository $blogSectionRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse|Response {
 
-    /**
-     * Edit blog
-     * 
-     * @Route("/blog/{blogSectionSlug}/{year}/{slug}/edit", name="blog_edit", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param string $blogSectionSlug Section slug
-     * @param int $year
-     * @param string $slug Blog slug
-     * @param Symfony\Component\HttpFoundation\Request $request
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Redirect to saved blog or display form to edit blog
-     */
-    public function editInvitation(string $blogSectionSlug, int $year, string $slug, Request $request, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository, EntityManagerInterface $entityManager): Response
-    {
-
-        /** @var \App\Entity\BlogSection $blogSection **/
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
 
-        /** @var \App\Entity\Blog $blog **/
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
-        if(!$blog) { // 404
+        if ($blog === null) { // 404
             throw $this->createNotFoundException();
         }
 
-        if($blogSection->getId() === 2) { //Only for multiday events
+        if ($blogSection->getId() === 2) { //Only for multiday events
             $originalSportTypes = new ArrayCollection();
             foreach ($blog->getSportType() as $sportType) {
                 $originalSportTypes->add($sportType);
             }
         }
 
-        /** @var App\Form\BlogType; $form **/
+        /* @var $form BlogType */
         $form = $this->createForm(BlogType::class, $blog);
-        if($blogSection->getId() !== 2) {//Only for multiday events
+        if ($blogSection->getId() !== 2) {//Only for multiday events
             $form->remove('sportType');
             $form->remove('startDate');
         }
@@ -254,18 +221,18 @@ class BlogController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var \App\Entity\Blog $blog **/
+            /* @var $blog Blog */
             $blog = $form->getData();
 
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($blog->getTitle());
-            $blog->setSlug(\strval($slug));
+            $blog->setSlug($slug);
             $blog->setModifiedAt(new \DateTime('now'));
             
-            if($blogSection->getId() === 2) {//Only for multiday events
+            if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
                 foreach ($originalSportTypes as $sportType) {
-                    if (FALSE === $blog->getSportType()->contains($sportType)) {
+                    if (false === $blog->getSportType()->contains($sportType)) {
                         $sportType->removeBlog($blog);
                         $entityManager->persist($sportType);
                     }
@@ -297,46 +264,43 @@ class BlogController extends AbstractController
 
     /**
      * Delete blog
-     * 
-     * @Route("/blog/{blogSectionSlug}/{year}/{slug}/delete/yes", name="blog_delete_yes", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param string $blogSectionSlug Section slug
-     * @param int $year
-     * @param string $slug Blog slug
-     * @param App\Repository\BlogRepository $blogRepository
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @param Doctrine\ORM\EntityManagerInterface $entityManager
-     * @return Symfony\Component\HttpFoundation\Response Redirect to list of blogs
+     * @return RedirectResponse Redirect to list of blogs
+     * @throws NonUniqueResultException
      */
-    public function deleteBlog(string $blogSectionSlug, int $year, string $slug, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository, EntityManagerInterface $entityManager): Response
-    {
+    #[Route(
+        '/blog/{blogSectionSlug}/{year}/{slug}/delete/yes',
+        name: 'blog_delete_yes',
+        requirements: ['year' => '\d+'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function deleteBlog(
+        string $blogSectionSlug,
+        int $year,
+        string $slug,
+        BlogRepository $blogRepository,
+        BlogSectionRepository $blogSectionRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse {
 
-        /** @var App\Entity\BlogSection $blogSection */
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
         
-
-        /** @var App\Entity\Blog $blog */
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
-        if(!$blog) { // 404
+        if ($blog === null) { // 404
             throw $this->createNotFoundException();
         }
 
-        
         $blog->removeEvent();
         $blogTitle = $blog->getTitle();
-
 
         $entityManager->remove($blog);
         $entityManager->flush();
 
-
         $cache = SecondLevelCachePDO::getInstance();
         $cache->clearAllCache();
-
 
         $this->addFlash(
             'success',
@@ -345,36 +309,33 @@ class BlogController extends AbstractController
         return $this->redirectToRoute('blog_list_by_BlogSectionSlug', ['blogSectionSlug' => $blogSection->getSlug()]);
     }
 
-    
     /**
      * Confirmation to delete blog
-     * 
-     * @Route("/blog/{blogSectionSlug}/{year}/{slug}/delete", name="blog_delete", requirements={"year"="\d+"})
-     * @IsGranted("ROLE_ADMIN")
-     * 
-     * @param string $blogSectionSlug Section slug
-     * @param int $year
-     * @param string $slug Blog slug
-     * @param App\Repository\BlogRepository $blogRepository
-     * @param App\Repository\BlogSectionRepository $blogSectionRepository
-     * @return Symfony\Component\HttpFoundation\Response Show blog and ask for confirmation
+     * @return Response Show blog and ask for confirmation
+     * @throws NonUniqueResultException
      */
-    public function prepareDeleteBlog(string $blogSectionSlug, int $year, string $slug, BlogRepository $blogRepository, BlogSectionRepository $blogSectionRepository): Response
-    {
-
-        /** @var \App\Entity\BlogSection $blogSection **/
+    #[Route('/blog/{blogSectionSlug}/pridat-novy/add',
+        name: 'blog_delete',
+        requirements:['year' => '\d+'],
+        methods: ['GET']
+    )]
+    #[IsGranted('ROLE_ADMIN')]
+    public function prepareDeleteBlog(
+        string $blogSectionSlug,
+        int $year,
+        string $slug,
+        BlogRepository $blogRepository,
+        BlogSectionRepository $blogSectionRepository
+    ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if(!$blogSection) { // 404
+        if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
         }
 
-
-        /** @var \App\Entity\Blog $blog **/
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
-        if(!$blog) { // 404
+        if ($blog === null) { // 404
             throw $this->createNotFoundException();
         }
-
 
   		return $this->render('blog/delete.html.twig', [
             'blog' => $blog,
