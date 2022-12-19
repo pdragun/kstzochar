@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
-use phpDocumentor\Reflection\Types\Static_;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 
 class SecondLevelCachePDO {
 
-    protected static Static_|null $instance = null;
+    protected static ?SecondLevelCachePDO $instance = null;
     private DoctrineDbalAdapter $cache;
 
     protected function __construct() {
