@@ -30,14 +30,14 @@
         </div>
       </div>
      {%- if homepage is not defined %}
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark"><div class="navbar">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
         {{- knp_menu_render('main', {
           'currentClass': 'active',
           'ancestorClass': 'active',
           'compressed': true,
           'template': 'extended_knp_menu.html.twig'
         }) }}
-        </div></nav>
+        </nav>
     {%- endif %}
 
       <div class="wrapper">
