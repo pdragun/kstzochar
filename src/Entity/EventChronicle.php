@@ -47,19 +47,19 @@ class EventChronicle
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
     private string $content;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $startDate;
     
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $endDate = null;
     
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $createdAt;
 
@@ -71,25 +71,24 @@ class EventChronicle
     #[ORM\JoinColumn(nullable: false)]
     private User $createdBy;
 
-    #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'eventChronicle', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'eventChronicle', targetEntity: Event::class, cascade: ['persist', 'remove'])]
     private ?Event $event;
 
     /** @var Collection<int, SportType> $sportType */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicles')]
-    #[ORM\JoinColumn(nullable: false)]
     private Collection $sportType;
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $publish = true;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
     private ?User $authorBy;
 
     /** @var ?Collection<int, EventRoute> $routes */
-    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles')]
     private ?Collection $routes;
 
     public function __construct()

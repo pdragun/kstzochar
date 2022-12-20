@@ -40,7 +40,7 @@ class EventRoute
     #[Assert\Positive]
     private ?int $length = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\DateTime]
     #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
@@ -49,7 +49,7 @@ class EventRoute
     #[Assert\Type('string')]
     private ?string $gpxSlug = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\DateTime]
     private ?DateTimeImmutable $eventDate = null;
 

@@ -51,19 +51,19 @@ class Blog
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
     private ?Collection $sportType;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $publishedAt = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
     private ?User $authorBy = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $startDate = null;
 
     public function __construct()
