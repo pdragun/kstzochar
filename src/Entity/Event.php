@@ -8,7 +8,6 @@ use App\Repository\EventRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -22,13 +21,16 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $endDate = null;
 
     #[ORM\OneToOne(targetEntity: EventInvitation::class, inversedBy: 'event', cascade: ['persist', 'remove'])]
@@ -50,21 +52,27 @@ class Event
     private Collection $sportType;
 
     #[ORM\Column(type: 'boolean')]
+    #[Assert\Type('bool')]
     private ?bool $publish = true;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'boolean')]
+    #[Assert\Type('bool')]
     private ?bool $showDate = true;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Type('string')]
     private ?string $content = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]

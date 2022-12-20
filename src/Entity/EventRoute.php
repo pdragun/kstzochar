@@ -8,7 +8,6 @@ use App\Repository\EventRouteRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -41,7 +40,7 @@ class EventRoute
     private ?int $length = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Assert\DateTime]
+    #[Assert\Type('DateTimeImmutable')]
     #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
 
@@ -50,7 +49,7 @@ class EventRoute
     private ?string $gpxSlug = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    #[Assert\DateTime]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $eventDate = null;
 
     /** @var ?Collection<int, EventInvitation> $eventInvitations */

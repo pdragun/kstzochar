@@ -20,22 +20,27 @@ class SportType
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $slug = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $shortcut = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $image = null;
 

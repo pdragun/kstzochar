@@ -19,7 +19,6 @@ class BlogSection
     #[ORM\Column]
     private ?int $id = null;
 
-
     #[ORM\Column(type: 'string', length: 190)]
     private ?string $title = null;
 

@@ -8,7 +8,6 @@ use App\Repository\EventChronicleRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -65,6 +64,7 @@ class EventChronicle
 
    /** @var ?string $photoAlbumG URL to Google photos album */
     #[ORM\Column(type: 'string', length: 190, unique: true, nullable: true)]
+    #[Assert\Type('string')]
     private ?string $photoAlbumG;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesCreatedBy')]
@@ -79,16 +79,18 @@ class EventChronicle
     private Collection $sportType;
 
     #[ORM\Column(type: 'boolean')]
+    #[Assert\Type('bool')]
     private ?bool $publish = true;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
     private ?User $authorBy;
 
     /** @var ?Collection<int, EventRoute> $routes */
-    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles')]
+    #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
     private ?Collection $routes;
 
     public function __construct()
