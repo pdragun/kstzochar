@@ -95,7 +95,7 @@ class EventInvitationController extends AbstractController
     ): Response {
         $upcomingInvitations = $eventInvitationRepository->findLatest();
 
-        return $this->render('event_invitation/showEventInvitationUpcoming', [
+        return $this->render('event_invitation/showEventInvitationUpcoming.html.twig', [
             'upcomingInvitations' => $upcomingInvitations,
         ]);
 
