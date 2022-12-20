@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogSectionRepository::class)]
 #[ORM\Table(name: '`blog_section`')]
@@ -20,10 +21,14 @@ class BlogSection
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $title = null;
 
 
     #[ORM\Column(type: 'string', length: 190, unique: true)]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $slug = null;
 
     /** @var ?Collection<int, Blog> $blog */

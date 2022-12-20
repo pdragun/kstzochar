@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repository;
 
@@ -60,7 +62,6 @@ class EventInvitationRepository extends ServiceEntityRepository
      */
     public function findByYear($year): array
     {
-
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
 
@@ -78,9 +79,8 @@ class EventInvitationRepository extends ServiceEntityRepository
      * @return Event[]|[] Returns an prepared array of Events for table
      *
      */
-    public function getPreparedByYear($year)
+    public function getPreparedByYear($year): array
     {
-
         $clearResults = [];
         for( $i = 1; $i <= 12; $i++) {
             $clearResults[$i] = [];

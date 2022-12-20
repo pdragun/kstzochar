@@ -27,6 +27,7 @@ class Event
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\Type('DateTimeImmutable')]
+    #[Assert\NotBlank]
     private ?DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
@@ -44,6 +45,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank]
     private User $createdBy;
 
     /** @var Collection<int, SportType> */

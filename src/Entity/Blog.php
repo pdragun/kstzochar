@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
 #[ORM\Table(name: '`blog`')]
@@ -21,18 +22,27 @@ class Blog
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $title;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $summary;
 
     #[ORM\Column(type: 'string', length: 190)]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $slug;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\Type('string')]
+    #[Assert\NotBlank]
     private ?string $content;
 
     #[ORM\Column(type: 'boolean')]
+    #[Assert\Type('bool')]
     private ?bool $publish;
 
     #[ORM\ManyToOne(targetEntity: BlogSection::class, inversedBy: 'blog')]
@@ -51,18 +61,23 @@ class Blog
     private ?Collection $sportType;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Assert\Type('DateTimeImmutable')]
+    #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogsAuthorBy')]
     private ?User $authorBy = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $startDate = null;
 
     public function __construct()

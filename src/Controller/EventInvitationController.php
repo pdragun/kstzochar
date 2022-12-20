@@ -48,7 +48,7 @@ class EventInvitationController extends AbstractController
         EventInvitationRepository $eventInvitationRepository
     ): Response {
         $invitations = $eventInvitationRepository->getPreparedByYear($year);
-        if ($invitations === null) {
+        if ($invitations === []) {
             throw $this->createNotFoundException();
         }
   
@@ -106,7 +106,7 @@ class EventInvitationController extends AbstractController
      * @return RedirectResponse|Response Show form for date or redirect
      */
     #[Route(
-        '/pozvanky/{year}/pridat-novu/add"',
+        '/pozvanky/{year}/pridat-novu/add',
         name: 'invitation_create_from_date',
         requirements: ['year' => '\d+'],
         methods: ['GET', 'POST']
@@ -139,7 +139,6 @@ class EventInvitationController extends AbstractController
         ]);
     }
 
-
     /**
      * Create invitation
      * @return RedirectResponse|Response Show form or redirect to new invitation
@@ -163,7 +162,7 @@ class EventInvitationController extends AbstractController
         $now = new DateTimeImmutable();
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => null]);
         $invitation = new EventInvitation();
-        if (isset($events[0])) { //Parent Event exist, get aditionl info from it
+        if (isset($events[0])) { //Parent Event exist, get additional info from it
             $firstEvent = $events[0];
 
             $invitation->setTitle($firstEvent->getTitle());
@@ -265,7 +264,7 @@ class EventInvitationController extends AbstractController
      * @throws NonUniqueResultException|InvalidArgumentException
      */
     #[Route(
-        '/pozvanky/{year}/{slug}/edit"',
+        '/pozvanky/{year}/{slug}/edit',
         name: 'invitation_edit',
         requirements: ['year' => '\d+'],
         methods: ['GET', 'POST']

@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\BlogSection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,6 +22,7 @@ class BlogSectionRepository extends ServiceEntityRepository
         parent::__construct($registry, BlogSection::class);
     }
 
+    /** @throws NonUniqueResultException */
     public function findBySlug(string $slug): ?BlogSection
     {
         return $this->createQueryBuilder('p')

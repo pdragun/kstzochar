@@ -115,9 +115,7 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    /**
-     * @throws NonUniqueResultException
-     */
+    /** @throws NonUniqueResultException */
     public function findBySectionYearSlug(int $sectionId, int $year, string $slug): ?Blog
     {
         $em = $this->getEntityManager()->getConfiguration();

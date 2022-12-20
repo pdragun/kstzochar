@@ -254,8 +254,7 @@ class EventChronicleController extends AbstractController
     /**
      * Edit chronicle
      * @return RedirectResponse|Response Show form or redirect to new chronicle
-     * @throws NonUniqueResultException
-     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
     #[Route(
         '/kronika/{year}/{slug}/edit',
@@ -296,7 +295,7 @@ class EventChronicleController extends AbstractController
 
             /* @var $chronicle EventChronicle */
             $chronicle = $form->getData();
-            $chronicle->setModifiedAt(new DateTimeImmutable('now'));
+            $chronicle->setModifiedAt(new DateTimeImmutable());
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
             $chronicle->setSlug($slug);
@@ -378,8 +377,7 @@ class EventChronicleController extends AbstractController
     /**
      * Delete chronicle
      * @return RedirectResponse Redirect to list of chronicles for year
-     * @throws NonUniqueResultException
-     * @throws InvalidArgumentException
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
     #[Route(
         '/kronika/{year}/{slug}/delete/yes',
@@ -413,7 +411,7 @@ class EventChronicleController extends AbstractController
 
         $this->addFlash(
             'success',
-            'Kronika: „' . $chronicleTitle . '“ bola zmazaná!'
+            sprintf('Kronika: „%s“ bola zmazaná!', $chronicleTitle)
         );  
     
         return $this->redirectToRoute('chronicle_list_by_Year', ['year' => $year]);
