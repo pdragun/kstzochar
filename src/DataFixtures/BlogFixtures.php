@@ -1,29 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\Blog;
 use App\DataFixtures\BlogSectionFixtures;
 use App\DataFixtures\UserFixtures;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class BlogFixtures extends Fixture implements DependentFixtureInterface
 {
+    use SlugTrait;
     public function load(ObjectManager $manager)
     {
        
         $blog1 = new Blog();
         $blog1->setTitle('História turistiky');
-        $blog1->setSlug('historia-turistiky');
+        $blog1->setSlug($this->createSlug('historia-turistiky'));
         $blog1->setSummary('Krátky článok o začiatkoch turistiky vo svete, na slovensku a v regióne');
-        $blog1->setStartDate(\null);
-        $blog1->setPublishedAt(\null);
-        $blog1->setCreatedAt(new \DateTime('2011-08-23 14:32:50'));
-        $blog1->setModifiedAt(\null);
-        $blog1->setStartDate(\null);
-        $blog1->setPublish(TRUE);
+        $blog1->setStartDate(null);
+        $blog1->setPublishedAt(null);
+        $blog1->setCreatedAt(new DateTimeImmutable('2011-08-23 14:32:50'));
+        $blog1->setModifiedAt(null);
+        $blog1->setStartDate(null);
+        $blog1->setPublish(true);
         $blog1->setContent('<h2>Začiatky turistiky v Eur&oacute;pe a svete</h2>
         <p>Franc&uacute;zsky spisovateľ Stendhal po prv&yacute;kr&aacute;t použil slovo turista v&nbsp;roku 1838 vo svojej povesti &bdquo;Memoires d&acute; un touriste (Spomienky turistu).</p>
         <p>Začiatky turistiky s&uacute; spojen&eacute; s&nbsp;vyhl&aacute;seniami viacer&yacute;ch mysliteľov 17. a&nbsp;18. stor. o&nbsp;potrebe n&aacute;vratu človeka k&nbsp;pr&iacute;rode, čo prispelo k&nbsp;rozvoju cestovania a&nbsp;služieb. V&nbsp;18. stor. nab&aacute;dal Jean Jacques Rousseau zv&yacute;&scaron;iť z&aacute;ujem o&nbsp;pr&iacute;rodu a&nbsp;využiť ju pri v&yacute;chove. Vzniklo niekoľko turistick&yacute;ch spoločnost&iacute;: 1857 Alpine Club, 1862 &Ouml;sterreichische Alpenverein&hellip; .</p>
@@ -35,19 +39,17 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
         <p>Stav turistiky v Topoľčianskom regi&oacute;ne koncom roka 2010: registrovan&yacute;ch je 13 klubov s 598 členmi. S&uacute; to kluby: TK Javor Bo&scaron;any, Spartak B&aacute;novce nad Bebravou, Kamar&aacute;t Partiz&aacute;nske, Alpin klub Jacovce, Kroko &ndash; Velo Tes&aacute;re, Horňan Praznovce, KST Bojn&aacute;, Ostr&aacute; Veľk&yacute; Kl&iacute;ž, Borina Nitrianska Streda, KLUT Urmince, KST Tribeč Kovarce, KST Solčany a topoľčiansky Žoch&aacute;r. Organizačne s&uacute; kluby registrovan&eacute; v region&aacute;lnej rade (RR) Topoľčany.</p>');
         $blog1->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $blog1->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_1_REFERENCE));
-        
         $manager->persist($blog1);
-
 
         $blog2 = new Blog();
         $blog2->setTitle('Nízke Tatry');
-        $blog2->setSlug('nizke-tatry');
+        $blog2->setSlug($this->createSlug('nizke-tatry'));
         $blog2->setSummary('Bulharsko sklamalo, Nízke Tatry potešia. V termíne 27. 8. až 2. 9. sa pozrieme do Nízkych Tatier.');
-        $blog2->setStartDate(new \DateTime('2011-08-27'));
-        $blog2->setPublishedAt(\null);
-        $blog2->setCreatedAt(new \DateTime('2011-08-24 12:33:30'));
-        $blog2->setModifiedAt(\null);
-        $blog2->setPublish(TRUE);
+        $blog2->setStartDate(new DateTimeImmutable('2011-08-27'));
+        $blog2->setPublishedAt(null);
+        $blog2->setCreatedAt(new DateTimeImmutable('2011-08-24 12:33:30'));
+        $blog2->setModifiedAt(null);
+        $blog2->setPublish(true);
         $blog2->setContent('<p>Bulharsko sklamalo, N&iacute;zke Tatry pote&scaron;ia. V term&iacute;ne 27. 8. až 2. 9. sa pozrieme do N&iacute;zkych Tatier.</p>
         <p>Odchod v sobotu 27. 8. o 8,00 z parkoviska Tesca v Topoľčanoch na aut&aacute;ch. Zastav&iacute;me sa na Sklabiňskom hrade odtiaľ si urob&iacute;me t&uacute;ru na  Katovu skala a sp&auml;ť. Je to vo Veľkej Fatre. Po ubytovan&iacute; konzum&aacute;cia dom&aacute;cich surov&iacute;n. Program na ďal&scaron;ie dni &ndash; nez&aacute;v&auml;zn&yacute;, poradie meniteľn&eacute;:</p>
         <ol>
@@ -62,20 +64,18 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
         <p>Pros&iacute;m o z&aacute;v&auml;zn&eacute; prihl&aacute;senie do 10.8. V tomto term&iacute;ne s&uacute; dva dni voľn&eacute;. M&ocirc;že byť n&aacute;val na ubytovanie. Ukončenie pobytu v piatok 2. 9. s n&aacute;vratom večer. Ubytovanie v chat&aacute;ch, penzi&oacute;ne... Čo bude voľn&eacute; pre na&scaron;u skupinu. Cenu ubytovania predpoklad&aacute;m do 15 &euro;. Strava m&ocirc;že byť aj vlastn&aacute;, ale možnosti stravovania s&uacute; veľk&eacute;. Vybavenie ako do vysok&yacute;ch h&ocirc;r (vetrovka, čapica, rukavice...).</p>');
         $blog2->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $blog2->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_2_REFERENCE));
-        
         $manager->persist($blog2);
-
 
         $blog3 = new Blog();
         $blog3->setTitle('Čergovské sušienky');
-        $blog3->setSlug('cergovske-susienky');
+        $blog3->setSlug($this->createSlug('cergovske-susienky'));
         $blog3->setSummary('Recept na chutné suché a zdravé koláčiky.');
-        $blog3->setStartDate(new \DateTime('2011-08-27'));
-        $blog3->setPublishedAt(\null);
-        $blog3->setCreatedAt(new \DateTime('2011-08-24 12:33:30'));
-        $blog3->setModifiedAt(\null);
-        $blog3->setStartDate(\null);
-        $blog3->setPublish(TRUE);
+        $blog3->setStartDate(new DateTimeImmutable('2011-08-27'));
+        $blog3->setPublishedAt(null);
+        $blog3->setCreatedAt(new DateTimeImmutable('2011-08-24 12:33:30'));
+        $blog3->setModifiedAt(null);
+        $blog3->setStartDate(null);
+        $blog3->setPublish(true);
         $blog3->setContent('<p>Turistami vysk&uacute;&scaron;an&eacute; v m&aacute;ji 2015 na Čergove.</p>
         <p>Potrebujeme:</p>
         <ul>
@@ -92,18 +92,16 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
         <p>Dobr&uacute; chuť.</p>');
         $blog3->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
         $blog3->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_3_REFERENCE));
-        
         $manager->persist($blog3);
-
 
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
-        return array(
+        return [
             BlogSectionFixtures::class,
             UserFixtures::class,
-        );
+        ];
     }
 }

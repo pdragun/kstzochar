@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\BlogSection;
@@ -10,11 +12,12 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class BlogSectionFixtures extends Fixture
 {
+    use SlugTrait;
     public const BLOG_SECTION_1_REFERENCE = 'blog-section-z-klubovej';
     public const BLOG_SECTION_2_REFERENCE = 'blog-section-viacdnove';
     public const BLOG_SECTION_3_REFERENCE = 'blog-section-receptury';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
 
         $blogSection1 = new BlogSection();
@@ -39,12 +42,5 @@ class BlogSectionFixtures extends Fixture
         $this->addReference(self::BLOG_SECTION_1_REFERENCE, $blogSection1);
         $this->addReference(self::BLOG_SECTION_2_REFERENCE, $blogSection2);
         $this->addReference(self::BLOG_SECTION_3_REFERENCE, $blogSection3);
-    }
-
-    private function createSlug(string $slug): AbstractUnicodeString
-    {
-        $slugger = new AsciiSlugger();
-
-        return $slugger->slug($slug);
     }
 }

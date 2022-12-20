@@ -8,6 +8,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class SportTypeFixtures extends Fixture
 {
+    use SlugTrait;
+
     public const SPORT_TYPE_1_REFERENCE = 'pešo';
     public const SPORT_TYPE_2_REFERENCE = 'bežky';
     public const SPORT_TYPE_3_REFERENCE = 'bicyklom';
@@ -18,87 +20,69 @@ class SportTypeFixtures extends Fixture
     public const SPORT_TYPE_8_REFERENCE = 'sedí sa';
     public const SPORT_TYPE_9_REFERENCE = 'vht';
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
-       
         $sportType1 = new SportType();
         $sportType1->setTitle('pešo');
-        $sportType1->setSlug('peso');
+        $sportType1->setSlug($this->createSlug('peso'));
         $sportType1->setDescription('po nohách');
         $sportType1->setShortcut('P');
-        
         $manager->persist($sportType1);
-        
-        
+
         $sportType2 = new SportType();
         $sportType2->setTitle('bežky');
-        $sportType2->setSlug('bezky');
+        $sportType2->setSlug($this->createSlug('bezky'));
         $sportType2->setDescription('lyžiarska turistika');
         $sportType2->setShortcut('L');
-        
         $manager->persist($sportType2);
-        
-        
+
         $sportType3 = new SportType();
         $sportType3->setTitle('bicyklom');
-        $sportType3->setSlug('cyklo');
+        $sportType3->setSlug($this->createSlug('cyklo'));
         $sportType3->setDescription('cyklo');
         $sportType3->setShortcut('C');
-        
         $manager->persist($sportType3);
-        
-        
+
         $sportType4 = new SportType();
         $sportType4->setTitle('autobus');
-        $sportType4->setSlug('bus');
+        $sportType4->setSlug($this->createSlug('bus'));
         $sportType4->setDescription('výlet s objednaným autobusom');
         $sportType4->setShortcut('BUS');
-        
         $manager->persist($sportType4);
-        
-        
+
         $sportType5 = new SportType();
         $sportType5->setTitle('zjazdové l.');
-        $sportType5->setSlug('zjazdove-lyzovanie');
+        $sportType5->setSlug($this->createSlug('zjazdove-lyzovanie'));
         $sportType5->setDescription('zjazdové lyžovanie');
         $sportType5->setShortcut('Z');
-        
         $manager->persist($sportType5);
-        
-        
+
         $sportType6 = new SportType();
         $sportType6->setTitle('voda');
-        $sportType6->setSlug('voda');
+        $sportType6->setSlug($this->createSlug('voda'));
         $sportType6->setDescription('vodná turistika');
         $sportType6->setShortcut('V');
-        
         $manager->persist($sportType6);
-        
-        
+
         $sportType7 = new SportType();
         $sportType7->setTitle('auto');
-        $sportType7->setSlug('auto');
+        $sportType7->setSlug($this->createSlug('auto'));
         $sportType7->setDescription('ideme na výlet autami');
         $sportType7->setShortcut('A');
-        
         $manager->persist($sportType7);
-        
-        
+
         $sportType8 = new SportType();
         $sportType8->setTitle('sedí sa');
-        $sportType8->setSlug('sedi-sa');
+        $sportType8->setSlug($this->createSlug('sedi-sa'));
         $sportType8->setDescription('podujatia typu schôdza a pod.');
         $sportType8->setShortcut('S');
-        
         $manager->persist($sportType8);
-
 
         $sportType9 = new SportType();
         $sportType9->setTitle('VhT');
-        $sportType9->setSlug('vht');
+        $sportType9->setSlug($this->createSlug('vht'));
         $sportType9->setDescription('vysokohorská turistika');
         $sportType9->setShortcut('VhT');
-
         $manager->persist($sportType9);
         $manager->flush();
 
@@ -112,5 +96,4 @@ class SportTypeFixtures extends Fixture
         $this->addReference(self::SPORT_TYPE_8_REFERENCE, $sportType8);
         $this->addReference(self::SPORT_TYPE_9_REFERENCE, $sportType9);
     }
-
 }
