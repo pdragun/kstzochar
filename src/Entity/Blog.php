@@ -33,7 +33,6 @@ class Blog
 
     #[ORM\Column(type: 'string', length: 190)]
     #[Assert\Type('string')]
-    #[Assert\NotBlank]
     private ?string $slug;
 
     #[ORM\Column(type: 'text')]
@@ -62,7 +61,6 @@ class Blog
 
     #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\Type('DateTimeImmutable')]
-    #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
