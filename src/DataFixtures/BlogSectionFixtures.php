@@ -7,8 +7,6 @@ namespace App\DataFixtures;
 use App\Entity\BlogSection;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\String\AbstractUnicodeString;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class BlogSectionFixtures extends Fixture
 {
