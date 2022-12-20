@@ -98,7 +98,8 @@ class BlogController extends AbstractController
         ]);
     }
 
-    /** Create blog
+    /**
+     * Create blog
      * @throws NonUniqueResultException
      */
     #[Route('/blog/{blogSectionSlug}/pridat-novy/add', name: 'blog_create', methods: ['GET', 'POST'])]
@@ -145,7 +146,6 @@ class BlogController extends AbstractController
             $blog->setCreatedBy($this->getUser());
             $blog->setSection($blogSection);
             
-            /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             if ($blogSection->getId() === 2) {//Only for multiday events
@@ -169,7 +169,11 @@ class BlogController extends AbstractController
                 sprintf('Nový článok: „%s“ bol vytvorený a uložený!', $blog->getTitle())
             );
 
-            return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', ['blogSectionSlug' => $blogSectionSlug, 'year' => $now->format('Y'), 'slug' => $blog->getSlug()]);
+            return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', [
+                'blogSectionSlug' => $blogSectionSlug,
+                'year' => $now->format('Y'),
+                'slug' => $blog->getSlug()
+            ]);
         }
 
   		return $this->render('blog/create.html.twig', [
@@ -181,7 +185,7 @@ class BlogController extends AbstractController
         ]);
     }
 
-    /** @throws NonUniqueResultException */
+    /** @throws NonUniqueResultException|InvalidArgumentException */
     #[Route(
         '/blog/{blogSectionSlug}/{year}/{slug}/edit',
         name: 'blog_edit',
@@ -233,7 +237,6 @@ class BlogController extends AbstractController
             $blog->setSlug($slug);
             $blog->setModifiedAt(new DateTimeImmutable());
 
-            /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
             if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
@@ -255,7 +258,11 @@ class BlogController extends AbstractController
                 'success',
                 sprintf('Zmeny v článku: „%s“ boli uložené!', $blog->getTitle())
             );
-            return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', ['blogSectionSlug' => $blogSectionSlug, 'year' => $year, 'slug' => $blog->getSlug()]);
+            return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', [
+                'blogSectionSlug' => $blogSectionSlug,
+                'year' => $year,
+                'slug' => $blog->getSlug()
+            ]);
         }
 
   		return $this->render('blog/create.html.twig', [
@@ -267,11 +274,10 @@ class BlogController extends AbstractController
         ]);
     }
 
-
     /**
      * Delete blog
      * @return RedirectResponse Redirect to list of blogs
-     * @throws InvalidArgumentException|InvalidArgumentException
+     * @throws InvalidArgumentException|NonUniqueResultException
      */
     #[Route(
         '/blog/{blogSectionSlug}/{year}/{slug}/delete/yes',
@@ -290,19 +296,18 @@ class BlogController extends AbstractController
     ): RedirectResponse {
 
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if ($blogSection === null) { // 404
+        if ($blogSection === null) {
             throw $this->createNotFoundException();
         }
         
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
-        if ($blog === null) { // 404
+        if ($blog === null) {
             throw $this->createNotFoundException();
         }
 
         $blog->removeEvent();
         $blogTitle = $blog->getTitle();
 
-        /* @var $entityManager ObjectManager */
         $entityManager = $doctrine->getManager();
         $entityManager->remove($blog);
         $entityManager->flush();
@@ -313,8 +318,11 @@ class BlogController extends AbstractController
         $this->addFlash(
             'success',
             sprintf('Článok: „%s“ bol zmazaný!', $blogTitle)
-        );  
-        return $this->redirectToRoute('blog_list_by_BlogSectionSlug', ['blogSectionSlug' => $blogSection->getSlug()]);
+        );
+
+        return $this->redirectToRoute('blog_list_by_BlogSectionSlug', [
+            'blogSectionSlug' => $blogSection->getSlug()
+        ]);
     }
 
     /**

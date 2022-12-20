@@ -230,7 +230,7 @@ class EventChronicleController extends AbstractController
     
             $this->addFlash(
                 'success',
-                'Nová kronika: „' . $chronicle->getTitle() . '“ bola vytvorená a uložená!'
+                sprintf('Nová kronika: „%s“ bola vytvorená a uložená!', $chronicle->getTitle())
             );
 
             $chronicleYear = $chronicle->getStartDate()->format('Y');
@@ -250,7 +250,6 @@ class EventChronicleController extends AbstractController
             'actionName' => 'Pridať'
         ]);
     }
-
 
     /**
      * Edit chronicle
@@ -328,7 +327,7 @@ class EventChronicleController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Zmeny v kronike: „' . $chronicle->getTitle() . '“ boli uložené!'
+                sprintf('Zmeny v kronike: „%s“ boli uložené!', $chronicle->getTitle())
             );
 
             return $this->redirectToRoute('chronicle_show_by_Year_Slug', [
@@ -402,7 +401,6 @@ class EventChronicleController extends AbstractController
         $chronicle->removeEvent();
         $chronicleTitle = $chronicle->getTitle();
 
-        /* @var $entityManager ObjectManager */
         $entityManager = $doctrine->getManager();
         $entityManager->remove($chronicle);
         $entityManager->flush();

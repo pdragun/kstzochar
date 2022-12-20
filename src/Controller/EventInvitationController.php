@@ -212,7 +212,6 @@ class EventInvitationController extends AbstractController
             $invitation->setPublish(true);
             $invitation->setCreatedBy($this->getUser());
 
-            /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Invitation
@@ -239,7 +238,7 @@ class EventInvitationController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Nová pozvánka: „' . $invitation->getTitle() . '“ bola vytvorená a uložená!'
+                sprintf('Nová pozvánka: „%s“ bola vytvorená a uložená!', $invitation->getTitle())
             );
 
             $invitationYear = $invitation->getStartDate()->format('Y');
@@ -259,7 +258,6 @@ class EventInvitationController extends AbstractController
         ]);
 
     }
-
 
     /**
      * Edit invitation
@@ -308,7 +306,6 @@ class EventInvitationController extends AbstractController
             $slug = $slugger->slug($invitation->getTitle());
             $invitation->setSlug($slug);
 
-            /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Invitation
@@ -335,7 +332,7 @@ class EventInvitationController extends AbstractController
 
             $this->addFlash(
                 'success',
-                'Zmeny v pozvánke: „' . $invitation->getTitle() . '“ boli uložené!'
+                sprintf('Zmeny v pozvánke: „%s“ boli uložené!', $invitation->getTitle())
             );
 
             return $this->redirectToRoute('invitation_show_by_Year_by_Slug', [
@@ -385,8 +382,7 @@ class EventInvitationController extends AbstractController
     /**
      * Delete invitation
      * @return RedirectResponse Redirect to list of invitations for year
-     * @throws InvalidArgumentException
-     * @throws NonUniqueResultException
+     * @throws InvalidArgumentException|NonUniqueResultException
      */
     #[Route(
         '/pozvanky/{year}/{slug}/delete/yes',
@@ -409,7 +405,6 @@ class EventInvitationController extends AbstractController
         $invitation->removeEvent();
         $invitationTitle = $invitation->getTitle();
 
-        /* @var $entityManager ObjectManager */
         $entityManager = $doctrine->getManager();
         $entityManager->remove($invitation);
         $entityManager->flush();
@@ -419,7 +414,7 @@ class EventInvitationController extends AbstractController
 
         $this->addFlash(
             'success',
-            'Pozvánka: „' . $invitationTitle . '“ bola zmazaná!'
+            sprintf('Pozvánka: „%s“ bola zmazaná!', $invitationTitle)
         );
 
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);

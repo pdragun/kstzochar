@@ -44,7 +44,7 @@ class EventPlanController extends AbstractController
     public function showByYear(int $year, EventRepository $eventRepository): Response
     {
         $planYear = $eventRepository->getPreparedByYear($year);
-        if(!$planYear) { // 404
+        if ($planYear === []) {
             throw $this->createNotFoundException();
         }
         

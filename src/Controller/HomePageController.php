@@ -21,7 +21,8 @@ class HomePageController extends AbstractController
 {
     public function __construct(private readonly ManagerRegistry $doctrine) {}
 
-    /** Home page
+    /**
+     * Home page
      * @throws InvalidArgumentException
      */
     #[Route('/', name: 'home_page', methods: ['GET'])]
@@ -34,51 +35,35 @@ class HomePageController extends AbstractController
             $fromDB = [];
             $fromDB['latestEventPlanYear'] = $this->doctrine->getRepository(Event::class)->findMaxStartYear();
 
-            /**
-             * The latest Event Invitation
-             * @var EventChronicle[] $fromDB['latestInvitations']
-             */
+             /* @var $fromDB['latestInvitations'] EventChronicle */
             $fromDB['latestInvitations'] = $this->doctrine->getRepository(EventInvitation::class)->findLatest();
 
-            /**
-             * The latest Event chronicle articles
-             * @var EventChronicle $fromDB['latestChronicle']
-             */
+            /* @var $fromDB['latestChronicle'] EventChronicle */
             $fromDB['latestChronicle'] = $this->doctrine->getRepository(EventChronicle::class)->findLatest();
 
-            /**
-             * The latest blog articles from the section 'z klubovej kuchyne'
-             * @var Blog $fromDB['latestBlogSectionId1']
-             */
+            /* @var $fromDB['latestBlogSectionId1'] Blog */
             $idFirstSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('z-klubovej-kuchyne');
             $fromDB['latestBlogSectionId1'] = null;
-            if ($idFirstSection) {
+            if ($idFirstSection !== null) {
                 $fromDB['latestBlogSectionId1'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
             }
 
-            /**
-             * The latest blog articles from the section 'viacdňové akcie'
-             * @var Blog $fromDB['latestBlogSectionId2']
-             */
+            /* @var $fromDB['latestBlogSectionId2'] Blog */
             $idSecondSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('viacdnove-akcie');
             $fromDB['latestBlogSectionId2'] = null;
-            if ($idSecondSection) {
+            if ($idSecondSection !== null) {
                 $fromDB['latestBlogSectionId2'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
             }
 
-            /**
-             * The latest blog articles from the section 'receptúry na túry'
-             * @var Blog $fromDB['latestBlogSectionId3']
-             */
+            /* @var $fromDB['latestBlogSectionId3'] Blog */
             $idThirdSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('receptury-na-tury');
             $fromDB['latestBlogSectionId3'] = null;
-            if ($idThirdSection) {
+            if ($idThirdSection !== null) {
                 $fromDB['latestBlogSectionId3'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idThirdSection->getId());
             }
 
             return $fromDB;
         });
-
 
         return $this->render('home_page/index.html.twig', [
             'latestEventPlanYear' => $cached['latestEventPlanYear'],
