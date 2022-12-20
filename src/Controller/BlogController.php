@@ -50,13 +50,13 @@ class BlogController extends AbstractController
         BlogSectionRepository $blogSectionRepository
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if ($blogSection === null) { // 404
+        if ($blogSection === null) {
             throw $this->createNotFoundException();
         }
 
         $blogSectionId = $blogSection->getId();
         $blog = $blogRepository->findBySectionYearSlug($blogSectionId, $year, $slug);
-        if ($blog === null) { // 404
+        if ($blog === null) {
             throw $this->createNotFoundException();
         }
 
@@ -86,7 +86,7 @@ class BlogController extends AbstractController
             $blogs = $blogRepository->getPreparedByYear($blogSectionId);
         }
 
-        if ($blogs === []) { // 404
+        if ($blogs === []) {
             throw $this->createNotFoundException();
         }
         
@@ -98,7 +98,9 @@ class BlogController extends AbstractController
         ]);
     }
 
-    /** Create blog */
+    /** Create blog
+     * @throws NonUniqueResultException
+     */
     #[Route('/blog/{blogSectionSlug}/pridat-novy/add', name: 'blog_create', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function createBlog(
@@ -108,7 +110,7 @@ class BlogController extends AbstractController
         ManagerRegistry $doctrine
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
-        if ($blogSection === null) { // 404
+        if ($blogSection === null) {
             throw $this->createNotFoundException();
         }
 
@@ -164,7 +166,7 @@ class BlogController extends AbstractController
     
             $this->addFlash(
                 'success',
-                'Nový článok: "' . $blog->getTitle() . '" bol vytvorený a uložený!'
+                sprintf('Nový článok: „%s“ bol vytvorený a uložený!', $blog->getTitle())
             );
 
             return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', ['blogSectionSlug' => $blogSectionSlug, 'year' => $now->format('Y'), 'slug' => $blog->getSlug()]);
@@ -229,14 +231,14 @@ class BlogController extends AbstractController
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($blog->getTitle());
             $blog->setSlug($slug);
-            $blog->setModifiedAt(new \DateTime('now'));
+            $blog->setModifiedAt(new DateTimeImmutable());
 
             /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
             if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
                 foreach ($originalSportTypes as $sportType) {
-                    if (false === $blog->getSportType()->contains($sportType)) {
+                    if ($blog->getSportType()->contains($sportType) === false) {
                         $sportType->removeBlog($blog);
                         $entityManager->persist($sportType);
                     }
@@ -251,7 +253,7 @@ class BlogController extends AbstractController
     
             $this->addFlash(
                 'success',
-                'Zmeny v článku: „' . $blog->getTitle() . '“ boli uložené!'
+                sprintf('Zmeny v článku: „%s“ boli uložené!', $blog->getTitle())
             );
             return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', ['blogSectionSlug' => $blogSectionSlug, 'year' => $year, 'slug' => $blog->getSlug()]);
         }
@@ -310,7 +312,7 @@ class BlogController extends AbstractController
 
         $this->addFlash(
             'success',
-            'Článok: „' . $blogTitle . '“ bol zmazaný!'
+            sprintf('Článok: „%s“ bol zmazaný!', $blogTitle)
         );  
         return $this->redirectToRoute('blog_list_by_BlogSectionSlug', ['blogSectionSlug' => $blogSection->getSlug()]);
     }
