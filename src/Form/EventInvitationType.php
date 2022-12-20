@@ -30,6 +30,7 @@ class EventInvitationType extends AbstractType
             ->add('startDate', DateTimeType::class, [
                 'label' => 'Dátum konania (od):',
                 'widget' => 'single_text',
+                'input' => 'datetime_immutable',
             ])
             ->add('endDate', DateTimeType::class, [
                 'label' => 'Dátum konania (do):',
