@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class BlogControllerTest extends WebTestCase
@@ -10,7 +13,7 @@ class BlogControllerTest extends WebTestCase
     /**
      * Test main blog page, where should be list of all blog categories
      */
-    public function testShowAllBlogCategories()
+    public function testShowAllBlogCategories(): void
     {
         $client = static::createClient();
         $client->request('GET', '/blog');
@@ -22,7 +25,7 @@ class BlogControllerTest extends WebTestCase
     /**
      * Test list of blogs for each category
      */
-    public function testShowBlogCategoriesOneByOne()
+    public function testShowBlogCategoriesOneByOne(): void
     {
         $client = static::createClient();
         $client->request('GET', '/blog/z-klubovej-kuchyne');
@@ -44,7 +47,7 @@ class BlogControllerTest extends WebTestCase
     /**
      * Test blog entries for each category
      */
-    public function testShowBlogPostInEachCategory()
+    public function testShowBlogPostInEachCategory(): void
     {
         $client = static::createClient();
         $client->request('GET', '/blog/z-klubovej-kuchyne/2011/historia-turistiky');
@@ -63,15 +66,11 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Čergovské sušienky');
     }
 
-
     /**
      * Test list of wrong links
-     * 
      * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function test404($url)
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -79,13 +78,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/blo'],
@@ -102,16 +95,12 @@ class BlogControllerTest extends WebTestCase
             ['/blog/z-klubovej-kuchyne/2011/historia-turistiky2'],
         ];
     }
-  
 
     /**
      * Test links which required login
-     * 
      * @dataProvider provide302Urls
-     * 
-     * @param string $url Link to test
-     */ 
-    public function testRequiredLogin(string $url)
+     */
+    public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -124,12 +113,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide302Urls()
+    public function provide302Urls(): array
     {
         return [
             ['/blog/2000/pridat-novy/add'],
@@ -142,15 +126,13 @@ class BlogControllerTest extends WebTestCase
 
     /**
      * Test if admin get correct 404
-     * 
      * @dataProvider provideAdmin404Urls
-     * 
-     * @param string $url Link to test
+     * @throws Exception
      */
-    public function testAdmin404(string $url)
+    public function testAdmin404(string $url): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser);
@@ -159,12 +141,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provideAdmin404Urls()
+    public function provideAdmin404Urls(): array
     {
         return [
             ['/blog/viacdnove-akcie1/pridat-novy/add'],
@@ -183,13 +160,13 @@ class BlogControllerTest extends WebTestCase
 
     /**
      * Test edit Blog entry
-     * 
-     * Open, check valeus in form, edit values, save, check saved values
+     * Open, check values in form, edit values, save, check saved values
+     * @throws Exception
      */
-    public function testEditBlog()
+    public function testEditBlog(): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
@@ -245,17 +222,11 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h2', 'Začiatky turistiky vo svete a v Európe');
     }
 
-
-    /**
-     * Test create and delete blog entry
-     * 
-     * Create, save and delete blog entry
-     */
-    public function testCreateDeleteBlog()
+    /** Test create and delete blog entry */
+    public function testCreateDeleteBlog(): void
     {
-        
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
@@ -268,7 +239,6 @@ class BlogControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('html h1', 'Vytvoriť nový článok');
-
 
         $buttonCrawlerNode = $crawler->selectButton('Uložiť článok');
         $form = $buttonCrawlerNode->form();
@@ -350,7 +320,4 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Receptúry na túry');
     }
-
-
-
 }

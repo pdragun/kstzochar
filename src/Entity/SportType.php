@@ -40,9 +40,8 @@ class SportType
     #[Assert\NotBlank]
     private ?string $shortcut = null;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 190, nullable: true)]
     #[Assert\Type('string')]
-    #[Assert\NotBlank]
     private ?string $image = null;
 
     /** @var ?Collection<int, Event> $events */

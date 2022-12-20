@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -7,10 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EventChronicleControllerTest extends WebTestCase
 {
-    /**
-     * Test main chronicle page where should be list of years
-     */
-    public function testShowAllYears()
+    /** Test main chronicle page where should be list of years  */
+    public function testShowAllYears(): void
     {
         $client = static::createClient();
         $client->request('GET', '/kronika');
@@ -19,15 +19,11 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Kronika');
     }
 
-
     /**
      * Test list of wrong links
-     * 
      * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function test404(string $url)
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -35,13 +31,11 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
     /**
      * Get list of links
-     * 
      * @return array List of links to check
      */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/kronik'],
@@ -58,11 +52,8 @@ class EventChronicleControllerTest extends WebTestCase
         ];
     }
 
-
-    /**
-     * Test list of existing chronicles per year
-     */
-    public function testShowListChroniclePostInYear()
+    /** Test list of existing chronicles per year */
+    public function testShowListChroniclePostInYear(): void
     {
         $client = static::createClient();
         $client->request('GET', '/kronika/2010');
@@ -71,11 +62,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Klubová kronika z roku 2010');
     }
 
-
-    /**
-     * Test existing chronicle
-     */
-    public function testShowChronicle()
+    /** Test existing chronicle */
+    public function testShowChronicle(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu');
@@ -86,15 +74,11 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (15 km).', $crawler->filterXPath('//*[@id="routes"]/p/text()')->text());
     }
 
-
     /**
      * Test links which required login
-     * 
      * @dataProvider provide302Urls
-     * 
-     * @param string $url Link to test
-     */ 
-    public function testRequiredLogin(string $url)
+     */
+    public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -107,13 +91,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide302Urls()
+    public function provide302Urls(): array
     {
         return [
             ['/kronika/2000/pridat-novu/add'],
@@ -124,18 +102,14 @@ class EventChronicleControllerTest extends WebTestCase
         ];
     }
 
-
     /**
      * Test if admin get correct 404
-     * 
      * @dataProvider provideAdmin404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function testAdmin404(string $url)
+    public function testAdmin404(string $url): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser);
@@ -144,13 +118,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provideAdmin404Urls()
+    public function provideAdmin404Urls(): array
     {
         return [
             ['/kronika/2011/jaskyne-uhradu/edit'],
@@ -158,16 +126,14 @@ class EventChronicleControllerTest extends WebTestCase
         ];
     }
 
-
     /**
      * Test edit Event Chronicle
-     * 
      * Open existing, check values, change values, save, edit - set previous values, save, check values
      */
-    public function testEdit()
+    public function testEdit(): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
@@ -255,12 +221,10 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu'); // chronicle has the same values as before test
     }
 
-
-
-    public function testCreateDelete()
+    public function testCreateDelete(): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
@@ -340,5 +304,4 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Klubová kronika z roku 2010');
     }
-
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -6,10 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ContactControllerTest extends WebTestCase
 {
-    /**
-     * Test contact page
-     */
-    public function testContactPage()
+    /** Test contact page */
+    public function testContactPage(): void
     {
         $client = static::createClient();
         $client->request('GET', '/kontakt');
@@ -18,13 +18,8 @@ class ContactControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Kontakt');
     }
 
-
-    /**
-     * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
-     */
-    public function test404(string $url)
+    /** @dataProvider provide404Urls */
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -32,13 +27,7 @@ class ContactControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/kontak'],

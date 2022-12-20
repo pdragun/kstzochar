@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -21,5 +23,4 @@ class HomePageControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html p.hp-header', 'Kronika');
         $this->assertSelectorTextContains('html p.no-bottom.hp-desc', 'Text a fotky z predchádzajúcich akcií');
     }
-
 }

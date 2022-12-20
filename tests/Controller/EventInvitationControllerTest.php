@@ -1,17 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EventInvitationControllerTest extends WebTestCase
 {
 
-    /**
-     * Test main invitation page where should be list of years
-     */
-    public function testShowAllYears()
+    /** Test main invitation page where should be list of years */
+    public function testShowAllYears(): void
     {
         $client = static::createClient();
         $client->request('GET', '/pozvanky');
@@ -20,15 +21,11 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Pozvánky');
     }
 
-
     /**
      * Test list of wrong links
-     * 
      * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function test404(string $url)
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -36,13 +33,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/pozvank'],
@@ -61,10 +52,8 @@ class EventInvitationControllerTest extends WebTestCase
         ];
     }
 
-    /**
-     * Test list of existing invitations per year
-     */
-    public function testShowListInvitationPostInYear()
+    /** Test list of existing invitations per year */
+    public function testShowListInvitationPostInYear(): void
     {
         $client = static::createClient();
         $client->request('GET', '/pozvanky/2011');
@@ -73,9 +62,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Pozvánky z roku 2011');
     }
 
-    /**
-     * Test existing invitation
-     */
+    /** Test existing invitation */
     public function testShowInvitation()
     {
         $client = static::createClient();
@@ -89,9 +76,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
     }
 
-    /**
-     * Test upcoming invitations
-     */
+    /** Test upcoming invitations */
     public function testShowLatestInvitation()
     {
         $client = static::createClient();
@@ -100,7 +85,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Aktuálne pozvánky na turistické podujatia');
 
-        $tomorrow = new \DateTime('tomorrow');
+        $tomorrow = new DateTimeImmutable('tomorrow');
 
         $this->assertEquals($tomorrow->format('j. n. Y'), $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[1]')->text());
         $this->assertEquals('Upcoming event', $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]')->text());
@@ -112,15 +97,11 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Upcoming event');
     }
 
-
     /**
      * Test links which required login
-     * 
      * @dataProvider provide302Urls
-     * 
-     * @param string $url Link to test
-     */ 
-    public function testRequiredLogin(string $url)
+     */
+    public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -133,13 +114,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide302Urls()
+    public function provide302Urls(): array
     {
         return [
             ['/pozvanky/2000/pridat-novu/add'],
@@ -150,18 +125,14 @@ class EventInvitationControllerTest extends WebTestCase
         ];
     }
 
-
     /**
      * Test if admin get correct 404
-     * 
      * @dataProvider provideAdmin404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function testAdmin404(string $url)
+    public function testAdmin404(string $url): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
@@ -170,13 +141,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provideAdmin404Urls()
+    public function provideAdmin404Urls(): array
     {
         return [
             ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'],
@@ -186,13 +151,12 @@ class EventInvitationControllerTest extends WebTestCase
 
     /**
      * Test edit existing invitation
-     * 
      * Open existing, check values, change values, save, edit - set previous values, save, check values
      */
-    public function testEdit()
+    public function testEdit(): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
         
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin

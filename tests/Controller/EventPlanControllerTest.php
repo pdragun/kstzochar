@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -6,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EventPlanControllerTest extends WebTestCase
 {
-    public function testShowAllYears()
+    public function testShowAllYears(): void
     {
         $client = static::createClient();
         $client->request('GET', '/plan');
@@ -14,9 +16,8 @@ class EventPlanControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Ročné plány');
     }
-    
 
-    public function testShowListInvitationPostInYear()
+    public function testShowListInvitationPostInYear(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/plan/2010');
@@ -39,13 +40,8 @@ class EventPlanControllerTest extends WebTestCase
         
     }
 
-
-    /**
-     * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
-     */
-    public function test404(string $url)
+    /** @dataProvider provide404Urls */
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -53,13 +49,7 @@ class EventPlanControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/pla'],
@@ -70,5 +60,4 @@ class EventPlanControllerTest extends WebTestCase
             ['/plan/asdf/asdf'],
         ];
     }
-
 }

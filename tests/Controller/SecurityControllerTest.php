@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -12,7 +14,7 @@ class SecurityControllerTest extends WebTestCase
      * 
      * Simple test mainly for http code 200
      */
-    public function testLoginLogoutPage()
+    public function testLoginLogoutPage(): void
     {
         $client = static::createClient();
         $client->request('GET', '/login');
@@ -26,15 +28,11 @@ class SecurityControllerTest extends WebTestCase
 
     }
 
-
     /**
      * Test wrong links
-     * 
      * @dataProvider provide404Urls
-     * 
-     * @param string $url Link to test
      */
-    public function test404(string $url)
+    public function test404(string $url): void
     {
         $client = static::createClient();
         $client->request('GET', $url);
@@ -42,13 +40,7 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-
-    /**
-     * Get list of links
-     * 
-     * @return array List of links to check
-     */
-    public function provide404Urls()
+    public function provide404Urls(): array
     {
         return [
             ['/logi'],
@@ -59,14 +51,11 @@ class SecurityControllerTest extends WebTestCase
         ];
     }
 
-    
-    /**
-     * Test admin login
-     */
-    public function testLogIn()
+    /** Test admin login */
+    public function testLogIn(): void
     {
         $client = static::createClient();
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
 
         // retrieve the test user
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
@@ -78,6 +67,5 @@ class SecurityControllerTest extends WebTestCase
         $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('h1', 'Upraviť túto kroniku');
-
     }
 }
