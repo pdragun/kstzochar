@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -142,7 +143,7 @@ class EventInvitationController extends AbstractController
     /**
      * Create invitation
      * @return RedirectResponse|Response Show form or redirect to new invitation
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|Exception
      */
     #[Route(
         '/pozvanky/{year}/pridat-novu/{date}/add',
@@ -158,9 +159,10 @@ class EventInvitationController extends AbstractController
         EventRepository $eventRepository,
         ManagerRegistry $doctrine
     ): RedirectResponse|Response {
-        $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
-        $now = new DateTimeImmutable();
+        $dateTime = new DateTimeImmutable($date);
+        $dateTime->setTime(0,0, 0);
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => null]);
+
         $invitation = new EventInvitation();
         if (isset($events[0])) { //Parent Event exist, get additional info from it
             $firstEvent = $events[0];
@@ -203,6 +205,7 @@ class EventInvitationController extends AbstractController
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
             $invitation->setSlug($slug);
+            $now = new DateTimeImmutable();
             $invitation->setPublishedAt($now);
             $invitation->setCreatedAt($now);
             $invitation->setModifiedAt($now);

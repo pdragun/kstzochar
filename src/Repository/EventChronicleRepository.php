@@ -24,8 +24,7 @@ class EventChronicleRepository extends ServiceEntityRepository
     }
 
 
-   /** @return EventChronicle[] Returns an array of EventChronicle objects */
-   
+    /** @return EventChronicle[] Returns an array of EventChronicle objects */
     public function findByStartDate($value)
     {
         return $this->createQueryBuilder('e')
@@ -37,7 +36,6 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-
 
     /** @return EventChronicle[] EventChronicle an array of EventChronicle objects */
     public function findByYear($year): array
@@ -102,7 +100,6 @@ class EventChronicleRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-
     public function getUniqueYearsFromDB(): array
     {
         $em = $this->getEntityManager();
@@ -110,7 +107,6 @@ class EventChronicleRepository extends ServiceEntityRepository
 
         return $query->getArrayResult();
     }
-
 
     public function findUniqueYears(): array {
 

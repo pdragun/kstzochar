@@ -25,14 +25,12 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    
     /**
      * Find list of events based on year
      * @return array<int, Event> Returns an array of Event objects
      */
     public function findByYear(int $year): array
     {
-
         $em = $this->getEntityManager()->getConfiguration();
         $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
 
@@ -106,7 +104,6 @@ class EventRepository extends ServiceEntityRepository
 
     public function getUniqueYearsFromDB(): array
     {
-
         $em = $this->getEntityManager();
         $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
 
@@ -116,7 +113,6 @@ class EventRepository extends ServiceEntityRepository
     /** @return array<int, int> $clearYears */
     public function findUniqueYears(): array
     {
-
         $years = $this->getUniqueYearsFromDB();
         $clearYears = [];
         foreach ($years as $year) {

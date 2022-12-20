@@ -23,7 +23,6 @@ class EventInvitationRepository extends ServiceEntityRepository
         parent::__construct($registry, EventInvitation::class);
     }
 
-
     /** @throws NonUniqueResultException */
     public function findByYearSlug(int $year, string $slug): ?EventInvitation
     {
@@ -57,9 +56,7 @@ class EventInvitationRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-    /**
-     * @return Event[] Returns an array of Event objects
-     */
+    /** @return Event[] Returns an array of Event objects */
     public function findByYear($year): array
     {
         $em = $this->getEntityManager()->getConfiguration();
@@ -75,22 +72,18 @@ class EventInvitationRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    /**
-     * @return Event[]|[] Returns an prepared array of Events for table
-     *
-     */
+    /** @return Event[]|[] Returns an prepared array of Events for table */
     public function getPreparedByYear($year): array
     {
         $clearResults = [];
-        for( $i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= 12; $i++) {
             $clearResults[$i] = [];
         }
 
         $res = $this->findByYear($year);
-        if(!$res) { //No records
+        if ($res === []) { //No records
             return [];
         }
-
 
         foreach ($res as $event) {
             $month = $event['startDate']->format('n');

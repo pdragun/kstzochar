@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -132,7 +133,7 @@ class EventChronicleController extends AbstractController
      * Create chronicle
      * Take start date from previous form, check if exist Event (from plan), if yes set Event data to form.
      * @return RedirectResponse|Response Show form or redirect to new chronicle
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|Exception
      */
     #[Route(
         '/kronika/{year}/pridat-novu/{date}/add',
@@ -148,12 +149,12 @@ class EventChronicleController extends AbstractController
         EventRepository $eventRepository,
         ManagerRegistry $doctrine
     ): RedirectResponse|Response {
-        $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        $dateTime = new DateTimeImmutable($date);
+        $dateTime->setTime(0, 0, 0);
+        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => null]);
 
-        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => NULL]);
         $chronicle = new EventChronicle();
-        if (isset ($events[0])) { //Parent Event exist, get aditional info from it
-
+        if (isset($events[0])) { //Parent Event exist, get additional info from it
             $firstEvent = $events[0];
 
             $chronicle->setTitle($firstEvent->getTitle());

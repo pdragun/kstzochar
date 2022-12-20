@@ -23,7 +23,6 @@ class BlogRepository extends ServiceEntityRepository
         parent::__construct($registry, Blog::class);
     }
 
-
     /**
      * Get Blog from section with the lowest createdAt date
      * @throws NonUniqueResultException
@@ -40,9 +39,9 @@ class BlogRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-
     /**
      * Get Blog from section with the latest by start date
+     * @throws NonUniqueResultException
      */
     public function findLatestByBlogSectionIdStartDate(int $sectionId): ?Blog
     {
@@ -62,7 +61,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findAllByBlogSectionId(int $sectionId): float|int|array|string
+    public function findAllByBlogSectionId(int $sectionId): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.publish = 1')
@@ -73,7 +72,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    public function findAllByBlogSectionIdOrderByStartDate(int $sectionId): array|float|int|string
+    public function findAllByBlogSectionIdOrderByStartDate(int $sectionId): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.publish = 1')
@@ -84,9 +83,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    /**
-     * @return array<int <int, Blog>> Returns prepared array of Blogs for table
-     */
+    /** @return array<int <int, Blog>> Returns prepared array of Blogs for table */
     public function getPreparedByYear(int $sectionId): array
     {
         $clearResults = [];
@@ -100,9 +97,7 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    /**
-     * @return array<int, Blog> Returns prepared array of Blogs for table
-     */
+    /** @return array<int, Blog> Returns prepared array of Blogs for table */
     public function getPreparedByYearStartDate(int $sectionId): array
     {
         $clearResults = [];

@@ -246,7 +246,7 @@ class EventChronicleControllerTest extends WebTestCase
         $formNameStartDate = $formStartDate->getName();
 
         // set start date in form
-        $formStartDate[$formNameStartDate . '[startDate]'] = '2010-01-23';
+        $formStartDate[$formNameStartDate . '[startDate]'] = '2010-01-23 00:00:00';
 
         $client->submit($formStartDate);
 
