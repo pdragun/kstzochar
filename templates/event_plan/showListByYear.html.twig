@@ -24,8 +24,7 @@
     <table class="table table-hover table-condensed" id="event-plan">
     {% for k,month in year %}
         <tr><td colspan="3"><b>{{ monthNames[k] }}</b></td></tr>
-
-        {% for key,event in month %}
+        {% for key, event in month %}
         <tr>
             <td>{{ event.startDate|date('j. n.') }}{% if event.endDate|length %} – {{ event.endDate|date('j. n.') }}{% endif %}</td>
 
@@ -35,15 +34,12 @@
             <td>{{ event.title }}</td>
             {% endif %}
             
-            <td>
-            {% for sportType in event.sportType %}
+            <td>{% for sportType in event.sportType %}
                 <abbr title="{{sportType.title}}">{{sportType.shortcut}}</abbr>{% if not loop.last %},{% endif %}
-            {% endfor %}
-            </td>
+            {% endfor %}</td>
         </tr>
         {% endfor %}
     {% endfor %}
     </table>
 </div>
-
 {% endblock %}

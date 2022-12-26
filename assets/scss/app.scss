@@ -239,6 +239,10 @@ h2 {
   font-size: 1.5em;
 }
 
+.breadcrumb a {
+  text-decoration: none;
+}
+
 @media (max-width: 991.9px) {
   .dropdown-item,
   .navbar-nav .nav-link,

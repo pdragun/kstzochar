@@ -1,68 +1,68 @@
 <!doctype html>
 <html lang="sk-SK">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>{% block title %} {% endblock %}KST Žochár Topoľčany</title>
     <meta name="description" content="{% block description %}Stránka turistického klubu KST Žochár Topoľčany, nájdite si kamarátov na turistku, bicykel, vysokohorskú turistiku, či na bežky.{% endblock %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block stylesheets %}
-      {{ encore_entry_link_tags('css/app') }}
+        {{ encore_entry_link_tags('css/app') }}
     {% endblock %}
     <link rel="icon" type="image/svg+xml" href="{{ asset('build/images/favicon.svg') }}">
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86981778-1"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-86981778-1');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86981778-1');
     </script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
+</head>
+<body>
+<div class="container">
+    <div class="header">
         <div class="logo"><a href="{{ path('home_page') }}"><img src="{{ asset('build/images/kst-zochar_turista_logo.svg') }}"></a></div>
         <div class="logo-klub"><a href="{{ path('home_page') }}"><img src="{{ asset('build/images/kst-zochar_znak.svg') }}"></a></div>
         <div class="header-text">
-          <p class="pt pt-long">Klub slovenských turistov Žochár Topoľčany</p>
-          <p class="pt pt-short">KST Žochár Topoľčany</p>
-          <p class="subtitle">Turistický klub priateľov prírody, cyklistiky, lyžovania. Každý je vítaný.</p>
+            <p class="pt pt-long">Klub slovenských turistov Žochár Topoľčany</p>
+            <p class="pt pt-short">KST Žochár Topoľčany</p>
+            <p class="subtitle">Turistický klub priateľov prírody, cyklistiky, lyžovania. Každý je vítaný.</p>
         </div>
-      </div>
-     {%- if homepage is not defined %}
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-        {{- knp_menu_render('main', {
-          'currentClass': 'active',
-          'ancestorClass': 'active',
-          'compressed': true,
-          'template': 'extended_knp_menu.html.twig'
-        }) }}
-        </nav>
+    </div>
+    {%- if homepage is not defined %}
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark"><div class="navbar">
+                {{- knp_menu_render('main', {
+                    'currentClass': 'active',
+                    'ancestorClass': 'active',
+                    'compressed': true,
+                    'template': 'extended_knp_menu.html.twig'
+                }) }}
+            </div></nav>
     {%- endif %}
 
-      <div class="wrapper">
+    <div class="wrapper">
 
-     {%- if homepage is not defined %}
-<nav aria-label="breadcrumb">
-<ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
-{% for breadcrumb_item in knp_menu_get_breadcrumbs_array(knp_menu_get_current_item('main')) %}
-    {% if not loop.last %}
-    <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-      <a itemprop="item" href="{{ breadcrumb_item.uri }}"><span itemprop="name">{{ breadcrumb_item.label }}</span></a>
-    {% else %}
-     <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/WebPage">
-      <span itemprop="name">{{ breadcrumb_item.label }}</span>
-     {% endif %}
-      <meta itemprop="position" content="{{loop.index}}">
-    </li>
-{% endfor %}
-</ol>
-</nav>
-      {%- endif %}
+        {%- if homepage is not defined %}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+                    {% for breadcrumb_item in knp_menu_get_breadcrumbs_array(knp_menu_get_current_item('main')) %}
+                        {% if not loop.last %}
+                            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                            <a itemprop="item" href="{{ breadcrumb_item.uri }}"><span itemprop="name">{{ breadcrumb_item.label }}</span></a>
+                        {% else %}
+                            <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/WebPage">
+                            <span itemprop="name">{{ breadcrumb_item.label }}</span>
+                        {% endif %}
+                        <meta itemprop="position" content="{{loop.index}}">
+                        </li>
+                    {% endfor %}
+                </ol>
+            </nav>
+        {%- endif %}
 
 
         {# important msg #}
-        <p><b>Stiahnite si tlačivo na <a href="{{ asset('build/downloads/vyhlasenie_2perc_kst-zochar_2019.pdf') }}">2% dane pre KST Žochár Topoľčany</a></b> (PDF, 14,5KB)</p>
+        <p><b>Tlačivo pre <a href="https://kst.zochar.sk/blog/z-klubovej-kuchyne/2022/2-pre-KST-Zochar">2% dane pre KST Žochár Topoľčany</a></b>.</p>
         {# read and display all flash messages #}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
@@ -72,14 +72,14 @@
             {% endfor %}
         {% endfor %}
         {% block body %}{% endblock %}
-      </div>
-      <footer>
-        <p class="no-bottom">© 2003 – 2020 KST Žochár Topoľčany</p>
-        <p>Informácie o turistickom oddiely z mesta Topoľčany.</p>
-      </footer>
     </div>
-  {% block javascripts %}
+    <footer>
+        <p class="no-bottom">© 2003 – 2023 KST Žochár Topoľčany</p>
+        <p>Informácie o turistickom oddiely z mesta Topoľčany.</p>
+    </footer>
+</div>
+{% block javascripts %}
     {{ encore_entry_script_tags('app') }}
-  {% endblock %}
-  </body>
+{% endblock %}
+</body>
 </html>
