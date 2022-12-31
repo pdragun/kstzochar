@@ -105,7 +105,7 @@ class EventRepository extends ServiceEntityRepository
     public function getUniqueYearsFromDB(): array
     {
         $em = $this->getEntityManager();
-        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
+        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y DESC');
 
         return $query->getArrayResult();
     }

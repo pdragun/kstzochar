@@ -13,8 +13,8 @@ use App\Utils\SecondLevelCachePDO;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
-use Doctrine\ORM\EntityManagerInterface as DoctrineItemInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -23,11 +23,10 @@ final class Builder implements ContainerAwareInterface
     use ContainerAwareTrait;
 
     public function __construct(private readonly FactoryInterface $factory, private readonly ManagerRegistry $doctrine)  {}
-    public function createMainMenu(
-     //   FactoryInterface $factory,
-     //   DoctrineItemInterface $entityManager,
-        array $options,
-    ): ItemInterface {
+
+    /** @throws InvalidArgumentException */
+    public function createMainMenu(array $options): ItemInterface
+    {
 
         $cachedData = $this->getData();
 
@@ -36,7 +35,7 @@ final class Builder implements ContainerAwareInterface
 
         $menu->addChild('Úvod', ['route' => 'home_page']);
 
-        //Ivitation, all articles in all years
+        //Invitation, all articles in all years
         $menu->addChild('Pozvánky', [
             'route' => 'invitation_show',
             'attributes' => [
@@ -44,7 +43,7 @@ final class Builder implements ContainerAwareInterface
             ]
         ]);
 
-        foreach( $cachedData['Pozvánky'] as $year => $eventList ) {
+        foreach ($cachedData['Pozvánky'] as $year => $eventList) {
                 
             $menu['Pozvánky']->addChild($year, [
                 'route' => 'invitation_list_by_Year',
@@ -52,7 +51,7 @@ final class Builder implements ContainerAwareInterface
             ]);
             $menu['Pozvánky'][$year]->setDisplayChildren(false);
 
-            foreach( $eventList as $event ) {
+            foreach ($eventList as $event) {
 
                 $menu['Pozvánky'][$year]->addChild($event['title'], [
                     'route' => 'invitation_show_by_Year_by_Slug',
@@ -70,7 +69,7 @@ final class Builder implements ContainerAwareInterface
             ]
         ]);
 
-        foreach( $cachedData['Kronika'] as $year => $eventList ) {
+        foreach ($cachedData['Kronika'] as $year => $eventList) {
                 
             $menu['Kronika']->addChild($year, [
                 'route' => 'chronicle_list_by_Year',
@@ -78,7 +77,7 @@ final class Builder implements ContainerAwareInterface
             ]);
             $menu['Kronika'][$year]->setDisplayChildren(false);
 
-            foreach( $eventList as $event ) {
+            foreach ($eventList as $event) {
 
                 $menu['Kronika'][$year]->addChild($event['title'], [
                     'route' => 'chronicle_show_by_Year_Slug',
@@ -95,7 +94,7 @@ final class Builder implements ContainerAwareInterface
             ]
         ]);
 
-        foreach( $cachedData['Plán'] as $year ) {
+        foreach ($cachedData['Plán'] as $year) {
             $menu['Plán']->addChild($year, [
                 'route' => 'plan_show_by_Year',
                 'routeParameters' => ['year' => $year]
@@ -109,7 +108,7 @@ final class Builder implements ContainerAwareInterface
             ['Receptúry na túry', 'receptury-na-tury', 'Recepty'],
         ];
 
-        foreach($blogSections as $blogSection) {
+        foreach ($blogSections as $blogSection) {
 
             $menu->addChild($blogSection[0], [
                 'route' => 'blog_list_by_BlogSectionSlug',
@@ -120,7 +119,7 @@ final class Builder implements ContainerAwareInterface
             ]);
             $menu[$blogSection[0]]->setDisplayChildren(false);
 
-            foreach( $cachedData[$blogSection[0]] as $blog) {
+            foreach ($cachedData[$blogSection[0]] as $blog) {
 
                 $menu[$blogSection[0]]->addChild($blog['title'], [
                     'route' => 'blog_show_by_BlogSectionSlug_Year_Slug',
@@ -134,16 +133,17 @@ final class Builder implements ContainerAwareInterface
         }
 
         $menu->addChild('Kontakt', ['route' => 'contact']);
+
         return $menu;
     }
 
-
     /**
      * Get data from DB or from second level cache
-     * 
-     * @return $data []
+     * @return mixed $data []
+     * @throws InvalidArgumentException
      */
-    private function getData() {
+    private function getData(): mixed
+    {
 
         $cache = SecondLevelCachePDO::getInstance()->getCache();
         $doctrine = $this->doctrine;
@@ -151,7 +151,7 @@ final class Builder implements ContainerAwareInterface
         $cached = $cache->get('main-menu-data', function (CacheItemInterface $item) use ($doctrine) {
             $data = [];
       
-            //Ivitation
+            //Invitation
             $invitationList = $doctrine->getRepository(EventInvitation::class)->findBy(
                 ['publish' => 1],
                 ['startDate' => 'DESC']
@@ -167,7 +167,7 @@ final class Builder implements ContainerAwareInterface
 
             //Plan (Event)
             $planYears = $doctrine->getRepository(Event::class)->findUniqueYears();
-            foreach( $planYears as $year ) {
+            foreach ($planYears as $year) {
                 $data['Plán'][] = $year;
             }
            
@@ -178,13 +178,13 @@ final class Builder implements ContainerAwareInterface
                 ['Receptúry na túry', 'receptury-na-tury', 'Recepty'],
             ];
  
-            foreach($blogSections as $blogSection) {
+            foreach ($blogSections as $blogSection) {
 
                 $idSection1 = $doctrine->getRepository(BlogSection::class)->findBySlug($blogSection[1]);
                 $blogs = $doctrine->getRepository(Blog::class)->findAllByBlogSectionId($idSection1->getId());
                 
                 $i = 0;
-                foreach($blogs as $blog) {
+                foreach ($blogs as $blog) {
                     $data[$blogSection[0]][$i]['title'] = $blog['title'];
                     $data[$blogSection[0]][$i]['slug'] = $blog['slug'];
                     $data[$blogSection[0]][$i]['year'] = date_format($blog['createdAt'], 'Y');
@@ -198,17 +198,12 @@ final class Builder implements ContainerAwareInterface
         return $cached;
     }
 
-
-    /**
-     * Move events from simple object list to multidimensional array according to star date
-     * 
-     * return $data []
-     */
+    /** Move events from simple object list to multidimensional array according to star date */
     private function addEventsToYears(array $events): array
     {
         $data = [];
         $i = 0;
-        foreach( $events as $event) {
+        foreach ($events as $event) {
             $eventYear = $event->getStartDate()->format('Y');
             $data[$eventYear][$i]['title'] = $event->getTitle();
             $data[$eventYear][$i]['slug'] = $event->getSlug();
@@ -216,5 +211,4 @@ final class Builder implements ContainerAwareInterface
         }
         return $data;
     }
-
 }
