@@ -27,7 +27,6 @@
         "@a2lix/symfony-collection": "github:a2lix/symfony-collection",
         "bootstrap": "^5.2.3",
         "ckeditor": "^4.12.1",
-        "ckeditor5": "^35.4.0",
         "jquery": "^3.6.2"
     }
 }
