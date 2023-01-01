@@ -12,7 +12,7 @@
         "sass": "^1.57.0",
         "sass-loader": "^13.0.0",
         "webpack": "^5.74.0",
-        "webpack-cli": "^4.10.0",
+        "webpack-cli": "^5.0.1",
         "webpack-notifier": "^1.15.0"
     },
     "license": "UNLICENSED",
@@ -27,6 +27,7 @@
         "@a2lix/symfony-collection": "github:a2lix/symfony-collection",
         "bootstrap": "^5.2.3",
         "ckeditor": "^4.12.1",
+        "ckeditor5": "^35.4.0",
         "jquery": "^3.6.2"
     }
 }
