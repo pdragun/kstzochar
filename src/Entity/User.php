@@ -21,12 +21,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $nickName;
 
-    #[ORM\Column(type: 'string', length: 190, unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $email;

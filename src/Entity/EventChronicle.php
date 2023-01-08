@@ -26,16 +26,16 @@ class EventChronicle
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $title;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     private string $slug;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     private string $summary;
@@ -63,7 +63,7 @@ class EventChronicle
     private DateTimeImmutable $createdAt;
 
    /** @var ?string $photoAlbumG URL to Google photos album */
-    #[ORM\Column(type: 'string', length: 190, unique: true, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     #[Assert\Type('string')]
     private ?string $photoAlbumG;
 

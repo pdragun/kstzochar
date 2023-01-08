@@ -28,16 +28,16 @@ class EventInvitation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $title;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     private string $slug;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     private string $summary;
@@ -46,8 +46,8 @@ class EventInvitation
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
-
     private string $content;
+
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;

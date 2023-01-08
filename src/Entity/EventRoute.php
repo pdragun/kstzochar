@@ -44,7 +44,7 @@ class EventRoute
     #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'string', length: 190, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Assert\Type('string')]
     private ?string $gpxSlug = null;
 

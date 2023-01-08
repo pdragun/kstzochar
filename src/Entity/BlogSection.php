@@ -20,13 +20,13 @@ class BlogSection
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
 
-    #[ORM\Column(type: 'string', length: 190, unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $slug = null;
