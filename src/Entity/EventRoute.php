@@ -60,6 +60,12 @@ class EventRoute
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
     private ?Collection $eventChronicles;
 
+    #[ORM\Column(type: 'integer')]
+    #[Assert\Type('integer')]
+    #[Assert\NotBlank]
+    #[Assert\Positive]
+    private ?int $elevation = null;
+
     public function __construct()
     {
         $this->eventInvitations = new ArrayCollection();
@@ -178,6 +184,18 @@ class EventRoute
             $this->eventChronicles->removeElement($eventChronicle);
             $eventChronicle->removeRoute($this);
         }
+
+        return $this;
+    }
+
+    public function getElevation(): ?int
+    {
+        return $this->elevation;
+    }
+
+    public function setElevation(?int $elevation): self
+    {
+        $this->elevation = $elevation;
 
         return $this;
     }
