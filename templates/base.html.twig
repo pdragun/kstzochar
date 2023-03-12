@@ -2,8 +2,8 @@
 <html lang="sk-SK">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %} {% endblock %}KST Žochár Topoľčany</title>
-    <meta name="description" content="{% block description %}Stránka turistického klubu KST Žochár Topoľčany, nájdite si kamarátov na turistku, bicykel, vysokohorskú turistiku, či na bežky.{% endblock %}">
+    <title>{% block title %} {% endblock %}{{ 'base.title'|trans }}</title>
+    <meta name="description" content="{% block description %}{{ 'base.description'|trans }}<{% endblock %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block stylesheets %}
         {{ encore_entry_link_tags('css/app') }}
@@ -24,9 +24,9 @@
         <div class="logo"><a href="{{ path('home_page') }}"><img src="{{ asset('build/images/kst-zochar_turista_logo.svg') }}" alt=""></a></div>
         <div class="logo-klub"><a href="{{ path('home_page') }}"><img src="{{ asset('build/images/kst-zochar_znak.svg') }}" alt=""></a></div>
         <div class="header-text">
-            <p class="pt pt-long">Klub slovenských turistov Žochár Topoľčany</p>
-            <p class="pt pt-short">KST Žochár Topoľčany</p>
-            <p class="subtitle">Turistický klub priateľov prírody, cyklistiky, lyžovania. Každý je vítaný.</p>
+            <p class="pt pt-long">{{ 'base.header1'|trans }}</p>
+            <p class="pt pt-short">{{ 'base.header2'|trans }}</p>
+            <p class="subtitle">{{ 'base.subtitle'|trans }}</p>
         </div>
     </div>
     {%- if homepage is not defined %}
@@ -74,8 +74,8 @@
         {% block body %}{% endblock %}
     </div>
     <footer>
-        <p class="no-bottom">© 2003 – 2023 KST Žochár Topoľčany</p>
-        <p>Informácie o turistickom oddiely z mesta Topoľčany.</p>
+        <p class="no-bottom">{{ 'base.footer1'|trans }}</p>
+        <p>{{ 'base.footer2'|trans }}</p>
     </footer>
 </div>
 {% block javascripts %}

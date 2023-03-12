@@ -1,0 +1,13 @@
+parameters:
+    level: 6
+    phpVersion: 80100
+    reportUnmatchedIgnoredErrors: false
+
+    tmpDir: .phpstan.cache
+
+    paths:
+        - ./bin
+        - ./config
+        - ./public
+        - ./src
+        - ./tests

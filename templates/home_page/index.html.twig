@@ -2,7 +2,7 @@
 {% block body %}
 
 {% if is_granted('ROLE_ADMIN') %}
-<div class="row no-gutters"><p>Ahoj <b>{{ app.user.displayName }}</b>,<br/>vyber si kategóriou, ktorú chceš upravovať.</p></div>
+<div class="row no-gutters"><p>{{ 'login.welcome1'|trans}} <b>{{ app.user.displayName }}</b>,<br>{{ 'login.welcome2'|trans}} </p></div>
 {% endif %}
 
 {% set currentYear = 'now'|date('Y') %}
@@ -60,7 +60,7 @@
 <div class="row no-gutters hp-top">
   <div class="col-sm">
     <div class="hp hp-right">
-      <p class="hp-header">Viacdňové podujatia</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionB'|trans }}</p>
       <p class="no-bottom hp-desc">Bližšie informácie o dlhších podujatiach</p>
       {% if latestBlogSectionId2 %}
         <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date('Y'), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
@@ -81,7 +81,7 @@
   </div>
   <div class="col-sm">
     <div class="hp hp-left">
-      <p class="hp-header">Receptúry na túry</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionC'|trans }}</p>
       <p class="no-bottom hp-desc">Obľúbené sladkosti na výletoch</p>
       {% if latestBlogSectionId3 %}
         <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'receptury-na-tury', year: latestBlogSectionId3.createdAt|date('Y'), slug: latestBlogSectionId3.slug}) }}">{{ latestBlogSectionId3.title }}</a></p>
@@ -96,7 +96,7 @@
  <div class="row no-gutters hp-top">
   <div class="col-sm-4">
     <div class="hp hp-right">
-      <p class="hp-header">Z klubovej kuchyne</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionA'|trans }}</p>
       {% if latestBlogSectionId1 %}
         <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId1.createdAt|date("Y"), slug: latestBlogSectionId1.slug}) }}">{{ latestBlogSectionId1.title }}</a></p>
         <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">Viac článkov</a></div>

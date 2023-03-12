@@ -105,7 +105,7 @@ class EventChronicleController extends AbstractController
         Request $request
     ): RedirectResponse|Response {
 
-        /** @var $form SetDateType */
+        /** @var SetDateType $form  */
         $form = $this->createForm(SetDateType::class, null, [
             'save_button_label' => 'Vytvor kroniku',
         ]);
@@ -149,8 +149,7 @@ class EventChronicleController extends AbstractController
         EventRepository $eventRepository,
         ManagerRegistry $doctrine
     ): RedirectResponse|Response {
-        $dateTime = new DateTimeImmutable($date);
-        $dateTime->setTime(0, 0, 0);
+        $dateTime = (new DateTimeImmutable($date))->setTime(0, 0, 0);
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => null]);
 
         $chronicle = new EventChronicle();
@@ -185,7 +184,6 @@ class EventChronicleController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /* @var $form EventChronicleType */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
@@ -286,7 +284,7 @@ class EventChronicleController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var $form EventChronicleType  */
+        /** @var EventChronicleType $form   */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 

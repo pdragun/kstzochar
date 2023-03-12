@@ -18,6 +18,7 @@ use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -115,7 +116,6 @@ class EventInvitationController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function createInvitationFromDate(int $year, Request $request): RedirectResponse|Response
     {
-        /** @var $form SetDateType */
         $form = $this->createForm(SetDateType::class, null, [
             'save_button_label' => 'Vytvor pozvánku',
         ]);
@@ -195,7 +195,6 @@ class EventInvitationController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /* @var $form EventInvitationType */
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 
@@ -293,7 +292,6 @@ class EventInvitationController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /* @var $form EventInvitationType */
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 

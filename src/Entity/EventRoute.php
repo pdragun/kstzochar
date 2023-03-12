@@ -60,9 +60,8 @@ class EventRoute
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
     private ?Collection $eventChronicles;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer', nullable: true)]
     #[Assert\Type('integer')]
-    #[Assert\NotBlank]
     #[Assert\Positive]
     private ?int $elevation = null;
 

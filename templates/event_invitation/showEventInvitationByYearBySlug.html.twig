@@ -40,15 +40,15 @@
     {% set countRoutes = invitation.routes|length %}
     {% if countRoutes > 1 %}
         <div id="routes">
-          <p>Trasy:</p>
+            <p><b>{{ 'route.routes'|trans }}:</b></p>
           <ul>
           {% for route in invitation.routes %}
-              <li>{{route.title}} ({{route.length}} km)</li>
+              <li>{{route.title}} ({{ 'route.length'|trans }} {{route.length}} km{% if route.elevation is not empty %}, {{ 'route.elevation'|trans }} {{route.elevation}} m{% endif %})</li>
           {% endfor %}
           </ul>
         </div>
     {% elseif countRoutes == 1 %}
-        <div id="routes"><p><b>Trasa:</b> {{invitation.routes[0].title}} ({{invitation.routes[0].length}} km).</p></div>
+        <div id="routes"><p><b>{{ 'route.route'|trans }}:</b> {{invitation.routes[0].title}} ({{ 'route.length'|trans }} {{invitation.routes[0].length}} km{% if invitation.routes[0].elevation is not empty %}, {{ 'route.elevation'|trans }}: {{invitation.routes[0].elevation}} m{% endif %}).</p></div>
     {% endif %}
   <div class="e-content">
     {{ invitation.content|raw }}

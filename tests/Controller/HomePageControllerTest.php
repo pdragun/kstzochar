@@ -13,7 +13,7 @@ class HomePageControllerTest extends WebTestCase
      * 
      * Simple test mainly for http code 200 and some values
      */
-    public function testHomePage()
+    public function testHomePage(): void
     {
         $client = static::createClient();
         $client->request('GET', '/');

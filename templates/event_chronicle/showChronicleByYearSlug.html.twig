@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ chronicle.title }} - Kronika  - {% endblock %}
+{% block title %}{{ chronicle.title }} - {{ 'chronicle.chronicle'|trans }}  - {% endblock %}
 {% block description %}{{ chronicle.summary }}{% endblock %}
 
 
@@ -46,21 +46,21 @@
     {% set countRoutes = chronicle.routes|length %}
     {% if countRoutes > 1 %}
         <div id="routes">
-          <p>Trasy:</p>
+            <p><b>{{ 'route.routes'|trans }}:</b></p>
           <ul>
           {% for route in chronicle.routes %}
-              <li>{{route.title}} ({{route.length}} km)</li>
+              <li>{{route.title}} ({{ 'route.length'|trans }} {{route.length}} km{% if route.elevation is not empty %}, {{ 'route.elevation'|trans }} {{route.elevation}} m{% endif %})</li>
           {% endfor %}
           </ul>
         </div>
     {% elseif countRoutes == 1 %}
-        <div id="routes"><p><b>Trasa:</b> {{chronicle.routes[0].title}} ({{chronicle.routes[0].length}} km).</p></div>
+        <div id="routes"><p><b>{{ 'route.route'|trans }}:</b> {{chronicle.routes[0].title}} ({{ 'route.length'|trans }} {{chronicle.routes[0].length}} km{% if chronicle.routes[0].elevation is not empty %}, {{ 'route.elevation'|trans }}: {{chronicle.routes[0].elevation}} m{% endif %}).</p></div>
     {% endif %}
 
     {{ chronicle.content|raw }}
 
 {% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}    
-    <p><a href="{{chronicle.photoAlbumG}}"><strong>Fotografie z podujatia {{ chronicle.title }}.</strong></a></p>
+    <p><a href="{{chronicle.photoAlbumG}}"><strong>{{ 'photoAlbum.description'|trans }} {{ chronicle.title }}.</strong></a></p>
 {% endif %}
 
 

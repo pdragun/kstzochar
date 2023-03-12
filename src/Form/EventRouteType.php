@@ -6,7 +6,6 @@ namespace App\Form;
 
 use App\Entity\EventRoute;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,6 +19,7 @@ class EventRouteType extends AbstractType
                 'required' => false,
             ])
             ->add('length')
+            ->add('elevation')
             // ->add('createdAt')
             ->add('gpxSlug')
             // ->add('eventDate')
