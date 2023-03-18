@@ -27,11 +27,9 @@ class ContactControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): array
+    public function provide404Urls(): iterable
     {
-        return [
-            ['/kontak'],
-            ['/kontakta'],
-        ];
+        yield ['/kontak'];
+        yield ['/kontakta'];
     }
 }

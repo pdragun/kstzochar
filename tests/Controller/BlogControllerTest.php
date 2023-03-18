@@ -78,22 +78,20 @@ class BlogControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound());
     }
 
-    public function provide404Urls(): array
+    public function provide404Urls(): iterable
     {
-        return [
-            ['/blo'],
-            ['/bloga'],
-            ['/blog/2000'],
-            ['/blog/3000'],
-            ['/blog/asdf'],
-            ['/blog/z-klubovej-kuchyn'],
-            ['/blog/z-klubovej-kuchynea'],
-            ['/blog/z-klubovej-kuchyne/2000/'],
-            ['/blog/z-klubovej-kuchyne/3000/'],
-            ['/blog/z-klubovej-kuchyne/2asdf'],
-            ['/blog/z-klubovej-kuchyne/2012/historia-turistiky'],
-            ['/blog/z-klubovej-kuchyne/2011/historia-turistiky2'],
-        ];
+        yield ['/blo'];
+        yield ['/bloga'];
+        yield ['/blog/2000'];
+        yield ['/blog/3000'];
+        yield ['/blog/asdf'];
+        yield ['/blog/z-klubovej-kuchyn'];
+        yield ['/blog/z-klubovej-kuchynea'];
+        yield ['/blog/z-klubovej-kuchyne/2000/'];
+        yield ['/blog/z-klubovej-kuchyne/3000/'];
+        yield ['/blog/z-klubovej-kuchyne/2asdf'];
+        yield ['/blog/z-klubovej-kuchyne/2012/historia-turistiky'];
+        yield ['/blog/z-klubovej-kuchyne/2011/historia-turistiky2'];
     }
 
     /**
@@ -113,15 +111,13 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): array
+    public function provide302Urls(): iterable
     {
-        return [
-            ['/blog/2000/pridat-novy/add'],
-            ['/blog/blog-slug/pridat-novy/add'],
-            ['/blog/blog-slug/2020/article-slug/edit'],
-            ['/blog/blog-slug/2020/article-slug/delete'],
-            ['/blog/blog-slug/2020/article-slug/delete/yes'],
-        ];
+        yield ['/blog/2000/pridat-novy/add'];
+        yield ['/blog/blog-slug/pridat-novy/add'];
+        yield ['/blog/blog-slug/2020/article-slug/edit'];
+        yield ['/blog/blog-slug/2020/article-slug/delete'];
+        yield ['/blog/blog-slug/2020/article-slug/delete/yes'];
     }
 
     /**
@@ -141,21 +137,19 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): array
+    public function provideAdmin404Urls(): iterable
     {
-        return [
-            ['/blog/viacdnove-akcie1/pridat-novy/add'],
-            ['/blog/z-klubovej-kuchyne1/pridat-novy/add'],
-            ['/blog/receptury-na-tury1/2011/cergovske-susienky/edit'],
-            ['/blog/viacdnove-akcie1/2011/nizke-tatry/edit'],
-            ['/blog/z-klubovej-kuchyne1/2011/Turisticka-historia/edit'],
-            ['/blog/receptury-na-tury/2011/cergovske-susienky1/edit'],
-            ['/blog/viacdnove-akcie/2011/nizke-tatry1/edit'],
-            ['/blog/z-klubovej-kuchyne/2011/Turisticka-historia1/edit'],
-            ['/blog/receptury-na-tury/2010/cergovske-susienky/edit'],
-            ['/blog/viacdnove-akcie/2010/nizke-tatry/edit'],
-            ['/blog/z-klubovej-kuchyne/2010/Turisticka-historia/edit'],
-        ];
+        yield ['/blog/viacdnove-akcie1/pridat-novy/add'];
+        yield ['/blog/z-klubovej-kuchyne1/pridat-novy/add'];
+        yield ['/blog/receptury-na-tury1/2011/cergovske-susienky/edit'];
+        yield ['/blog/viacdnove-akcie1/2011/nizke-tatry/edit'];
+        yield ['/blog/z-klubovej-kuchyne1/2011/Turisticka-historia/edit'];
+        yield ['/blog/receptury-na-tury/2011/cergovske-susienky1/edit'];
+        yield ['/blog/viacdnove-akcie/2011/nizke-tatry1/edit'];
+        yield ['/blog/z-klubovej-kuchyne/2011/Turisticka-historia1/edit'];
+        yield ['/blog/receptury-na-tury/2010/cergovske-susienky/edit'];
+        yield ['/blog/viacdnove-akcie/2010/nizke-tatry/edit'];
+        yield ['/blog/z-klubovej-kuchyne/2010/Turisticka-historia/edit'];
     }
 
     /**

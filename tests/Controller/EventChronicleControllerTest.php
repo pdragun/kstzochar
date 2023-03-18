@@ -31,25 +31,19 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    /**
-     * Get list of links
-     * @return array List of links to check
-     */
-    public function provide404Urls(): array
+    public function provide404Urls(): iterable
     {
-        return [
-            ['/kronik'],
-            ['/kronikaa'],
-            ['/kronika/2000'],
-            ['/kronika/3000'],
-            ['/kronika/2010/jaskyne-uhradusdf'],
-            ['/kronika/2012/jaskyne-uhradu'],
-            ['/kronika/2010/jaskyne-uhradu/asdf'],
-            ['/kronika/2011/asdf'],
-            ['/kronika/2000/asdf'],
-            ['/kronika/1asdf'],
-            ['/kronika/asdf/asdf'],
-        ];
+        yield ['/kronik'];
+        yield ['/kronikaa'];
+        yield ['/kronika/2000'];
+        yield ['/kronika/3000'];
+        yield ['/kronika/2010/jaskyne-uhradusdf'];
+        yield ['/kronika/2012/jaskyne-uhradu'];
+        yield ['/kronika/2010/jaskyne-uhradu/asdf'];
+        yield ['/kronika/2011/asdf'];
+        yield ['/kronika/2000/asdf'];
+        yield ['/kronika/1asdf'];
+        yield ['/kronika/asdf/asdf'];
     }
 
     /** Test list of existing chronicles per year */
@@ -91,15 +85,13 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): array
+    public function provide302Urls(): iterable
     {
-        return [
-            ['/kronika/2000/pridat-novu/add'],
-            ['/kronika/2000/pridat-novu/2020-10-25/add'],
-            ['/kronika/2020/invitation-slug/edit'],
-            ['/kronika/2020/invitation-slug/delete'],
-            ['/kronika/2020/invitation-slug/delete/yes'],
-        ];
+        yield ['/kronika/2000/pridat-novu/add'];
+        yield ['/kronika/2000/pridat-novu/2020-10-25/add'];
+        yield ['/kronika/2020/invitation-slug/edit'];
+        yield ['/kronika/2020/invitation-slug/delete'];
+        yield ['/kronika/2020/invitation-slug/delete/yes'];
     }
 
     /**

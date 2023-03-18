@@ -33,23 +33,21 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): array
+    public function provide404Urls(): iterable
     {
-        return [
-            ['/pozvank'],
-            ['/pozvankya'],
-            ['/pozvanky/aktualn'],
-            ['/pozvanky/aktualnea'],
-            ['/pozvanky/2000'],
-            ['/pozvanky/3000'],
-            ['/pozvanky/2011/gulasove-opojenie-v-tesarochasdf'],
-            ['/pozvanky/2015/gulasove-opojenie-v-tesaroch'],
-            ['/pozvanky/2011/gulasove-opojenie-v-tesaroch/asdf'],
-            ['/pozvanky/2011/asdf'],
-            ['/pozvanky/2000/asdf'],
-            ['/pozvanky/1asdf'],
-            ['/pozvanky/asdf/200'],
-        ];
+        yield ['/pozvank'];
+        yield ['/pozvankya'];
+        yield ['/pozvanky/aktualn'];
+        yield ['/pozvanky/aktualnea'];
+        yield ['/pozvanky/2000'];
+        yield ['/pozvanky/3000'];
+        yield ['/pozvanky/2011/gulasove-opojenie-v-tesarochasdf'];
+        yield ['/pozvanky/2015/gulasove-opojenie-v-tesaroch'];
+        yield ['/pozvanky/2011/gulasove-opojenie-v-tesaroch/asdf'];
+        yield ['/pozvanky/2011/asdf'];
+        yield ['/pozvanky/2000/asdf'];
+        yield ['/pozvanky/1asdf'];
+        yield ['/pozvanky/asdf/200'];
     }
 
     /** Test list of existing invitations per year */
@@ -114,15 +112,13 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): array
+    public function provide302Urls(): iterable
     {
-        return [
-            ['/pozvanky/2000/pridat-novu/add'],
-            ['/pozvanky/2000/pridat-novu/2020-10-25/add'],
-            ['/pozvanky/2020/invitation-slug/edit'],
-            ['/pozvanky/2020/invitation-slug/delete'],
-            ['/pozvanky/2020/invitation-slug/delete/yes'],
-        ];
+        yield ['/pozvanky/2000/pridat-novu/add'];
+        yield ['/pozvanky/2000/pridat-novu/2020-10-25/add'];
+        yield ['/pozvanky/2020/invitation-slug/edit'];
+        yield ['/pozvanky/2020/invitation-slug/delete'];
+        yield ['/pozvanky/2020/invitation-slug/delete/yes'];
     }
 
     /**
@@ -141,12 +137,10 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): array
+    public function provideAdmin404Urls(): iterable
     {
-        return [
-            ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'],
-            ['/pozvanky/2011/gulasove-opojenie-v-tesaroch1/edit'],
-        ];
+        yield ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'];
+        yield ['/pozvanky/2011/gulasove-opojenie-v-tesaroch1/edit'];
     }
 
     /**
