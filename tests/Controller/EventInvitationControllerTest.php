@@ -70,8 +70,8 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Gulášové opojenie v Tesároch');
         $this->assertEquals('Dátum konania: 10. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
         $this->assertEquals('Trasy:', $crawler->filterXPath('//*[@id="routes"]/p')->text());
-        $this->assertEquals('Okolie Tesár, športové hry (dĺžka 5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+        $this->assertEquals('Okolie Tesár, športové hry (dĺžka 5 km, prevýšenie 10 m)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km, prevýšenie 11 m)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
     }
 
     /** Test upcoming invitations */
@@ -188,6 +188,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals('cyklo', $values[$formName]['sportType'][2]);
         $this->assertEquals('Okolie Tesár, športové hry', $values[$formName]['routes'][0]['title']);
         $this->assertEquals(5, $values[$formName]['routes'][0]['length']);
+        $this->assertEquals(10, $values[$formName]['routes'][0]['elevation']);
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie', $values[$formName]['routes'][1]['title']);
         $this->assertEquals(15, $values[$formName]['routes'][1]['length']);
         
@@ -201,6 +202,7 @@ class EventInvitationControllerTest extends WebTestCase
         $values[$formName]['sportType'][2] = 'cyklo';
         $values[$formName]['routes'][0]['title'] = 'Okolie Tesár, športové hry1';
         $values[$formName]['routes'][0]['length'] = 20;
+        $values[$formName]['routes'][0]['elevation'] = 11;
         unset($values[$formName]['routes'][1]); //Remove second route
 
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles()); // save
@@ -213,7 +215,7 @@ class EventInvitationControllerTest extends WebTestCase
         // checked if new values has been saved
         $this->assertSelectorTextContains('html h1', 'Gulášové opojenie v Tesároch1');
         $this->assertEquals('Dátum konania: 11. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
-        $this->assertEquals('Trasa: Okolie Tesár, športové hry1 (dĺžka 20 km).', $crawler->filterXPath('//*[@id="routes"]/p')->text());
+        $this->assertEquals('Trasa: Okolie Tesár, športové hry1 (dĺžka 20 km, prevýšenie 11 m).', $crawler->filterXPath('//*[@id="routes"]/p')->text());
 
 
         $link = $crawler->selectLink('Upraviť túto')->link();
@@ -237,6 +239,7 @@ class EventInvitationControllerTest extends WebTestCase
         // $values[$formName]['sportType'][2] = 'cyklo'; //already in form, not need to touch
         $values[$formName]['routes'][0]['title'] = 'Okolie Tesár, športové hry';
         $values[$formName]['routes'][0]['length'] = 5;
+        unset($values[$formName]['routes'][0]['elevation']);
         $values[$formName]['routes'][1]['title'] = 'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie';
         $values[$formName]['routes'][1]['length'] = 15;
 

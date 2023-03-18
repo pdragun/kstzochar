@@ -65,7 +65,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu');
         $this->assertEquals('Trasa:', $crawler->filter('#routes > p > b')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km).', $crawler->filterXPath('//*[@id="routes"]/p/text()')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km, prevýšenie 11 m).', $crawler->filterXPath('//*[@id="routes"]/p/text()')->text());
     }
 
     /**
@@ -151,6 +151,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('zjazdove-lyzovanie', $values[$formName]['sportType'][4]);
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie', $values[$formName]['routes'][0]['title']);
         $this->assertEquals(15, $values[$formName]['routes'][0]['length']);
+        $this->assertEquals(11, $values[$formName]['routes'][0]['elevation']);
+
 
         // edit values
         $values[$formName]['title'] = 'Jaskyne Úhradu1';
@@ -162,6 +164,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['sportType'][4] = 'zjazdove-lyzovanie';
         $values[$formName]['routes'][0]['title'] = 'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie1'; //Edit Route #1
         $values[$formName]['routes'][0]['length'] = 20; // edit Route #1
+        $values[$formName]['routes'][0]['elevation'] = 21; // edit Route #1
         $values[$formName]['routes'][1]['title'] = 'Podhradie – Opálená skala – Džimova spása – Podhradie'; // Add new Route #2
         $values[$formName]['routes'][1]['length'] = 10; // add new Route #2
 
@@ -175,7 +178,7 @@ class EventChronicleControllerTest extends WebTestCase
         // checked if new values has been saved
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu1');
         $this->assertEquals('Trasy:', $crawler->filter('#routes > p')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie1 (dĺžka 20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie1 (dĺžka 20 km, prevýšenie 21 m)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Podhradie (dĺžka 10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
 
         $link = $crawler->selectLink('Upraviť túto')->link();
@@ -202,6 +205,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['sportType'][4] = 'zjazdove-lyzovanie';
         $values[$formName]['routes'][0]['title'] = 'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie';
         $values[$formName]['routes'][0]['length'] = 15;
+        $values[$formName]['routes'][0]['elevation'] = 11;
         unset($values[$formName]['routes'][1]); // delete second route (both title and length)
       
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());

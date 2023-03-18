@@ -20,14 +20,23 @@ class EventRouteFixtures extends Fixture
         $eventRoute1 = new EventRoute();
         $eventRoute1->setTitle('Okolie Tesár, športové hry');
         $eventRoute1->setLength(5);
+        $eventRoute1->setElevation(10);
         $eventRoute1->setCreatedAt(new DateTimeImmutable('2011-09-04 15:55:39'));
         $manager->persist($eventRoute1);
 
         $eventRoute2 = new EventRoute();
         $eventRoute2->setTitle('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie');
         $eventRoute2->setLength(15);
+        $eventRoute2->setElevation(11);
         $eventRoute2->setCreatedAt(new DateTimeImmutable('2011-08-03 16:28:31'));
         $manager->persist($eventRoute2);
+
+        //Only for testing creating entity
+        $eventRoute3 = new EventRoute();
+        $eventRoute3->setTitle('Test title');
+        $eventRoute3->setLength(15);
+        $eventRoute3->setCreatedAt(new DateTimeImmutable('2021-08-03 16:28:31'));
+        $manager->persist($eventRoute3);
 
         $manager->flush();
         $this->addReference(self::EVENT_ROUTE_FOR_INVITATION_REFERENCE, $eventRoute1);

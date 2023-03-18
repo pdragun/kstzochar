@@ -48,7 +48,7 @@
           </ul>
         </div>
     {% elseif countRoutes == 1 %}
-        <div id="routes"><p><b>{{ 'route.route'|trans }}:</b> {{invitation.routes[0].title}} ({{ 'route.length'|trans }} {{invitation.routes[0].length}} km{% if invitation.routes[0].elevation is not empty %}, {{ 'route.elevation'|trans }}: {{invitation.routes[0].elevation}} m{% endif %}).</p></div>
+        <div id="routes"><p><b>{{ 'route.route'|trans }}:</b> {{invitation.routes[0].title}} ({{ 'route.length'|trans }} {{invitation.routes[0].length}} km{% if invitation.routes[0].elevation is not empty %}, {{ 'route.elevation'|trans }} {{invitation.routes[0].elevation}} m{% endif %}).</p></div>
     {% endif %}
   <div class="e-content">
     {{ invitation.content|raw }}
