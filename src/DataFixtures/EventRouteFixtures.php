@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\EventRoute;
+use App\Service\Gpx;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use phpGPX\Models\Metadata;
+use phpGPX\phpGPX;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EventRouteFixtures extends Fixture
 {
@@ -15,13 +19,31 @@ class EventRouteFixtures extends Fixture
     public const EVENT_ROUTE_FOR_INVITATION_REFERENCE = 'event-route-for-invitation';
     public const EVENT_ROUTE_FOR_CHRONICLE_REFERENCE = 'event-route-for-chronicle';
 
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    )
+    {}
+
     public function load(ObjectManager $manager): void
     {
+        $gpx = new phpGPX();
+        $file = $gpx->load(__DIR__ . '/gpx/garmin.gpx');
+
+        $gpx = Gpx::transform($file);
+        $title = 'Okolie Tesár, športové hry';
+        $gpx->setMetaTitle($title);
+        $gpx->setAuthor(
+            author: $this->translator->trans('gpx.metadata.author'),
+            emailId: $this->translator->trans('gpx.metadata.emailId'),
+            emailDomain: $this->translator->trans('gpx.metadata.emailDomain'),
+        );
+
         $eventRoute1 = new EventRoute();
-        $eventRoute1->setTitle('Okolie Tesár, športové hry');
+        $eventRoute1->setTitle($title);
         $eventRoute1->setLength(5);
         $eventRoute1->setElevation(10);
         $eventRoute1->setCreatedAt(new DateTimeImmutable('2011-09-04 15:55:39'));
+        $eventRoute1->setGpx($file->toXML()->saveXML());
         $manager->persist($eventRoute1);
 
         $eventRoute2 = new EventRoute();

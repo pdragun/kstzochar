@@ -65,6 +65,10 @@ class EventRoute
     #[Assert\Positive]
     private ?int $elevation = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Type('string')]
+    private ?string $gpx = null;
+
     public function __construct()
     {
         $this->eventInvitations = new ArrayCollection();
@@ -195,6 +199,18 @@ class EventRoute
     public function setElevation(?int $elevation): self
     {
         $this->elevation = $elevation;
+
+        return $this;
+    }
+
+    public function getGpx(): ?string
+    {
+        return $this->gpx;
+    }
+
+    public function setGpx(?string $gpx): self
+    {
+        $this->gpx = $gpx;
 
         return $this;
     }

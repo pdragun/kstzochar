@@ -98,3 +98,8 @@ sportTypes:
     slug: vht
     desc: vysokohorská turistika
     shortcut: VhT
+gpx:
+  metadata:
+    author: KST Žochár Topoľčany
+    emailId: peter
+    emailDomain: zochar.sk
