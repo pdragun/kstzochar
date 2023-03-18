@@ -52,3 +52,49 @@ homepage:
     sectionA: Z klubovej kuchyne
     sectionB: Viacdňové podujatia
     sectionC: Receptúry na túry
+sportTypes:
+  hiking:
+    name: pešo
+    slug: peso
+    desc: po nohách
+    shortcut: P
+  xCountrySki:
+    name: bežky
+    slug: bezky
+    desc: lyžiarska turistika
+    shortcut: L
+  cycling:
+    name: bicyklom
+    slug: cyklo
+    desc: cyklo
+    shortcut: C
+  bus:
+    name: autobus
+    slug: bus
+    desc: výlet s objednaným autobusom
+    shortcut: BUS
+  ski:
+    name: zjazdové l.
+    slug: zjazdove-lyzovanie
+    desc: zjazdové lyžovanie
+    shortcut: Z
+  water:
+    name: voda
+    slug: voda
+    desc: vodná turistika
+    shortcut: V
+  car:
+    name: auto
+    slug: auto
+    desc: ideme na výlet autami
+    shortcut: A
+  meet:
+    name: sedí sa
+    slug: sedi-sa
+    desc: podujatia typu schôdza a pod.
+    shortcut: S
+  scrambling:
+    name: VhT
+    slug: vht
+    desc: vysokohorská turistika
+    shortcut: VhT

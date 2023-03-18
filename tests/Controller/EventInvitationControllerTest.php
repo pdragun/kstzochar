@@ -72,8 +72,8 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Gulášové opojenie v Tesároch');
         $this->assertEquals('Dátum konania: 10. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
         $this->assertEquals('Trasy:', $crawler->filterXPath('//*[@id="routes"]/p')->text());
-        $this->assertEquals('Okolie Tesár, športové hry (5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+        $this->assertEquals('Okolie Tesár, športové hry (dĺžka 5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
     }
 
     /** Test upcoming invitations */
@@ -219,7 +219,7 @@ class EventInvitationControllerTest extends WebTestCase
         // checked if new values has been saved
         $this->assertSelectorTextContains('html h1', 'Gulášové opojenie v Tesároch1');
         $this->assertEquals('Dátum konania: 11. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
-        $this->assertEquals('Trasa: Okolie Tesár, športové hry1 (20 km).', $crawler->filterXPath('//*[@id="routes"]/p')->text());
+        $this->assertEquals('Trasa: Okolie Tesár, športové hry1 (dĺžka 20 km).', $crawler->filterXPath('//*[@id="routes"]/p')->text());
 
 
         $link = $crawler->selectLink('Upraviť túto')->link();
@@ -254,7 +254,7 @@ class EventInvitationControllerTest extends WebTestCase
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('html h1', 'Gulášové opojenie v Tesároch'); // chronicle has the same values as before test
         $this->assertEquals('Dátum konania: 10. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
-        $this->assertEquals('Okolie Tesár, športové hry (5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+        $this->assertEquals('Okolie Tesár, športové hry (dĺžka 5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
     }
 }

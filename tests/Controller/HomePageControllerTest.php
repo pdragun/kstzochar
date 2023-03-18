@@ -10,7 +10,6 @@ class HomePageControllerTest extends WebTestCase
 {
     /**
      * Test main home page
-     * 
      * Simple test mainly for http code 200 and some values
      */
     public function testHomePage(): void

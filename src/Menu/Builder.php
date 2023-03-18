@@ -24,7 +24,11 @@ final class Builder implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    public function __construct(private readonly FactoryInterface $factory, private readonly ManagerRegistry $doctrine, private readonly TranslatorInterface $translator)  {}
+    public function __construct(
+        private readonly FactoryInterface $factory,
+        private readonly ManagerRegistry $doctrine,
+        private readonly TranslatorInterface $translator
+    ) {}
 
     /** @throws InvalidArgumentException */
     public function createMainMenu(array $options): ItemInterface
@@ -36,7 +40,6 @@ final class Builder implements ContainerAwareInterface
             ['route' => 'home_page'],
         );
         $menu->setChildrenAttribute('class', 'navbar-nav mr-auto');
-
         $menu->addChild(
             $this->translator->trans('menu.homepage2'),
             ['route' => 'home_page'],

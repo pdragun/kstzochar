@@ -7,84 +7,91 @@ namespace App\DataFixtures;
 use App\Entity\SportType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SportTypeFixtures extends Fixture
 {
     use SlugTrait;
 
-    public const SPORT_TYPE_1_REFERENCE = 'pešo';
-    public const SPORT_TYPE_2_REFERENCE = 'bežky';
-    public const SPORT_TYPE_3_REFERENCE = 'bicyklom';
-    public const SPORT_TYPE_4_REFERENCE = 'autobus';
-    public const SPORT_TYPE_5_REFERENCE = 'zjazdové lyžovanie';
-    public const SPORT_TYPE_6_REFERENCE = 'vodná turistika';
-    public const SPORT_TYPE_7_REFERENCE = 'auto';
-    public const SPORT_TYPE_8_REFERENCE = 'sedí sa';
-    public const SPORT_TYPE_9_REFERENCE = 'vht';
+    public const SPORT_TYPE_1_REFERENCE = 'hiking';
+    public const SPORT_TYPE_2_REFERENCE = 'x-country-ski';
+    public const SPORT_TYPE_3_REFERENCE = 'cycling';
+    public const SPORT_TYPE_4_REFERENCE = 'bus';
+    public const SPORT_TYPE_5_REFERENCE = 'ski';
+    public const SPORT_TYPE_6_REFERENCE = 'water';
+    public const SPORT_TYPE_7_REFERENCE = 'car';
+    public const SPORT_TYPE_8_REFERENCE = 'meet';
+    public const SPORT_TYPE_9_REFERENCE = 'scrambling';
+
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+    )
+    {
+    }
 
     public function load(ObjectManager $manager): void
     {
         $sportType1 = new SportType();
-        $sportType1->setTitle('pešo');
-        $sportType1->setSlug($this->createSlug('peso'));
-        $sportType1->setDescription('po nohách');
-        $sportType1->setShortcut('P');
+        $sportType1->setTitle($this->translator->trans('sportTypes.hiking.name'));
+        $sportType1->setSlug($this->createSlug($this->translator->trans('sportTypes.hiking.slug')));
+        $sportType1->setDescription($this->translator->trans('sportTypes.hiking.desc'));
+        $sportType1->setShortcut($this->translator->trans('sportTypes.hiking.shortcut'));
         $manager->persist($sportType1);
 
         $sportType2 = new SportType();
-        $sportType2->setTitle('bežky');
-        $sportType2->setSlug($this->createSlug('bezky'));
-        $sportType2->setDescription('lyžiarska turistika');
-        $sportType2->setShortcut('L');
+        $sportType2->setTitle($this->translator->trans('sportTypes.xCountrySki.name'));
+        $sportType2->setSlug($this->createSlug($this->translator->trans('sportTypes.xCountrySki.slug')));
+        $sportType2->setDescription($this->translator->trans('sportTypes.xCountrySki.desc'));
+        $sportType2->setShortcut($this->translator->trans('sportTypes.xCountrySki.shortcut'));
         $manager->persist($sportType2);
 
         $sportType3 = new SportType();
-        $sportType3->setTitle('bicyklom');
-        $sportType3->setSlug($this->createSlug('cyklo'));
-        $sportType3->setDescription('cyklo');
-        $sportType3->setShortcut('C');
+        $sportType3->setTitle($this->translator->trans('sportTypes.cycling.name'));
+        $sportType3->setSlug($this->createSlug($this->translator->trans('sportTypes.cycling.slug')));
+        $sportType3->setDescription($this->translator->trans('sportTypes.cycling.desc'));
+        $sportType3->setShortcut($this->translator->trans('sportTypes.cycling.shortcut'));
         $manager->persist($sportType3);
 
         $sportType4 = new SportType();
-        $sportType4->setTitle('autobus');
-        $sportType4->setSlug($this->createSlug('bus'));
-        $sportType4->setDescription('výlet s objednaným autobusom');
-        $sportType4->setShortcut('BUS');
+        $sportType4->setTitle($this->translator->trans('sportTypes.bus.name'));
+        $sportType4->setSlug($this->createSlug($this->translator->trans('sportTypes.bus.slug')));
+        $sportType4->setDescription($this->translator->trans('sportTypes.bus.desc'));
+        $sportType4->setShortcut($this->translator->trans('sportTypes.bus.shortcut'));
         $manager->persist($sportType4);
 
         $sportType5 = new SportType();
-        $sportType5->setTitle('zjazdové l.');
-        $sportType5->setSlug($this->createSlug('zjazdove-lyzovanie'));
-        $sportType5->setDescription('zjazdové lyžovanie');
-        $sportType5->setShortcut('Z');
+        $sportType5->setTitle($this->translator->trans('sportTypes.ski.name'));
+        $sportType5->setSlug($this->createSlug($this->translator->trans('sportTypes.ski.slug')));
+        $sportType5->setDescription($this->translator->trans('sportTypes.ski.desc'));
+        $sportType5->setShortcut($this->translator->trans('sportTypes.ski.shortcut'));
         $manager->persist($sportType5);
 
         $sportType6 = new SportType();
-        $sportType6->setTitle('voda');
-        $sportType6->setSlug($this->createSlug('voda'));
-        $sportType6->setDescription('vodná turistika');
-        $sportType6->setShortcut('V');
+        $sportType6->setTitle($this->translator->trans('sportTypes.water.name'));
+        $sportType6->setSlug($this->createSlug($this->translator->trans('sportTypes.water.slug')));
+        $sportType6->setDescription($this->translator->trans('sportTypes.water.desc'));
+        $sportType6->setShortcut($this->translator->trans('sportTypes.water.shortcut'));
         $manager->persist($sportType6);
 
         $sportType7 = new SportType();
-        $sportType7->setTitle('auto');
-        $sportType7->setSlug($this->createSlug('auto'));
-        $sportType7->setDescription('ideme na výlet autami');
-        $sportType7->setShortcut('A');
+        $sportType7->setTitle($this->translator->trans('sportTypes.car.name'));
+        $sportType7->setSlug($this->createSlug($this->translator->trans('sportTypes.car.slug')));
+        $sportType7->setDescription($this->translator->trans('sportTypes.car.desc'));
+        $sportType7->setShortcut($this->translator->trans('sportTypes.car.shortcut'));
         $manager->persist($sportType7);
 
         $sportType8 = new SportType();
-        $sportType8->setTitle('sedí sa');
-        $sportType8->setSlug($this->createSlug('sedi-sa'));
-        $sportType8->setDescription('podujatia typu schôdza a pod.');
-        $sportType8->setShortcut('S');
+        $sportType8->setTitle($this->translator->trans('sportTypes.meet.name'));
+        $sportType8->setSlug($this->createSlug($this->translator->trans('sportTypes.meet.slug')));
+        $sportType8->setDescription($this->translator->trans('sportTypes.meet.desc'));
+        $sportType8->setShortcut($this->translator->trans('sportTypes.meet.shortcut'));
         $manager->persist($sportType8);
 
         $sportType9 = new SportType();
-        $sportType9->setTitle('VhT');
-        $sportType9->setSlug($this->createSlug('vht'));
-        $sportType9->setDescription('vysokohorská turistika');
-        $sportType9->setShortcut('VhT');
+        $sportType9->setTitle($this->translator->trans('sportTypes.scrambling.name'));
+        $sportType9->setSlug($this->createSlug($this->translator->trans('sportTypes.scrambling.slug')));
+        $sportType9->setDescription($this->translator->trans('sportTypes.scrambling.desc'));
+        $sportType9->setShortcut($this->translator->trans('sportTypes.scrambling.shortcut'));
         $manager->persist($sportType9);
         $manager->flush();
 

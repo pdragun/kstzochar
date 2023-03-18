@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SecurityController extends AbstractController
 {
     /** @throws Exception */
-    #[GET('/logout', name: 'logout', methods: ['GET'])]
+    #[ROUTE('/logout', name: 'logout', methods: ['GET'])]
     public function logout(): void
     {
         // controller can be blank: it will never be called!

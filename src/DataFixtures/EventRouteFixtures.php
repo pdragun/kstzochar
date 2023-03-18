@@ -17,7 +17,6 @@ class EventRouteFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-       
         $eventRoute1 = new EventRoute();
         $eventRoute1->setTitle('Okolie Tesár, športové hry');
         $eventRoute1->setLength(5);

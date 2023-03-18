@@ -40,15 +40,13 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): array
+    public function provide404Urls(): iterable
     {
-        return [
-            ['/logi'],
-            ['/logina'],
-            ['/login/asdf'],
-            ['/logou'],
-            ['/logouta'],
-        ];
+        yield ['/logi'];
+        yield ['/logina'];
+        yield ['/login/asdf'];
+        yield ['/logou'];
+        yield ['/logouta'];
     }
 
     /** Test admin login */

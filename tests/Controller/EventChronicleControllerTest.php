@@ -71,7 +71,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu');
         $this->assertEquals('Trasa:', $crawler->filter('#routes > p > b')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (15 km).', $crawler->filterXPath('//*[@id="routes"]/p/text()')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km).', $crawler->filterXPath('//*[@id="routes"]/p/text()')->text());
     }
 
     /**
@@ -183,8 +183,8 @@ class EventChronicleControllerTest extends WebTestCase
         // checked if new values has been saved
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu1');
         $this->assertEquals('Trasy:', $crawler->filter('#routes > p')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie1 (20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
-        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Podhradie (10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie1 (dĺžka 20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Podhradie (dĺžka 10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
 
         $link = $crawler->selectLink('Upraviť túto')->link();
         $crawler = $client->click($link); // clik on button Edit
@@ -292,8 +292,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('23. 1. 2010', $crawler->filterXPath('//*[@id="start-date"]')->text());
         $this->assertEquals('24. 1. 2010', $crawler->filterXPath('//*[@id="end-date"]')->text());
         $this->assertEquals('Trasy:', $crawler->filter('#routes > p')->text());
-        $this->assertEquals('Donovaly - Chopok - Ďumbier a späť (10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
-        $this->assertEquals('Donovaly - Krížna a späť (20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+        $this->assertEquals('Donovaly - Chopok - Ďumbier a späť (dĺžka 10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
+        $this->assertEquals('Donovaly - Krížna a späť (dĺžka 20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
 
         $link = $crawler->selectLink('Chcem zmazať')->link();
         $crawler = $client->click($link);
