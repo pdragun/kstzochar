@@ -83,10 +83,14 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Aktuálne pozvánky na turistické podujatia');
 
-        $tomorrow = new DateTimeImmutable('tomorrow');
-
-        $this->assertEquals($tomorrow->format('j. n. Y'), $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[1]')->text());
-        $this->assertEquals('Upcoming event', $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]')->text());
+        $this->assertEquals(
+            (new DateTimeImmutable('tomorrow'))->format('j. n. Y'),
+            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[1]')->text(),
+        );
+        $this->assertEquals(
+            'Upcoming event',
+            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]')->text(),
+        );
 
         $link = $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]/a')->link();
         $crawler = $client->click($link);
