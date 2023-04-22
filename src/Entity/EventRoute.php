@@ -16,8 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * 
  * Defines the properties of the Event Route entity to represent routes for various events.
  * Route can be different for invitation or for chronicle even for the same event.
- * 
- * @author Peter Dragúň jr. <peter.dragun@gmail.com>
  */
 #[ORM\Entity(repositoryClass: EventRouteRepository::class)]
 #[ORM\Table(name: '`event_route`')]

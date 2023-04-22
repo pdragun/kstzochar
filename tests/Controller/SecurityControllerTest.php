@@ -11,7 +11,6 @@ class SecurityControllerTest extends WebTestCase
 {
     /**
      * Test if login & logout page exist
-     * 
      * Simple test mainly for http code 200
      */
     public function testLoginLogoutPage(): void

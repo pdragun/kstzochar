@@ -10,9 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class BlogControllerTest extends WebTestCase
 {
-    /**
-     * Test main blog page, where should be list of all blog categories
-     */
+    /** Test main blog page, where should be list of all blog categories */
     public function testShowAllBlogCategories(): void
     {
         $client = static::createClient();
@@ -22,9 +20,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Vyberte si prosím niektorú z kategórií');
     }
 
-    /**
-     * Test list of blogs for each category
-     */
+    /** Test list of blogs for each category */
     public function testShowBlogCategoriesOneByOne(): void
     {
         $client = static::createClient();
@@ -44,9 +40,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Receptúry na túry');
     }
 
-    /**
-     * Test blog entries for each category
-     */
+    /** Test blog entries for each category */
     public function testShowBlogPostInEachCategory(): void
     {
         $client = static::createClient();

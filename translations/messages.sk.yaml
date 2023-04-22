@@ -151,6 +151,7 @@ form:
     title: 'Trasa:'
     length: 'Dĺžka (v km):'
     elevation: 'Prevýšenie (v m):'
+  gpxtype:
     gpxFile: 'Priložiť GPX súbor:'
     mimeTypesMessage: Prosím, nahraj validný GPX (XML) dokument.
   eventChronicleType:

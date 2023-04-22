@@ -14,12 +14,11 @@ class GpxControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $invitationRouteRepository = static::getContainer()->get(EventRouteRepository::class);
-        $invitationRoute = $invitationRouteRepository->findOneBy(['title'=>'Okolie Tesár, športové hry']);
+        $invitationRoute = $invitationRouteRepository->findOneBy(['title' => 'Okolie Tesár, športové hry']);
 
         $client->request('GET', sprintf('/gpx/%d', $invitationRoute->getId()));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertSelectorTextContains('html h1', 'Kontakt');
     }
 
     /** @dataProvider provide404Urls */

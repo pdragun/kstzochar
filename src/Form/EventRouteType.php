@@ -40,20 +40,6 @@ class EventRouteType extends AbstractType
             // ->add('eventDate')
             // ->add('eventInvitations')
             // ->add('eventChronicles')
-            ->add('gpxFile', FileType::class, [
-                'label' => 'form.eventRouteType.gpxFile',
-                'mapped' => false,
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5120k',
-                        'mimeTypes' => [
-                            'application/xml',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid GPX (json) document',
-                    ])
-                ],
-            ])
         ;
     }
 
