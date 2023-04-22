@@ -7,10 +7,20 @@
 {% if is_granted('ROLE_ADMIN') %}
 <hr>
 <p>
-    <a class="btn btn-primary btn-sm" href="{{ path('blog_create', {blogSectionSlug: blogSection.getSlug()}) }}" role="button">Pridať nový článok</a>
-    <a class="btn btn-primary btn-sm" href="{{ path('blog_edit', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}" role="button">Upraviť tento</a>
-    <a class="btn btn-danger btn-sm" href="{{ path('blog_delete', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}
-" role="button" data-toggle="modal" data-target="#delete">Zmazať tento</a>
+    <a class="btn btn-primary btn-sm"
+       href="{{ path('blog_create', {blogSectionSlug: blogSection.getSlug()}) }}"
+       role="button"
+    >Pridať nový článok</a>
+    <a class="btn btn-primary btn-sm"
+       href="{{ path('blog_edit', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}"
+       role="button"
+    >Upraviť tento</a>
+    <a class="btn btn-danger btn-sm"
+       href="{{ path('blog_delete', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}"
+       role="button"
+       data-toggle="modal"
+       data-target="#delete"
+    >Zmazať tento</a>
 </p>
 <hr>
 <!-- Modal -->

@@ -48,10 +48,38 @@ photoAlbum:
 chronicle:
   chronicle: Kronika
 homepage:
+  plan:
+    title: Plán na celý rok
+    description: Zoznam (takmer) všetkých podujatí aj s dátumami
+    shortcut: Plán
+  invitations:
+    count: Ďalšie pozvánky
+    planForYear: Plán na rok
+  chronicle:
+    title: Kronika
+    subtitle: Text a fotky z predchádzajúcich akcií
+    link: Viac z kroniky
   blog:
-    sectionA: Z klubovej kuchyne
-    sectionB: Viacdňové podujatia
-    sectionC: Receptúry na túry
+    sectionA:
+      title: Z klubovej kuchyne
+      more: Viac článkov
+      missing: Zatiaľ nie sú vložené žiadne informácie :(
+    sectionB:
+      title: Viacdňové podujatia
+      description: Bližšie informácie o dlhších podujatiach
+      next: Ďalšie viacdňové akcie
+      missing: Zatiaľ nie sú vložené žiadne informácie :(
+    sectionC:
+      title: Receptúry na túry
+      description: Obľúbené sladkosti na výletoch
+      more: Viac receptov
+      missing: Zatiaľ nie sú vložené žiadne informácie :(
+  contact:
+    title: Kontakt
+    name: Ing. Peter Dragúň
+    email: peter@zochar.sk
+    tel: +421 905 609 385
+    more: Viac o KST Žochár Topoľčany
 sportTypes:
   hiking:
     name: pešo
@@ -103,3 +131,37 @@ gpx:
     author: KST Žochár Topoľčany
     emailId: peter
     emailDomain: zochar.sk
+form:
+  blogType:
+    title: 'Nadpis:'
+    summary: 'Úvod/krátky popis:'
+    content: 'Text článku:'
+    startDate: 'Dátum konania (od):'
+    sportType: 'Typ presunu:'
+    save: 'Uložiť článok'
+  eventInvitationType:
+    title: 'Nadpis:'
+    summary: 'Úvod/krátky popis:'
+    content: 'Text pozvánky:'
+    startDate: 'Dátum konania (od):'
+    endDate: 'Dátum konania (do):'
+    sportType: 'Typ presunu:'
+    save: 'Uložiť pozvánku'
+  eventRouteType:
+    title: 'Trasa:'
+    length: 'Dĺžka (v km):'
+    elevation: 'Prevýšenie (v m):'
+    gpxFile: 'Priložiť GPX súbor:'
+    mimeTypesMessage: 'Prosím, nahraj validný GPX (XML) dokument.'
+  eventChronicleType:
+    title: 'Nadpis:'
+    summary: 'Úvod/krátky popis:'
+    content: 'Text kroniky:'
+    startDate: 'Dátum konania (od):'
+    endDate: 'Dátum konania (do):'
+    photoAlbumG: 'Odkaz na Google Photos:'
+    sportType: 'Typ presunu:'
+    routes: 'Trasa/y:'
+    save: 'Uložiť kroniku'
+  setDateType:
+    startDate: 'Dátum konania podujatia'

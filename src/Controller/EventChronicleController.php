@@ -284,7 +284,7 @@ class EventChronicleController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var EventChronicleType $form   */
+        /** @var EventChronicleType $form */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 

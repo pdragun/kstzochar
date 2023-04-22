@@ -28,16 +28,16 @@
 
       {% if countInvitations > 1 %}
         <div class="hp-button pozvanky">
-          <a href="{{ path('invitation_list_upcoming') }}">Ďalšie pozvánky ({{ countInvitations }}) </a>
+          <a href="{{ path('invitation_list_upcoming') }}">{{ 'homepage.invitations.count'|trans }} ({{ countInvitations }}) </a>
         </div>
       {% elseif countInvitations == 1 %}
         <div class="hp-button pozvanky">
-          <a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date("Y"), slug: firstInvitation.getSlug()}) }}">{{ firstInvitation.title }}</a>
+          <a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date('Y'), slug: firstInvitation.getSlug()}) }}">{{ firstInvitation.title }}</a>
         </div>
       {% else %}
         {% if latestEventPlanYear %}
           <div class="hp-button pozvanky">
-            <a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">Plán na rok {{ latestEventPlanYear }}</a>
+            <a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">{{ 'homepage.invitations.planForYear'|trans }} {{ latestEventPlanYear }}</a>
           </div>
         {% endif %}
       {% endif %}
@@ -47,11 +47,11 @@
 
   <div class="col-sm">
     <div class="hp hp-left">
-      <p class="hp-header">Kronika</p>
-      <p class="no-bottom hp-desc">Text a fotky z predchádzajúcich akcií</p>
+      <p class="hp-header">{{ 'homepage.chronicle.title'|trans }}</p>
+      <p class="no-bottom hp-desc">{{ 'homepage.chronicle.subtitle'|trans }}</p>
       {% if latestChronicle %}
       <p class="hp-header"><a href="{{ path('chronicle_show_by_Year_Slug', {year: latestChronicle[0].startDate|date('Y'), slug: latestChronicle[0].getSlug()}) }}">{{ latestChronicle[0].title }}</a></p>
-      <div class="hp-button"><a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">Viac z kroniky</a></div>
+      <div class="hp-button"><a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">{{ 'homepage.chronicle.link'|trans }}</a></div>
       {% endif %}
     </div>
   </div>
@@ -60,34 +60,34 @@
 <div class="row no-gutters hp-top">
   <div class="col-sm">
     <div class="hp hp-right">
-      <p class="hp-header">{{ 'homepage.blog.sectionB'|trans }}</p>
-      <p class="no-bottom hp-desc">Bližšie informácie o dlhších podujatiach</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionB.title'|trans }}</p>
+      <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionB.description'|trans }}</p>
       {% if latestBlogSectionId2 %}
         <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date('Y'), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
-        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">Ďalšie viacdňové akcie</a></div>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">{{ 'homepage.blog.sectionB.next'|trans }}</a></div>
       {% else %}
-        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+        <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionB.missing'|trans }}</p>
       {% endif %}
     </div>
   </div>
   <div class="col-sm">
     <div class="hp hp-right hp-left">
-      <p class="hp-header">Plán na celý rok</p>
-      <p>Zoznam (takmer) všetkých podujatí aj s dátumami</p>
+      <p class="hp-header">{{ 'homepage.plan.title'|trans }}</p>
+      <p>{{ 'homepage.plan.description'|trans }}</p>
       {% if latestEventPlanYear %}
-      <div class="hp-button"><a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">Plán {{ latestEventPlanYear }}</a></div>
+      <div class="hp-button"><a href="{{ path('plan_show_by_Year', {year: latestEventPlanYear}) }}">{{ 'homepage.plan.shortcut'|trans }} {{ latestEventPlanYear }}</a></div>
       {% endif %}
     </div>
   </div>
   <div class="col-sm">
     <div class="hp hp-left">
-      <p class="hp-header">{{ 'homepage.blog.sectionC'|trans }}</p>
-      <p class="no-bottom hp-desc">Obľúbené sladkosti na výletoch</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionC.title'|trans }}</p>
+      <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionC.description'|trans }}</p>
       {% if latestBlogSectionId3 %}
         <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'receptury-na-tury', year: latestBlogSectionId3.createdAt|date('Y'), slug: latestBlogSectionId3.slug}) }}">{{ latestBlogSectionId3.title }}</a></p>
-        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">Viac receptov</a></div>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'receptury-na-tury'}) }}">{{ 'homepage.blog.sectionC.more'|trans }}</a></div>
       {% else %}
-        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+        <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionC.missing'|trans }}</p>
       {% endif %}
     </div>
   </div>
@@ -96,20 +96,20 @@
  <div class="row no-gutters hp-top">
   <div class="col-sm-4">
     <div class="hp hp-right">
-      <p class="hp-header">{{ 'homepage.blog.sectionA'|trans }}</p>
+      <p class="hp-header">{{ 'homepage.blog.sectionA.title'|trans }}</p>
       {% if latestBlogSectionId1 %}
-        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId1.createdAt|date("Y"), slug: latestBlogSectionId1.slug}) }}">{{ latestBlogSectionId1.title }}</a></p>
-        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">Viac článkov</a></div>
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId1.createdAt|date('Y'), slug: latestBlogSectionId1.slug}) }}">{{ latestBlogSectionId1.title }}</a></p>
+        <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'z-klubovej-kuchyne'}) }}">{{ 'homepage.blog.sectionA.more'|trans }}</a></div>
       {% else %}
-        <p class="no-bottom hp-desc">Zatiaľ nie sú vložené žiadne informácie :(</p>
+        <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionA.missing'|trans }}</p>
       {% endif %}
     </div>
   </div>
   <div class="col-sm-4">
     <div class="hp hp-right hp-left">
-      <p class="hp-header">Kontakt</p>
-      <p>Ing. Peter Dragúň<br/><a href="mailto:peter@zochar.sk">peter@zochar.sk</a><br/>+421 905 609 385</p>
-      <div class="hp-button"><a href="{{ path('contact') }}">Viac o KST Žochár Topoľčany</a></div>
+      <p class="hp-header">{{ 'homepage.contact.title'|trans }}</p>
+      <p>{{ 'homepage.contact.name'|trans }}<br/><a href="mailto:{{ 'homepage.contact.email'|trans }}">{{ 'homepage.contact.email'|trans }}</a><br/>{{ 'homepage.contact.tel'|trans }}</p>
+      <div class="hp-button"><a href="{{ path('contact') }}">{{ 'homepage.contact.more'|trans }}</a></div>
     </div>
    </div>
 </div>

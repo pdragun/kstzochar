@@ -15,13 +15,20 @@ class SetDateType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('startDate', DateTimeType::class, [
-                // 'constraints' => new Type(),
-                'label' => 'Dátum konania podujatia',
-                'widget' => 'single_text',
-                'input' => 'datetime_immutable',
-            ])
-            ->add('save', SubmitType::class, ['label' => $options['save_button_label']]);
+            ->add(
+                'startDate',
+                DateTimeType::class,
+                [
+                    'label' => 'form.setDateType.startDate',
+                    'widget' => 'single_text',
+                    'input' => 'datetime_immutable',
+                ],
+            )
+            ->add(
+                'save',
+                SubmitType::class,
+                ['label' => $options['save_button_label']],
+            );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

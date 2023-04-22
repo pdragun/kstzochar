@@ -21,32 +21,56 @@ class BlogType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title', TextType::class, ['label' => 'Nadpis:'])
-            ->add('summary', TextareaType::class, ['label' => 'Úvod/krátky popis:'])
+            ->add(
+                'title',
+                TextType::class,
+                ['label' => 'form.blogType.title'],
+            )
+            ->add(
+                'summary',
+                TextareaType::class,
+                ['label' => 'form.blogType.summary'],
+            )
             // ->add('slug')
-            ->add('content', CKEditorType::class, ['label' => 'Text článku:'])
+            ->add(
+                'content',
+                CKEditorType::class,
+                ['label' => 'form.blogType.content'],
+            )
             // ->add('publish')
             // ->add('createdAt')
             // ->add('publishedAt')
             // ->add('modifiedAt')
-            ->add('startDate', DateTimeType::class, [
-                'label' => 'Dátum konania (od):',
-                'widget' => 'single_text',
-                'input' => 'datetime_immutable',
-                'required' => false,
-            ])
+            ->add(
+                'startDate',
+                DateTimeType::class,
+                [
+                    'label' => 'form.blogType.startDate',
+                    'widget' => 'single_text',
+                    'input' => 'datetime_immutable',
+                    'required' => false,
+                ],
+            )
             // ->add('section')
             // ->add('createdBy')
             // ->add('event')
-            ->add('sportType', EntityType::class, [
-                'class'        => SportType::class,
-                'choice_label' => 'title',
-                'label' => 'Typ presunu:',
-                'multiple' => true,
-                'expanded' => true,
-            ])
+            ->add(
+                'sportType',
+                EntityType::class,
+                [
+                    'class' => SportType::class,
+                    'choice_label' => 'title',
+                    'label' => 'form.blogType.sportType',
+                    'multiple' => true,
+                    'expanded' => true,
+                ],
+            )
             // ->add('authorBy')
-            ->add('save', SubmitType::class, ['label' => 'Uložiť článok'])
+            ->add(
+                'save',
+                SubmitType::class,
+                ['label' => 'form.blogType.save'],
+            )
         ;
     }
 
