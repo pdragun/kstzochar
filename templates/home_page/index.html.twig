@@ -15,7 +15,7 @@
       {% set countInvitations = latestInvitations|length %}
 
       {% if countInvitations >= 1 %}
-        <p><b><a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date("Y"), slug: firstInvitation.getSlug()}) }}">Najbližšia akcia:<br>{{ firstInvitation.title }}</a></b></p>
+        <p><b><a href="{{ path('invitation_show_by_Year_by_Slug', {year: firstInvitation.startDate|date('Y'), slug: firstInvitation.getSlug()}) }}">Najbližšia akcia:<br>{{ firstInvitation.title }}</a></b></p>
       {% else %}
       {# Display different notice during Corona time #}
       {# <p><b>Žiaľ, až do odvolania rušíme všetky plánované podujatia. Držte sa priatelia. Náš čas ešte príde! :)</b></p>  #}

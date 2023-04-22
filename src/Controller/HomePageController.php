@@ -35,27 +35,27 @@ class HomePageController extends AbstractController
             $fromDB = [];
             $fromDB['latestEventPlanYear'] = $this->doctrine->getRepository(Event::class)->findMaxStartYear();
 
-             /* @var $fromDB['latestInvitations'] EventChronicle */
+             /** @var $fromDB['latestInvitations'] EventChronicle */
             $fromDB['latestInvitations'] = $this->doctrine->getRepository(EventInvitation::class)->findLatest();
 
-            /* @var $fromDB['latestChronicle'] EventChronicle */
+            /** @var $fromDB['latestChronicle'] EventChronicle */
             $fromDB['latestChronicle'] = $this->doctrine->getRepository(EventChronicle::class)->findLatest();
 
-            /* @var $fromDB['latestBlogSectionId1'] Blog */
+            /** @var $fromDB['latestBlogSectionId1'] Blog */
             $idFirstSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('z-klubovej-kuchyne');
             $fromDB['latestBlogSectionId1'] = null;
             if ($idFirstSection !== null) {
                 $fromDB['latestBlogSectionId1'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
             }
 
-            /* @var $fromDB['latestBlogSectionId2'] Blog */
+            /** @var $fromDB['latestBlogSectionId2'] Blog */
             $idSecondSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('viacdnove-akcie');
             $fromDB['latestBlogSectionId2'] = null;
             if ($idSecondSection !== null) {
                 $fromDB['latestBlogSectionId2'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
             }
 
-            /* @var $fromDB['latestBlogSectionId3'] Blog */
+            /** @var $fromDB['latestBlogSectionId3'] Blog */
             $idThirdSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('receptury-na-tury');
             $fromDB['latestBlogSectionId3'] = null;
             if ($idThirdSection !== null) {

@@ -1,15 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ invitation.title }} - Pozvánky - {% endblock %}
+{% block title %}{{ invitation.title }} - {{ 'templates.eventInvitation.showEventInvitationByYearBySlug.title'|trans }} - {% endblock %}
 {% block description %}{{invitation.summary}}{% endblock %}
 
 {% block body %}
 {% if is_granted('ROLE_ADMIN') %}
 <hr>
 <p>
-    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: yearInUrl}) }}" role="button">Pridať novú pozvánku</a>
-    <a class="btn btn-primary btn-sm" href="{{ path('invitation_edit', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button">Upraviť túto</a>
-    <a class="btn btn-danger btn-sm" href="{{ path('invitation_delete', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button" data-toggle="modal" data-target="#delete">Zmazať túto</a>
+    <a
+        class="btn btn-primary btn-sm"
+        href="{{ path('invitation_create_from_date', {year: yearInUrl}) }}"
+        role="button"
+    >{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.add'|trans }}</a>
+    <a
+        class="btn btn-primary btn-sm"
+        href="{{ path('invitation_edit', {year: yearInUrl, slug: invitation.getSlug()}) }}"
+        role="button"
+    >{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.edit'|trans }}</a>
+    <a
+        class="btn btn-danger btn-sm"
+        href="{{ path('invitation_delete', {year: yearInUrl, slug: invitation.getSlug()}) }}"
+        role="button" data-toggle="modal"
+        data-target="#delete"
+    >{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.delete'|trans }}</a>
 </p>
 <hr>
 <!-- Modal -->

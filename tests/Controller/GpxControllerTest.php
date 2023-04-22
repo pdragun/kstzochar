@@ -19,7 +19,7 @@ class GpxControllerTest extends WebTestCase
         $client->request('GET', sprintf('/gpx/%d', $invitationRoute->getId()));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        //$this->assertSelectorTextContains('html h1', 'Kontakt');
+        $this->assertSelectorTextContains('html h1', 'Kontakt');
     }
 
     /** @dataProvider provide404Urls */

@@ -1,18 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Aktuálne pozvánky na turistické podujatia - {% endblock %}
-{% block description %}Zoznam aktuálnych pozvánok na podujatia, ktoré organizuje KST Žochár Topoľčany.{% endblock %}
+{% block title %}{{ 'templates.eventInvitation.showEventInvitationUpcoming.title'|trans }} - {% endblock %}
+{% block description %}{{ 'templates.eventInvitation.showEventInvitationUpcoming.description'|trans }}{% endblock %}
 
 {% block body %}
 {% set currentYear = 'now' | date('Y') %}
 {% if is_granted('ROLE_ADMIN') %}
 <hr>
 <p>
-    <a class="btn btn-primary btn-sm" href="{{ path('invitation_create_from_date', {year: currentYear}) }}" role="button">Pridať novú pozvánku</a>
+    <a
+        class="btn btn-primary btn-sm"
+        href="{{ path('invitation_create_from_date', {year: currentYear}) }}"
+        role="button"
+    >{{ 'templates.eventInvitation.showEventInvitationUpcoming.add'|trans }}</a>
 </p>
 <hr>
 {% endif %}
-<h1>Aktuálne pozvánky na turistické podujatia</h1>
+<h1>{{ 'templates.eventInvitation.showEventInvitationUpcoming.h1'|trans }}</h1>
 
 {% if upcomingInvitations is empty %}
     {# Corona #}
@@ -21,7 +25,7 @@
     {# <p>Veríme, že najskôr budeme môcť pokračovať v spoločných vychádzach do prírody.</p> #}
     
     {# No Corona #}
-    <p>Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(</p>
+    <p>{{ 'templates.eventInvitation.showEventInvitationUpcoming.missing'|trans }}</p>
     
     <p>Pozrite si napríklad <a href="{{ path('plan_show_by_Year', {year: currentYear}) }}">plán na aktuálny rok</a> alebo si môžete prečítať ako nám bolo v našej <a href="{{ path('chronicle_list_by_Year', {year: currentYear}) }}">klubovej kronike</a>.</p>
 {% else %}

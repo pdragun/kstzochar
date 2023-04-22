@@ -123,7 +123,7 @@ class BlogController extends AbstractController
             }
         }
 
-        /* @var $form BlogType */
+        /** @var $form BlogType */
         $form = $this->createForm(BlogType::class, $blog);
         if ($blogSection->getId() !== 2) {//Only for multiday events
             $form->remove('sportType');
@@ -132,7 +132,7 @@ class BlogController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /* @var $blog Blog */
+            /** @var $blog Blog */
             $blog = $form->getData();
             $now = new DateTimeImmutable();
             $slugger = new AsciiSlugger();
@@ -220,7 +220,7 @@ class BlogController extends AbstractController
             }
         }
 
-        /* @var $form BlogType */
+        /** @var $form BlogType */
         $form = $this->createForm(BlogType::class, $blog);
         if ($blogSection->getId() !== 2) {//Only for multiday events
             $form->remove('sportType');
@@ -230,7 +230,7 @@ class BlogController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /* @var $blog Blog */
+            /** @var $blog Blog */
             $blog = $form->getData();
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($blog->getTitle());

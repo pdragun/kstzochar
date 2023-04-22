@@ -43,7 +43,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}',
         name: 'invitation_list_by_Year',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function showEventInvitationsByYear(
         int $year,

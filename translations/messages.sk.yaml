@@ -138,7 +138,7 @@ form:
     content: 'Text článku:'
     startDate: 'Dátum konania (od):'
     sportType: 'Typ presunu:'
-    save: 'Uložiť článok'
+    save: Uložiť článok
   eventInvitationType:
     title: 'Nadpis:'
     summary: 'Úvod/krátky popis:'
@@ -146,13 +146,13 @@ form:
     startDate: 'Dátum konania (od):'
     endDate: 'Dátum konania (do):'
     sportType: 'Typ presunu:'
-    save: 'Uložiť pozvánku'
+    save: Uložiť pozvánku
   eventRouteType:
     title: 'Trasa:'
     length: 'Dĺžka (v km):'
     elevation: 'Prevýšenie (v m):'
     gpxFile: 'Priložiť GPX súbor:'
-    mimeTypesMessage: 'Prosím, nahraj validný GPX (XML) dokument.'
+    mimeTypesMessage: Prosím, nahraj validný GPX (XML) dokument.
   eventChronicleType:
     title: 'Nadpis:'
     summary: 'Úvod/krátky popis:'
@@ -164,4 +164,17 @@ form:
     routes: 'Trasa/y:'
     save: 'Uložiť kroniku'
   setDateType:
-    startDate: 'Dátum konania podujatia'
+    startDate: Dátum konania podujatia
+templates:
+  eventInvitation:
+    showEventInvitationUpcoming:
+      title: Aktuálne pozvánky na turistické podujatia
+      description: Zoznam aktuálnych pozvánok na podujatia, ktoré organizuje KST Žochár Topoľčany.
+      add: Pridať novú pozvánku
+      h1: Aktuálne pozvánky na turistické podujatia
+      missing: Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(
+    showEventInvitationByYearBySlug:
+      title: Pozvánky
+      add: Pridať novú pozvánku
+      edit: Upraviť túto
+      delete: Zmazať túto
