@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class GpxController extends AbstractController
 {
 
@@ -24,5 +23,4 @@ class GpxController extends AbstractController
             ['Content-Type' => 'application/xml;charset=UTF-8'],
         );
     }
-
 }

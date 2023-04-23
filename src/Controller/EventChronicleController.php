@@ -25,9 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * Stories about past events
- */
+/** Stories about past events */
 class EventChronicleController extends AbstractController
 {
     /**
@@ -97,7 +95,7 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/pridat-novu/add',
         name: 'chronicle_create_from_date',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createChronicleFromDate(
@@ -125,7 +123,7 @@ class EventChronicleController extends AbstractController
             'yearInUrl' => $year,
             'pageTitle' => 'Vytvoriť novú kroniku',
             'chronicleTitle' => 'Nová kronika',
-            'actionName' => 'Pridať'
+            'actionName' => 'Pridať',
         ]);
     }
 
@@ -139,7 +137,7 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/pridat-novu/{date}/add',
         name: 'chronicle_create_from_event',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createChronicleFromEvent(
@@ -201,7 +199,7 @@ class EventChronicleController extends AbstractController
             $chronicle->setPublish(true);
             $chronicle->setCreatedBy($this->getUser());
 
-            /* @var $entityManager ObjectManager */
+            /** @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
@@ -235,7 +233,7 @@ class EventChronicleController extends AbstractController
 
             return $this->redirectToRoute('chronicle_show_by_Year_Slug', [
                 'year' => $chronicleYear,
-                'slug' => $chronicle->getSlug()
+                'slug' => $chronicle->getSlug(),
             ]);
         }
 
@@ -245,7 +243,7 @@ class EventChronicleController extends AbstractController
             'pageTitle' => 'Vytvoriť novú kroniku',
             'chronicleTitle' => 'Nová kronika',
             'dateTime' => $dateTime->format('Y-m-d'),
-            'actionName' => 'Pridať'
+            'actionName' => 'Pridať',
         ]);
     }
 
@@ -258,7 +256,7 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/{slug}/edit',
         name: 'chronicle_edit',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function editChronicle(
@@ -330,7 +328,7 @@ class EventChronicleController extends AbstractController
 
             return $this->redirectToRoute('chronicle_show_by_Year_Slug', [
                 'year' => $chronicle->getStartDate()->format('Y'),
-                'slug' => $chronicle->getSlug()
+                'slug' => $chronicle->getSlug(),
             ]);
         }
 
@@ -353,7 +351,7 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/{slug}/delete',
         name: 'chronicle_delete',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function prepareDeleteChronicle(
@@ -381,7 +379,7 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/{slug}/delete/yes',
         name: 'chronicle_delete_yes',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteChronicle(

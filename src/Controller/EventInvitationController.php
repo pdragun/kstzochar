@@ -69,7 +69,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/{slug}',
         name: 'invitation_show_by_Year_by_Slug',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function showEventInvitationByYearBySlug(
         int $year,
@@ -111,7 +111,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/pridat-novu/add',
         name: 'invitation_create_from_date',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createInvitationFromDate(int $year, Request $request): RedirectResponse|Response
@@ -149,7 +149,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/pridat-novu/{date}/add',
         name: 'invitation_create_from_event',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createInvitationFromEvent(
@@ -267,7 +267,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/{slug}/edit',
         name: 'invitation_edit',
         requirements: ['year' => '\d+'],
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function editInvitation(
@@ -345,7 +345,7 @@ class EventInvitationController extends AbstractController
             'invitationTitle' => 'Upraviť túto pozvánku',
             'invitation' => $invitation,
             'dateTime' => $invitation->getStartDate()->format('Y-m-d'),
-            'actionName' => 'Upraviť'
+            'actionName' => 'Upraviť',
         ]);
     }
 
@@ -358,7 +358,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/{slug}/delete',
         name: 'invitation_delete',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function prepareDeleteInvitation(
@@ -386,7 +386,7 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/{slug}/delete/yes',
         name: 'invitation_delete_yes',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteInvitation(
