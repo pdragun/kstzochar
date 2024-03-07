@@ -7,72 +7,73 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
+#[ORM\Table(name: 'user')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $nickName;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $email;
 
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     #[Assert\Json]
     private ?array $roles = [];
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::STRING)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $password;
 
     /** @var ?Collection<int, EventInvitation> */
-    #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: EventInvitation::class)]
     private ?Collection $eventInvitationsCreatedBy;
 
     /** @var ?Collection<int, EventChronicle> $eventChroniclesCreatedBy */
-    #[ORM\OneToMany(targetEntity: EventChronicle::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: EventChronicle::class)]
     private ?Collection $eventChroniclesCreatedBy;
 
     /** @var ?Collection<int, Blog> $blogsCreatedBy */
-    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Blog::class)]
     private ?Collection $blogsCreatedBy;
 
     /** @var ?Collection<int, Event> $eventsCreatedBy */
-    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'createdBy')]
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
     private ?Collection $eventsCreatedBy;
 
     #[ORM\Column(type: 'string', length: 190)]
     private string $displayName;
 
     /** @var ?Collection<int, Blog> $blogsAuthorBy */
-    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: Blog::class)]
     private ?Collection $blogsAuthorBy;
 
     /** @var ?Collection<int, Event> $eventsAuthorBy */
-    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: Event::class)]
     private ?Collection $eventsAuthorBy;
 
     /** @var ?Collection<int, EventInvitation> $eventInvitationsAuthorBy */
-    #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: EventInvitation::class)]
     private ?Collection $eventInvitationsAuthorBy;
 
     /** @var ?Collection<int, EventChronicle> $eventChroniclesAuthorBy */
-    #[ORM\OneToMany(targetEntity: EventChronicle::class, mappedBy: 'authorBy')]
+    #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: EventChronicle::class)]
     private ?Collection $eventChroniclesAuthorBy;
 
     public function __construct()
@@ -159,17 +160,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
-    {
-        return null;
     }
 
     /** @see UserInterface */

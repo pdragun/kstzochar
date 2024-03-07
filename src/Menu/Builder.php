@@ -10,7 +10,6 @@ use App\Entity\Event;
 use App\Entity\EventChronicle;
 use App\Entity\EventInvitation;
 use App\Utils\SecondLevelCachePDO;
-use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;

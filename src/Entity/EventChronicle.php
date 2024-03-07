@@ -8,62 +8,58 @@ use App\Repository\EventChronicleRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Defines the properties of the Event Invitation entity to represent the event invitation posts.
- *
- * @author Peter Dragúň jr. <peter.dragun@gmail.com>
- */
 #[ORM\Entity(repositoryClass: EventChronicleRepository::class)]
-#[ORM\Table(name: '`event_chronicle`')]
+#[ORM\Table(name: 'event_chronicle')]
 class EventChronicle
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $title;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     private string $slug;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     private string $summary;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::TEXT)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
     private string $content;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $startDate;
     
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $endDate = null;
     
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $createdAt;
 
    /** @var ?string $photoAlbumG URL to Google photos album */
-    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true, nullable: true)]
     #[Assert\Type('string')]
     private ?string $photoAlbumG;
 
@@ -78,11 +74,11 @@ class EventChronicle
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicles')]
     private Collection $sportType;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
     private ?bool $publish = true;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 
@@ -106,14 +102,7 @@ class EventChronicle
     
     public function getEventId(): ?int
     {
-        return $this->eventId;
-    }
-    
-    public function setEventId(int $eventId): self
-    {
-        $this->eventId = $eventId;
-
-        return $this;
+        return $this->event->getId();
     }
 
     public function getTitle(): ?string

@@ -29,27 +29,27 @@ Encore
             from: './assets/images',
             // optional target path, relative to the output dir
             to: 'images/[path][name].[ext]',
-        
+
             // if versioning is enabled, add the file hash too
             //to: 'images/[path][name].[hash:8].[ext]',
-        
+
             // only copy files matching this pattern
             pattern: /\.(png|jpg|jpeg|svg|ico)$/},
         {
             from: './assets/downloads',
             // optional target path, relative to the output dir
             to: 'downloads/[path][name].[ext]',
-        
+
             // if versioning is enabled, add the file hash too
             //to: 'images/[path][name].[hash:8].[ext]',
-        
+
             // only copy files matching this pattern
             pattern: /\.(xlsx|xls|doc|docx|rtf|pdf)$/},
-            {from: './node_modules/ckeditor/', to: 'ckeditor/[path][name].[ext]', pattern: /\.(js|css)$/, includeSubdirectories: false},
-            {from: './node_modules/ckeditor/adapters', to: 'ckeditor/adapters/[path][name].[ext]'},
-            {from: './node_modules/ckeditor/lang', to: 'ckeditor/lang/[path][name].[ext]'},
-            {from: './node_modules/ckeditor/plugins', to: 'ckeditor/plugins/[path][name].[ext]'},
-            {from: './node_modules/ckeditor/skins', to: 'ckeditor/skins/[path][name].[ext]'}
+            {from: './vendor/friendsofsymfony/ckeditor-bundle/src/Resources/public/', to: 'ckeditor/[path][name].[ext]', pattern: /\.(js|css)$/, includeSubdirectories: false},
+            {from: './vendor/friendsofsymfony/ckeditor-bundle/src/Resources/public/adapters', to: 'ckeditor/adapters/[path][name].[ext]'},
+            {from: './vendor/friendsofsymfony/ckeditor-bundle/src/Resources/public/lang', to: 'ckeditor/lang/[path][name].[ext]'},
+            {from: './vendor/friendsofsymfony/ckeditor-bundle/src/Resources/public/plugins', to: 'ckeditor/plugins/[path][name].[ext]'},
+            {from: './vendor/friendsofsymfony/ckeditor-bundle/src/Resources/public/skins', to: 'ckeditor/skins/[path][name].[ext]'}
         ]
         )
 
@@ -91,7 +91,7 @@ Encore
     .enableSassLoader()
 
     // uncomment if you use TypeScript
-    //.enableTypeScriptLoader()
+    .enableTypeScriptLoader()
 
     // uncomment if you use React
     //.enableReactPreset()

@@ -1,9 +1,13 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        # Use native password hasher, which auto-selects and migrates the best
-        # possible hashing algorithm (which currently is "bcrypt")
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -20,7 +24,7 @@ security:
                 path: logout
                 target: home_page
             # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
+            # https://symfony.com/doc/current/security.html#the-firewall
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
@@ -32,11 +36,7 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
-    providers:
-        app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
+
 when@test:
     security:
         password_hashers:

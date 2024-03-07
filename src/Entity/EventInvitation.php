@@ -8,59 +8,53 @@ use App\Repository\EventInvitationRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Defines the properties of the Event entity to represent the event.
- * 
- * Events are in plan per year, invitation and chronicle should be linked to planned event.
- *
- * @author Peter Dragúň jr. <peter.dragun@gmail.com>
- */
 #[ORM\Entity(repositoryClass: EventInvitationRepository::class)]
-#[ORM\Table(name: '`event_invitation`')]
+#[ORM\Table(name: 'event_invitation')]
 class EventInvitation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $title;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     private string $slug;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     private string $summary;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::TEXT)]
     #[Assert\Type('string')]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
     private string $content;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $publishedAt = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $startDate;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $endDate = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     private DateTimeImmutable $createdAt;
 
@@ -68,18 +62,18 @@ class EventInvitation
     #[ORM\JoinColumn(nullable: false)]
     private User $createdBy;
 
-    #[ORM\OneToOne(targetEntity: Event::class, mappedBy: 'eventInvitation', cascade: ['persist'])]
+    #[ORM\OneToOne(mappedBy: 'eventInvitation', targetEntity: Event::class, cascade: ['persist'])]
     private ?Event $event = null;
 
     /** @var ?Collection<int, SportType> $sportType */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
     private ?Collection $sportType;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
     private bool $publish = true;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 

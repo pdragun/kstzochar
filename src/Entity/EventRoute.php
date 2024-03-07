@@ -8,45 +8,40 @@ use App\Repository\EventRouteRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * EventRoute
- * 
- * Defines the properties of the Event Route entity to represent routes for various events.
- * Route can be different for invitation or for chronicle even for the same event.
- */
 #[ORM\Entity(repositoryClass: EventRouteRepository::class)]
-#[ORM\Table(name: '`event_route`')]
+#[ORM\Table(name: 'event_route')]
 class EventRoute
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::STRING)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: Types::INTEGER)]
     #[Assert\Type('integer')]
     #[Assert\NotBlank]
     #[Assert\Positive]
     private ?int $length = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     #[Assert\NotBlank]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Type('string')]
     private ?string $gpxSlug = null;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $eventDate = null;
 
@@ -58,12 +53,12 @@ class EventRoute
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
     private ?Collection $eventChronicles;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     #[Assert\Type('integer')]
     #[Assert\Positive]
     private ?int $elevation = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Type('string')]
     private ?string $gpx = null;
 

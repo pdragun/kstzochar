@@ -13,7 +13,6 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -54,8 +53,7 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $blogSectionId = $blogSection->getId();
-        $blog = $blogRepository->findBySectionYearSlug($blogSectionId, $year, $slug);
+        $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
         if ($blog === null) {
             throw $this->createNotFoundException();
         }
@@ -100,7 +98,7 @@ class BlogController extends AbstractController
 
     /**
      * Create blog
-     * @throws NonUniqueResultException
+     * @throws NonUniqueResultException|InvalidArgumentException
      */
     #[Route('/blog/{blogSectionSlug}/pridat-novy/add', name: 'blog_create', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]

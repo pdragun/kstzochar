@@ -1,11 +1,11 @@
 base:
   title: KST Žochár Topoľčany
-  description: Stránka turistického klubu KST Žochár Topoľčany, nájdite si kamarátov na turistku, bicykel, vysokohorskú turistiku, či na bežky.
+  description: Stránka komunitného turistického klubu KST Žochár Topoľčany, nájdite si kamarátov na turistku, bicykel, vysokohorskú turistiku, či na bežky.
   header1: Klub slovenských turistov Žochár Topoľčany
   header2: KST Žochár Topoľčany
   subtitle: Turistický klub priateľov prírody, cyklistiky, lyžovania. Každý je vítaný.
-  footer1: © 2003 – 2023 KST Žochár Topoľčany
-  footer2: Informácie o turistickom oddiely z mesta Topoľčany.
+  footer1: © 2003 – 2024 KST Žochár Topoľčany
+  footer2: Informácie o komunitnom turistickom oddiely z mesta Topoľčany.
 login:
   welcome1: Ahoj
   welcome2: vyber si kategóriou, ktorú chceš upravovať.

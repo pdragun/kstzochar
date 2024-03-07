@@ -7,32 +7,33 @@ namespace App\Entity;
 use App\Repository\BlogSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogSectionRepository::class)]
-#[ORM\Table(name: '`blog_section`')]
+#[ORM\Table(name: 'blog_section')]
 class BlogSection
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $slug = null;
 
     /** @var ?Collection<int, Blog> $blog */
-    #[ORM\OneToMany(targetEntity: Blog::class, mappedBy: 'section')]
+    #[ORM\OneToMany(mappedBy: 'section', targetEntity: Blog::class)]
     private ?Collection $blog;
 
     public function __construct()

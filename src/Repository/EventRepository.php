@@ -79,7 +79,8 @@ class EventRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('e')
             ->select('e, MAX(e.startDate) as maxYear')
-            ->Where('e.publish = 1')
+            ->where('e.publish = 1')
+            ->groupBy('e')
             ->setMaxResults(1)
             ->getQuery();
 
@@ -88,7 +89,6 @@ class EventRepository extends ServiceEntityRepository
 
     /**
      * Find the latest year from event plan
-     * @return null|int $year
      * @throws Exception
      */
     public function findMaxStartYear(): ?int

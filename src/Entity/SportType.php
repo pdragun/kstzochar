@@ -7,40 +7,41 @@ namespace App\Entity;
 use App\Repository\SportTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\AbstractUnicodeString;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SportTypeRepository::class)]
-#[ORM\Table(name: '`sport_type`')]
+#[ORM\Table(name: 'sport_type')]
 class SportType
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $slug = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private ?string $shortcut = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Type('string')]
     private ?string $image = null;
 
