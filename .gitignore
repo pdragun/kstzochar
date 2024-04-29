@@ -1,5 +1,4 @@
 ###> symfony/framework-bundle ###
-/.env.test
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -7,13 +6,29 @@
 /public/bundles/
 /var/
 /vendor/
-.phpstan.cache/
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+###> PhpStorm ###
+/.idea
+###< PhpStorm ###
+
+###> dev stack ###
+/docker
+docker-compose.yaml
+.env.docker.local
+###< dev stack ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
@@ -21,9 +36,3 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
-
-### Some docs ###
-/assets/downloads/*
-
-### IDE
-/.idea
