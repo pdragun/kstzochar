@@ -15,18 +15,15 @@ use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class Builder implements ContainerAwareInterface
+final class Builder
 {
-    use ContainerAwareTrait;
 
     public function __construct(
         private readonly FactoryInterface $factory,
         private readonly ManagerRegistry $doctrine,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {}
 
     /** @throws InvalidArgumentException */
@@ -120,7 +117,7 @@ final class Builder implements ContainerAwareInterface
                 'routeParameters' => ['year' => $year]
             ]);
         }
-          
+
         //Blog, all articles in all sections
         foreach ($this->getBlogSections($this->translator) as $blogSection) {
             $menu->addChild($blogSection[0], [
