@@ -10,8 +10,8 @@
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
-/phpunit.xml
 ###< symfony/phpunit-bridge ###
+
 ###> PhpStorm ###
 /.idea
 ###< PhpStorm ###
@@ -23,12 +23,8 @@ docker-compose.yaml
 ###< dev stack ###
 
 ###> phpstan/phpstan ###
-phpstan.neon
+.phpstan.cache
 ###< phpstan/phpstan ###
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
