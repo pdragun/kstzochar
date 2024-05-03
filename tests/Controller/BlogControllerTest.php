@@ -50,12 +50,12 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'História turistiky');
 
         $client->request('GET', '/blog/viacdnove-akcie/2011/nizke-tatry');
- 
+
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Nízke Tatry');
 
         $client->request('GET', '/blog/receptury-na-tury/2011/cergovske-susienky');
- 
+
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Čergovské sušienky');
     }
@@ -72,7 +72,8 @@ class BlogControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound());
     }
 
-    public function provide404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide404Urls(): iterable
     {
         yield ['/blo'];
         yield ['/bloga'];
@@ -105,7 +106,8 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide302Urls(): iterable
     {
         yield ['/blog/2000/pridat-novy/add'];
         yield ['/blog/blog-slug/pridat-novy/add'];
@@ -123,7 +125,7 @@ class BlogControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser);
         $client->request('GET', $url);
@@ -131,7 +133,8 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provideAdmin404Urls(): iterable
     {
         yield ['/blog/viacdnove-akcie1/pridat-novy/add'];
         yield ['/blog/z-klubovej-kuchyne1/pridat-novy/add'];
@@ -155,13 +158,13 @@ class BlogControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
         $crawler = $client->request('GET', '/blog/z-klubovej-kuchyne/2011/historia-turistiky');
         $this->assertResponseIsSuccessful();
-        
+
         // test existing blog entry
         $this->assertSelectorTextContains('html h1', 'História turistiky');
         $this->assertSelectorTextContains('html h2', 'Začiatky turistiky v Európe a svete');
@@ -171,7 +174,7 @@ class BlogControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('html h1', 'História turistiky'); // edit page
-        
+
 
         $buttonCrawlerNode = $crawler->selectButton('Uložiť článok');
         $form = $buttonCrawlerNode->form();
@@ -215,7 +218,7 @@ class BlogControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -284,7 +287,7 @@ class BlogControllerTest extends WebTestCase
 
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $crawler = $client->followRedirect();
-        
+
         // new blog entry
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Grlík');
@@ -300,7 +303,7 @@ class BlogControllerTest extends WebTestCase
 
         $link = $crawler->selectLink('Chcem zmazať')->link(); // click on delete button
         $crawler = $client->click($link);
-        
+
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $client->followRedirect();
 

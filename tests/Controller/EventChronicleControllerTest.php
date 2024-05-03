@@ -31,7 +31,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide404Urls(): iterable
     {
         yield ['/kronik'];
         yield ['/kronikaa'];
@@ -85,7 +86,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide302Urls(): iterable
     {
         yield ['/kronika/2000/pridat-novu/add'];
         yield ['/kronika/2000/pridat-novu/2020-10-25/add'];
@@ -102,7 +104,7 @@ class EventChronicleControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser);
         $client->request('GET', $url);
@@ -110,7 +112,8 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): array
+    /** @return iterable<string[]> */
+    public static function provideAdmin404Urls(): array
     {
         return [
             ['/kronika/2011/jaskyne-uhradu/edit'],
@@ -126,7 +129,7 @@ class EventChronicleControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -169,7 +172,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][1]['length'] = 10; // add new Route #2
 
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles()); // save
-        
+
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu1', $client->getResponse()->headers->get('location'));
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
@@ -182,7 +185,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Podhradie (dĺžka 10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
 
         $link = $crawler->selectLink('Upraviť túto')->link();
-        $crawler = $client->click($link); // clik on button Edit
+        $crawler = $client->click($link); // click on button Edit
 
         $this->assertResponseIsSuccessful(); // new page loaded
         $this->assertSelectorTextContains('html h1', 'Upraviť túto kroniku');
@@ -207,7 +210,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][0]['length'] = 15;
         $values[$formName]['routes'][0]['elevation'] = 11;
         unset($values[$formName]['routes'][1]); // delete second route (both title and length)
-      
+
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu', $client->getResponse()->headers->get('location'));
@@ -221,13 +224,13 @@ class EventChronicleControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
         $crawler = $client->request('GET', '/kronika/2010');
-        
-        
+
+
         $this->assertResponseIsSuccessful();
 
         $link = $crawler->selectLink('Pridať novú kroniku')->link();
@@ -235,7 +238,7 @@ class EventChronicleControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('html h1', 'Pridanie novej kroniky');
-        
+
         $buttonCrawlerNode = $crawler->selectButton('Vytvor kroniku');
 
         $formStartDate = $buttonCrawlerNode->form();
@@ -249,7 +252,7 @@ class EventChronicleControllerTest extends WebTestCase
 
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $crawler = $client->followRedirect();
-        
+
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Vytvoriť novú kroniku');
 
@@ -258,7 +261,7 @@ class EventChronicleControllerTest extends WebTestCase
         $form = $crawler->selectButton('Uložiť kroniku')->form();
 
         $formName = $form->getName();
-      
+
        // $form[$formName . '[sportType][0]']->tick();
        // $form[$formName . '[sportType][3]']->tick();
 
@@ -293,7 +296,7 @@ class EventChronicleControllerTest extends WebTestCase
 
         $link = $crawler->selectLink('Chcem zmazať')->link();
         $crawler = $client->click($link);
-        
+
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $client->followRedirect();
 

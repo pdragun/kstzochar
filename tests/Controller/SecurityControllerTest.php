@@ -39,7 +39,8 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide404Urls(): iterable
     {
         yield ['/logi'];
         yield ['/logina'];

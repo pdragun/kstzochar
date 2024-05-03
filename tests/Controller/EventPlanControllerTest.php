@@ -37,7 +37,7 @@ class EventPlanControllerTest extends WebTestCase
         $this->assertEquals('23. 1.', $crawler->filterXPath('//*[@id="event-plan"]/tr[4]/td[1]')->text());
         $this->assertEquals('Výjazd za snehom', $crawler->filterXPath('//*[@id="event-plan"]/tr[4]/td[2]')->text());
         $this->assertEquals('Z, V', $crawler->filterXPath('//*[@id="event-plan"]/tr[4]/td[3]')->text());
-        
+
     }
 
     /** @dataProvider provide404Urls */
@@ -49,15 +49,14 @@ class EventPlanControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): array
+    /** @return iterable<string[]> */
+    public static function provide404Urls(): iterable
     {
-        return [
-            ['/pla'],
-            ['/plana'],
-            ['/plan/2000'],
-            ['/plan/3000'],
-            ['/plan/asdf'],
-            ['/plan/asdf/asdf'],
-        ];
+        yield ['/pla'];
+        yield ['/plana'];
+        yield ['/plan/2000'];
+        yield ['/plan/3000'];
+        yield ['/plan/asdf'];
+        yield ['/plan/asdf/asdf'];
     }
 }

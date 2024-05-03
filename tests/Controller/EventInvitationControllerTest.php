@@ -33,7 +33,8 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide404Urls(): iterable
     {
         yield ['/pozvank'];
         yield ['/pozvankya'];
@@ -61,7 +62,7 @@ class EventInvitationControllerTest extends WebTestCase
     }
 
     /** Test existing invitation */
-    public function testShowInvitation()
+    public function testShowInvitation(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/pozvanky/2011/gulasove-opojenie-v-tesaroch');
@@ -75,7 +76,7 @@ class EventInvitationControllerTest extends WebTestCase
     }
 
     /** Test upcoming invitations */
-    public function testShowLatestInvitation()
+    public function testShowLatestInvitation(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/pozvanky/aktualne');
@@ -116,7 +117,8 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provide302Urls(): iterable
     {
         yield ['/pozvanky/2000/pridat-novu/add'];
         yield ['/pozvanky/2000/pridat-novu/2020-10-25/add'];
@@ -133,7 +135,7 @@ class EventInvitationControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -141,7 +143,8 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): iterable
+    /** @return iterable<string[]> */
+    public static function provideAdmin404Urls(): iterable
     {
         yield ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'];
         yield ['/pozvanky/2011/gulasove-opojenie-v-tesaroch1/edit'];
@@ -155,7 +158,7 @@ class EventInvitationControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -195,7 +198,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(10, $values[$formName]['routes'][0]['elevation']);
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie', $values[$formName]['routes'][1]['title']);
         $this->assertEquals(15, $values[$formName]['routes'][1]['length']);
-        
+
         // edit values
         $values[$formName]['title'] = 'Gulášové opojenie v Tesároch1';
         $values[$formName]['summary'] = 'Turisticko-športový deň 10. 9. v Tesároch';
