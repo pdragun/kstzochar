@@ -32,9 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     private string $email;
 
+    /** @var list<string> */
     #[ORM\Column(type: Types::JSON)]
-    #[Assert\Json]
-    private ?array $roles = [];
+    private array $roles = [];
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\Type('string')]
@@ -132,16 +132,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    /** @see UserInterface */
+    /**
+     * @see UserInterface
+     * @return list<string>
+     */
     public function getRoles(): array
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
-        return array_unique($roles);
+        return array_values(array_unique($roles));
     }
 
+    /** @param list<string> $roles */
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
