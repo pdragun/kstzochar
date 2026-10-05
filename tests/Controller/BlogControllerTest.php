@@ -73,6 +73,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound());
     }
 
+    /** @return iterable<array{string}> */
     public static function provide404Urls(): iterable
     {
         yield ['/blo'];
@@ -106,6 +107,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
+    /** @return iterable<array{string}> */
     public static function provide302Urls(): iterable
     {
         yield ['/blog/2000/pridat-novy/add'];
@@ -132,6 +134,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return iterable<array{string}> */
     public static function provideAdmin404Urls(): iterable
     {
         yield ['/blog/viacdnove-akcie1/pridat-novy/add'];

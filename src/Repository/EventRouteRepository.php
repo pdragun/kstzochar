@@ -8,12 +8,7 @@ use App\Entity\EventRoute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method EventRoute|null find($id, $lockMode = null, $lockVersion = null)
- * @method EventRoute|null findOneBy(array $criteria, array $orderBy = null)
- * @method EventRoute[]    findAll()
- * @method EventRoute[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<EventRoute> */
 class EventRouteRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

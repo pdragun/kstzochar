@@ -10,12 +10,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method EventChronicle|null find($id, $lockMode = null, $lockVersion = null)
- * @method EventChronicle|null findOneBy(array $criteria, array $orderBy = null)
- * @method EventChronicle[]    findAll()
- * @method EventChronicle[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<EventChronicle> */
 class EventChronicleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -64,7 +59,8 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findLatest(): ?array
+    /** @return list<EventChronicle> The latest published chronicle that already started (at most one) */
+    public function findLatest(): array
     {
         $currentDate = new DateTimeImmutable();
         $startDateUntilMidnight = $currentDate->setTime(23, 59, 59);
@@ -78,24 +74,5 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $qb->getResult();
-    }
-
-    public function getUniqueYearsFromDB(): array
-    {
-        $em = $this->getEntityManager();
-        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y ASC');
-
-        return $query->getArrayResult();
-    }
-
-    public function findUniqueYears(): array {
-
-        $years = $this->getUniqueYearsFromDB();
-        $clearYears = [];
-        foreach( $years as $year ) {
-            $clearYears[] = $year['y'];
-        }
-
-        return $clearYears;
     }
 }

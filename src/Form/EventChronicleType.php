@@ -18,6 +18,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
+/** @extends AbstractType<EventChronicle> */
 class EventChronicleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

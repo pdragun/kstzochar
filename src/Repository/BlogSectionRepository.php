@@ -9,12 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method BlogSection|null find($id, $lockMode = null, $lockVersion = null)
- * @method BlogSection|null findOneBy(array $criteria, array $orderBy = null)
- * @method BlogSection[]    findAll()
- * @method BlogSection[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<BlogSection> */
 class BlogSectionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

@@ -25,7 +25,10 @@ final class Builder
         private readonly TranslatorInterface $translator,
     ) {}
 
-    /** @throws InvalidArgumentException */
+    /**
+     * @param array<string, mixed> $options
+     * @throws InvalidArgumentException
+     */
     public function createMainMenu(array $options): ItemInterface
     {
         $cachedData = $this->getData();
@@ -203,7 +206,11 @@ final class Builder
         });
     }
 
-    /** Move events from simple object list to multidimensional array according to star date */
+    /**
+     * Move events from simple object list to multidimensional array according to star date
+     * @param list<EventInvitation|EventChronicle> $events
+     * @return array<int, array<int, array{title: string, slug: string}>>
+     */
     private function addEventsToYears(array $events): array
     {
         $data = [];
@@ -217,6 +224,7 @@ final class Builder
         return $data;
     }
 
+    /** @return list<array{string, string, string}> Title, slug and shortcut of each blog section */
     private function getBlogSections(TranslatorInterface $translator): array
     {
         return [

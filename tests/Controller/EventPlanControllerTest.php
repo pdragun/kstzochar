@@ -50,6 +50,7 @@ class EventPlanControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return list<array{string}> */
     public static function provide404Urls(): array
     {
         return [

@@ -8,12 +8,7 @@ use App\Entity\SportType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method SportType|null find($id, $lockMode = null, $lockVersion = null)
- * @method SportType|null findOneBy(array $criteria, array $orderBy = null)
- * @method SportType[]    findAll()
- * @method SportType[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<SportType> */
 class SportTypeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

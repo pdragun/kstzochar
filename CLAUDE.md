@@ -19,7 +19,7 @@ bin/console doctrine:fixtures:load          # load dev/test data (src/DataFixtur
 bin/phpunit                                 # run all tests (PHPUnit 13, symfony/phpunit-bridge extension)
 bin/phpunit tests/Controller/BlogControllerTest.php
 bin/phpunit --filter testShowInvitation
-vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon (with phpstan-doctrine and phpstan-symfony; needs the dev container in var/cache/dev; known errors in phpstan-baseline.neon)
+vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon (with phpstan-doctrine and phpstan-symfony; needs the dev container in var/cache/dev)
 vendor/bin/rector process --dry-run         # config in rector.php
 
 # Frontend (Webpack Encore -> public/build/)
