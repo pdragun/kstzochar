@@ -6,6 +6,7 @@ namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EventInvitationControllerTest extends WebTestCase
@@ -23,8 +24,8 @@ class EventInvitationControllerTest extends WebTestCase
 
     /**
      * Test list of wrong links
-     * @dataProvider provide404Urls
      */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -33,7 +34,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/pozvank'];
         yield ['/pozvankya'];
@@ -85,14 +86,14 @@ class EventInvitationControllerTest extends WebTestCase
 
         $this->assertEquals(
             (new DateTimeImmutable('tomorrow'))->format('j. n. Y'),
-            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[1]')->text(),
+            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tbody/tr/td[1]')->text(),
         );
         $this->assertEquals(
             'Upcoming event',
-            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]')->text(),
+            $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tbody/tr/td[2]')->text(),
         );
 
-        $link = $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tr/td[2]/a')->link();
+        $link = $crawler->filterXPath('//*[@id="invitations-upcoming"]/table/tbody/tr/td[2]/a')->link();
         $crawler = $client->click($link);
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -101,8 +102,8 @@ class EventInvitationControllerTest extends WebTestCase
 
     /**
      * Test links which required login
-     * @dataProvider provide302Urls
      */
+    #[DataProvider('provide302Urls')]
     public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
@@ -116,7 +117,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    public static function provide302Urls(): iterable
     {
         yield ['/pozvanky/2000/pridat-novu/add'];
         yield ['/pozvanky/2000/pridat-novu/2020-10-25/add'];
@@ -127,8 +128,8 @@ class EventInvitationControllerTest extends WebTestCase
 
     /**
      * Test if admin get correct 404
-     * @dataProvider provideAdmin404Urls
      */
+    #[DataProvider('provideAdmin404Urls')]
     public function testAdmin404(string $url): void
     {
         $client = static::createClient();
@@ -141,7 +142,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): iterable
+    public static function provideAdmin404Urls(): iterable
     {
         yield ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'];
         yield ['/pozvanky/2011/gulasove-opojenie-v-tesaroch1/edit'];

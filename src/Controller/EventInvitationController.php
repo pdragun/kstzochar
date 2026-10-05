@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\EventInvitation;
+use App\Entity\User;
 use App\Form\EventInvitationType;
 use App\Form\SetDateType;
 use App\Repository\EventRepository;
@@ -14,15 +15,14 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -47,13 +47,13 @@ class EventInvitationController extends AbstractController
     )]
     public function showEventInvitationsByYear(
         int $year,
-        EventInvitationRepository $eventInvitationRepository
+        EventInvitationRepository $eventInvitationRepository,
     ): Response {
         $invitations = $eventInvitationRepository->getPreparedByYear($year);
         if ($invitations === []) {
             throw $this->createNotFoundException();
         }
-  
+
   		return $this->render('event_invitation/showEventInvitationByYear.html.twig', [
             'yearInUrl' => $year,
             'eventInvitations' => $invitations,
@@ -74,7 +74,7 @@ class EventInvitationController extends AbstractController
     public function showEventInvitationByYearBySlug(
         int $year,
         string $slug,
-        EventInvitationRepository $eventInvitationRepository
+        EventInvitationRepository $eventInvitationRepository,
     ): Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -83,7 +83,7 @@ class EventInvitationController extends AbstractController
 
   		return $this->render('event_invitation/showEventInvitationByYearBySlug.html.twig', [
             'yearInUrl' => $year,
-            'invitation' => $invitation
+            'invitation' => $invitation,
         ]);
     }
 
@@ -93,7 +93,7 @@ class EventInvitationController extends AbstractController
      */
     #[Route('/pozvanky/aktualne', name: 'invitation_list_upcoming', methods: ['GET'])]
     public function showEventInvitationUpcoming(
-        EventInvitationRepository $eventInvitationRepository
+        EventInvitationRepository $eventInvitationRepository,
     ): Response {
         $upcomingInvitations = $eventInvitationRepository->findLatest();
 
@@ -127,7 +127,7 @@ class EventInvitationController extends AbstractController
 
             return $this->redirectToRoute('invitation_create_from_event', [
                 'year' => $year,
-                'date' => $startDate->format('Y-m-d')
+                'date' => $startDate->format('Y-m-d'),
             ]);
         }
 
@@ -136,7 +136,7 @@ class EventInvitationController extends AbstractController
             'yearInUrl' => $year,
             'pageTitle' => 'Vytvoriť novú pozvánku',
             'invitationTitle' => 'Nová pozvánka',
-            'actionName' => 'Pridať'
+            'actionName' => 'Pridať',
         ]);
     }
 
@@ -157,10 +157,10 @@ class EventInvitationController extends AbstractController
         string $date,
         Request $request,
         EventRepository $eventRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
+        #[CurrentUser] User $user,
     ): RedirectResponse|Response {
-        $dateTime = new DateTimeImmutable($date);
-        $dateTime->setTime(0,0, 0);
+        $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => null]);
 
         $invitation = new EventInvitation();
@@ -172,12 +172,12 @@ class EventInvitationController extends AbstractController
             $invitation->setStartDate($firstEvent->getStartDate());
             if ($firstEvent->getSportType() !== null) {
                 foreach ($firstEvent->getSportType() as $key => $value) {
-                    $invitation->addSportType($firstEvent->getSportType()[$key]);        
+                    $invitation->addSportType($firstEvent->getSportType()[$key]);
                 }
             }
             if ($firstEvent->getEventInvitation() !== null) {
                 foreach ($firstEvent->getEventInvitation()->getRoutes() as $key => $value) {
-                    $invitation->addRoute($firstEvent->getEventInvitation()->getRoutes()[$key]);        
+                    $invitation->addRoute($firstEvent->getEventInvitation()->getRoutes()[$key]);
                 }
             }
             $invitation->setEvent($firstEvent);
@@ -199,7 +199,7 @@ class EventInvitationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var $invitation EventInvitation */
+            /** @var EventInvitation $invitation */
             $invitation = $form->getData();
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($invitation->getTitle());
@@ -209,7 +209,7 @@ class EventInvitationController extends AbstractController
             $invitation->setCreatedAt($now);
             $invitation->setModifiedAt($now);
             $invitation->setPublish(true);
-            $invitation->setCreatedBy($this->getUser());
+            $invitation->setCreatedBy($user);
 
             $entityManager = $doctrine->getManager();
 
@@ -237,14 +237,14 @@ class EventInvitationController extends AbstractController
 
             $this->addFlash(
                 'success',
-                sprintf('Nová pozvánka: „%s“ bola vytvorená a uložená!', $invitation->getTitle())
+                sprintf('Nová pozvánka: „%s“ bola vytvorená a uložená!', $invitation->getTitle()),
             );
 
             $invitationYear = $invitation->getStartDate()->format('Y');
 
             return $this->redirectToRoute('invitation_show_by_Year_by_Slug', [
                 'year' => $invitationYear,
-                'slug' => $invitation->getSlug()
+                'slug' => $invitation->getSlug(),
             ]);
         }
 
@@ -253,7 +253,7 @@ class EventInvitationController extends AbstractController
             'yearInUrl' => $year,
             'invitationTitle' => 'Nová pozvánka',
             'dateTime' => $dateTime->format('Y-m-d'),
-            'actionName' => 'Pridať'
+            'actionName' => 'Pridať',
         ]);
 
     }
@@ -275,7 +275,7 @@ class EventInvitationController extends AbstractController
         string $slug,
         Request $request,
         EventInvitationRepository $eventInvitationRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
     ): RedirectResponse|Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -297,7 +297,7 @@ class EventInvitationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /* @var $invitation EventInvitation */
+            /** @var EventInvitation $invitation */
             $invitation = $form->getData();
             $invitation->setModifiedAt(new DateTimeImmutable());
             $slugger = new AsciiSlugger();
@@ -324,18 +324,18 @@ class EventInvitationController extends AbstractController
 
             $entityManager->persist($invitation);
             $entityManager->flush();
-    
+
             $cache = SecondLevelCachePDO::getInstance();
             $cache->clearAllCache();
 
             $this->addFlash(
                 'success',
-                sprintf('Zmeny v pozvánke: „%s“ boli uložené!', $invitation->getTitle())
+                sprintf('Zmeny v pozvánke: „%s“ boli uložené!', $invitation->getTitle()),
             );
 
             return $this->redirectToRoute('invitation_show_by_Year_by_Slug', [
                 'year' => $invitation->getStartDate()->format('Y'),
-                'slug' => $invitation->getSlug()
+                'slug' => $invitation->getSlug(),
             ]);
         }
 
@@ -364,7 +364,7 @@ class EventInvitationController extends AbstractController
     public function prepareDeleteInvitation(
         int $year,
         string $slug,
-        EventInvitationRepository $eventInvitationRepository
+        EventInvitationRepository $eventInvitationRepository,
     ): Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -393,7 +393,7 @@ class EventInvitationController extends AbstractController
         int $year,
         string $slug,
         EventInvitationRepository $eventInvitationRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
     ): RedirectResponse {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -412,7 +412,7 @@ class EventInvitationController extends AbstractController
 
         $this->addFlash(
             'success',
-            sprintf('Pozvánka: „%s“ bola zmazaná!', $invitationTitle)
+            sprintf('Pozvánka: „%s“ bola zmazaná!', $invitationTitle),
         );
 
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);

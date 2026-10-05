@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ContactControllerTest extends WebTestCase
@@ -18,7 +19,7 @@ class ContactControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Kontakt');
     }
 
-    /** @dataProvider provide404Urls */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -27,7 +28,7 @@ class ContactControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/kontak'];
         yield ['/kontakta'];

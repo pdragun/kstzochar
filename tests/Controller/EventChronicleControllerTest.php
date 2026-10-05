@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class EventChronicleControllerTest extends WebTestCase
@@ -21,8 +22,8 @@ class EventChronicleControllerTest extends WebTestCase
 
     /**
      * Test list of wrong links
-     * @dataProvider provide404Urls
      */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -31,7 +32,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/kronik'];
         yield ['/kronikaa'];
@@ -70,8 +71,8 @@ class EventChronicleControllerTest extends WebTestCase
 
     /**
      * Test links which required login
-     * @dataProvider provide302Urls
      */
+    #[DataProvider('provide302Urls')]
     public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
@@ -85,7 +86,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    public static function provide302Urls(): iterable
     {
         yield ['/kronika/2000/pridat-novu/add'];
         yield ['/kronika/2000/pridat-novu/2020-10-25/add'];
@@ -96,8 +97,8 @@ class EventChronicleControllerTest extends WebTestCase
 
     /**
      * Test if admin get correct 404
-     * @dataProvider provideAdmin404Urls
      */
+    #[DataProvider('provideAdmin404Urls')]
     public function testAdmin404(string $url): void
     {
         $client = static::createClient();
@@ -110,7 +111,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): array
+    public static function provideAdmin404Urls(): array
     {
         return [
             ['/kronika/2011/jaskyne-uhradu/edit'],

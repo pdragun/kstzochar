@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Repository\EventRouteRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GpxControllerTest extends WebTestCase
@@ -21,7 +22,7 @@ class GpxControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 
-    /** @dataProvider provide404Urls */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -30,7 +31,7 @@ class GpxControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/gpp'];
         yield ['/gpxx'];

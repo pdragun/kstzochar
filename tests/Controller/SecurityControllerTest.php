@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SecurityControllerTest extends WebTestCase
@@ -29,8 +30,8 @@ class SecurityControllerTest extends WebTestCase
 
     /**
      * Test wrong links
-     * @dataProvider provide404Urls
      */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -39,7 +40,7 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/logi'];
         yield ['/logina'];

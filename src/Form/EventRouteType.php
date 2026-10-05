@@ -28,12 +28,12 @@ class EventRouteType extends AbstractType
             ->add(
                 'length',
                 IntegerType::class,
-                ['label' => 'form.eventRouteType.length']
+                ['label' => 'form.eventRouteType.length'],
             )
             ->add(
                 'elevation',
                 IntegerType::class,
-                ['label' => 'form.eventRouteType.elevation']
+                ['label' => 'form.eventRouteType.elevation'],
             )
             // ->add('createdAt')
             // ->add('gpxSlug')
