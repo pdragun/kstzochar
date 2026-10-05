@@ -8,6 +8,8 @@ use App\Entity\EventRoute;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -40,6 +42,15 @@ class EventRouteType extends AbstractType
             // ->add('eventInvitations')
             // ->add('eventChronicles')
         ;
+
+        // EventRoute::setLength() takes an int, so an empty length becomes a form error instead of a null
+        $builder->get('length')->addModelTransformer(new CallbackTransformer(
+            static fn (?int $length): ?int => $length,
+            static fn (?int $length): int => $length ?? throw new TransformationFailedException(
+                'The route length is empty.',
+                invalidMessage: 'This value should not be blank.',
+            ),
+        ));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

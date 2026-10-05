@@ -82,6 +82,7 @@ class EventInvitation
 
     /** @var Collection<int, EventRoute> */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
+    #[Assert\Valid]
     private Collection $routes;
 
     public function __construct()

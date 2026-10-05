@@ -130,7 +130,7 @@ class EventChronicleControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -173,7 +173,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][1]['length'] = 10; // add new Route #2
 
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles()); // save
-        
+
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu1', $client->getResponse()->headers->get('location'));
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
@@ -211,7 +211,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][0]['length'] = 15;
         $values[$formName]['routes'][0]['elevation'] = 11;
         unset($values[$formName]['routes'][1]); // delete second route (both title and length)
-      
+
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu', $client->getResponse()->headers->get('location'));
@@ -219,6 +219,37 @@ class EventChronicleControllerTest extends WebTestCase
 
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu'); // chronicle has the same values as before test
+    }
+
+    /** Empty required fields show form errors instead of failing in the entity setters */
+    public function testEditWithEmptyRequiredFields(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+
+        $testUser = $userRepository->findOneByEmail('john.doe@example.com');
+        $client->loginUser($testUser); // login admin
+
+        $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+
+        $values[$formName]['title'] = '';
+        $values[$formName]['routes'][0]['title'] = '';
+        $values[$formName]['routes'][0]['length'] = '';
+
+        $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode()); // form shown again, nothing saved
+        $this->assertSelectorTextContains('html h1', 'Upraviť túto kroniku');
+        foreach (['event_chronicle_title', 'event_chronicle_routes_0_title', 'event_chronicle_routes_0_length'] as $field) {
+            $error = $crawler->filterXPath(sprintf('//*[@id="%s"]/preceding-sibling::*[contains(@class, "invalid-feedback")]', $field));
+            $this->assertSame('Chyba Táto hodnota by mala byť vyplnená.', $error->text(), $field);
+        }
+
+        $client->request('GET', '/kronika/2010/jaskyne-uhradu');
+        $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu'); // chronicle is unchanged
     }
 
     public function testCreateDelete(): void
