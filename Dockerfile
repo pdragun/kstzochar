@@ -113,8 +113,8 @@ FROM node_upstream AS assets_builder
 
 WORKDIR /app
 
-COPY --link package.json ./
-RUN npm install --no-audit --no-fund
+COPY --link package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 COPY --link --from=frankenphp_prod_builder /app ./
 RUN npm run build
