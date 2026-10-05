@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Symfony 6.4 (PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
+Symfony 7.4 (PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
 
 ## Commands
 
@@ -16,7 +16,7 @@ docker compose up --wait                    # php (https://localhost), database,
 # Backend
 composer install
 bin/console doctrine:fixtures:load          # load dev/test data (src/DataFixtures)
-bin/phpunit                                 # run all tests (symfony/phpunit-bridge, PHPUnit 9.5)
+bin/phpunit                                 # run all tests (PHPUnit 13, symfony/phpunit-bridge extension)
 bin/phpunit tests/Controller/BlogControllerTest.php
 bin/phpunit --filter testShowInvitation
 vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon
@@ -36,7 +36,7 @@ Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`con
 - **Menu and breadcrumbs**: KnpMenuBundle builder registered as `app.menu_builder` in `config/services.yaml`, rendered through `templates/extended_knp_menu.html.twig`.
 - **Translations**: UI strings are being moved into `translations/messages.sk.yaml` (Slovak only). Prefer adding keys there over hard-coding strings in controllers or templates.
 - **GPX**: `App\Service\Gpx` wraps `sibyx/phpgpx` to sanitize uploaded GPX tracks (it resets metadata and author) before `GpxController` serves them.
-- **Auth**: form login against `User` by email (`config/packages/security.yaml`, `src/Security/LoginFormAuthenticator.php`). `ROLE_ADMIN` inherits `ROLE_USER`.
-- **Tests** (`tests/Controller/`) are functional `WebTestCase`s. They check status codes (200, 404 via data providers, 302 redirects to login for admin routes) and assert Slovak text from the fixtures using CSS and XPath selectors.
+- **Auth**: built-in `form_login` against `User` by email (`config/packages/security.yaml`, `LoginController`). `ROLE_ADMIN` inherits `ROLE_USER`.
+- **Tests** (`tests/Controller/`) are functional `WebTestCase`s. Data providers are static methods wired with `#[DataProvider]` attributes; `phpunit.xml.dist` fails the run on deprecations, notices and warnings from `src/`. They check status codes (200, 404 via data providers, 302 redirects to login for admin routes) and assert Slovak text from the fixtures using CSS and XPath selectors.
 - **Docker**: `Dockerfile` (stages `frankenphp_dev`, `frankenphp_prod`, `assets_builder`), `compose*.yaml`, `frankenphp/` (Caddyfile, php.ini, entrypoint). FrankenPHP runs in classic mode, not worker mode, because `SecondLevelCachePDO` keeps static state between requests.
 - **Frontend**: Encore entries `app`, `a2lixSfCollection` and `css/app` (SCSS, Bootstrap 5). Encore also copies images, downloads and the CKEditor assets from `vendor/friendsofsymfony/ckeditor-bundle` into `public/build/`.

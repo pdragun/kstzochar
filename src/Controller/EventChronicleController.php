@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\EventChronicle;
+use App\Entity\User;
 use App\Repository\EventChronicleRepository;
 use App\Repository\EventRepository;
 use App\Form\EventChronicleType;
@@ -14,14 +15,14 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -47,12 +48,12 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/{slug}',
         name: 'chronicle_show_by_Year_Slug',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function showChronicleByYearSlug(
         int $year,
         string $slug,
-        EventChronicleRepository $eventChronicleRepository
+        EventChronicleRepository $eventChronicleRepository,
     ): Response {
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
         if ($chronicle === null) {
@@ -73,11 +74,11 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}',
         name: 'chronicle_list_by_Year',
         requirements: ['year' => '\d+'],
-        methods: ['GET']
+        methods: ['GET'],
     )]
     public function showChroniclesByYear(
         int $year,
-        EventChronicleRepository $eventChronicleRepository
+        EventChronicleRepository $eventChronicleRepository,
     ): Response {
         $chronicles = $eventChronicleRepository->getPreparedByYear($year);
         if ($chronicles === []) {
@@ -100,10 +101,9 @@ class EventChronicleController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function createChronicleFromDate(
         int $year,
-        Request $request
+        Request $request,
     ): RedirectResponse|Response {
 
-        /** @var SetDateType $form  */
         $form = $this->createForm(SetDateType::class, null, [
             'save_button_label' => 'Vytvor kroniku',
         ]);
@@ -114,7 +114,7 @@ class EventChronicleController extends AbstractController
 
             return $this->redirectToRoute('chronicle_create_from_event', [
                 'year' => $year,
-                'date' => $startDate->format('Y-m-d')
+                'date' => $startDate->format('Y-m-d'),
             ]);
         }
 
@@ -145,7 +145,8 @@ class EventChronicleController extends AbstractController
         string $date,
         Request $request,
         EventRepository $eventRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
+        #[CurrentUser] User $user,
     ): RedirectResponse|Response {
         $dateTime = (new DateTimeImmutable($date))->setTime(0, 0, 0);
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => null]);
@@ -159,7 +160,7 @@ class EventChronicleController extends AbstractController
             $chronicle->setStartDate($firstEvent->getStartDate());
             if ($firstEvent->getSportType() !== null) {
                 foreach ($firstEvent->getSportType() as $key => $value) {
-                    $chronicle->addSportType($firstEvent->getSportType()[$key]);        
+                    $chronicle->addSportType($firstEvent->getSportType()[$key]);
                 }
             }
             if ($firstEvent->getEventChronicle() !== null) {
@@ -187,7 +188,7 @@ class EventChronicleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /* @var $chronicle EventChronicle */
+            /** @var EventChronicle $chronicle */
             $chronicle = $form->getData();
             $now = new DateTimeImmutable();
             $slugger = new AsciiSlugger();
@@ -197,9 +198,8 @@ class EventChronicleController extends AbstractController
             $chronicle->setCreatedAt($now);
             $chronicle->setModifiedAt($now);
             $chronicle->setPublish(true);
-            $chronicle->setCreatedBy($this->getUser());
+            $chronicle->setCreatedBy($user);
 
-            /** @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
@@ -223,10 +223,10 @@ class EventChronicleController extends AbstractController
 
             $cache = SecondLevelCachePDO::getInstance();
             $cache->clearAllCache();
-    
+
             $this->addFlash(
                 'success',
-                sprintf('Nová kronika: „%s“ bola vytvorená a uložená!', $chronicle->getTitle())
+                sprintf('Nová kronika: „%s“ bola vytvorená a uložená!', $chronicle->getTitle()),
             );
 
             $chronicleYear = $chronicle->getStartDate()->format('Y');
@@ -264,7 +264,7 @@ class EventChronicleController extends AbstractController
         string $slug,
         Request $request,
         EventChronicleRepository $eventChronicleRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
     ): RedirectResponse|Response {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -282,21 +282,19 @@ class EventChronicleController extends AbstractController
             $originalRoutes->add($route);
         }
 
-        /** @var EventChronicleType $form */
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /* @var $chronicle EventChronicle */
+            /** @var EventChronicle $chronicle */
             $chronicle = $form->getData();
             $chronicle->setModifiedAt(new DateTimeImmutable());
             $slugger = new AsciiSlugger();
             $slug = $slugger->slug($chronicle->getTitle());
             $chronicle->setSlug($slug);
 
-            /* @var $entityManager ObjectManager */
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
@@ -323,7 +321,7 @@ class EventChronicleController extends AbstractController
 
             $this->addFlash(
                 'success',
-                sprintf('Zmeny v kronike: „%s“ boli uložené!', $chronicle->getTitle())
+                sprintf('Zmeny v kronike: „%s“ boli uložené!', $chronicle->getTitle()),
             );
 
             return $this->redirectToRoute('chronicle_show_by_Year_Slug', [
@@ -357,7 +355,7 @@ class EventChronicleController extends AbstractController
     public function prepareDeleteChronicle(
         int $year,
         string $slug,
-        EventChronicleRepository $eventChronicleRepository
+        EventChronicleRepository $eventChronicleRepository,
     ): Response {
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
         if ($chronicle === null) {
@@ -386,7 +384,7 @@ class EventChronicleController extends AbstractController
         int $year,
         string $slug,
         EventChronicleRepository $eventChronicleRepository,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
     ): RedirectResponse {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -406,9 +404,9 @@ class EventChronicleController extends AbstractController
 
         $this->addFlash(
             'success',
-            sprintf('Kronika: „%s“ bola zmazaná!', $chronicleTitle)
-        );  
-    
+            sprintf('Kronika: „%s“ bola zmazaná!', $chronicleTitle),
+        );
+
         return $this->redirectToRoute('chronicle_list_by_Year', ['year' => $year]);
     }
 }

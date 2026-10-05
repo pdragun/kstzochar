@@ -15,18 +15,14 @@ use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class Builder implements ContainerAwareInterface
+final class Builder
 {
-    use ContainerAwareTrait;
-
     public function __construct(
         private readonly FactoryInterface $factory,
         private readonly ManagerRegistry $doctrine,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {}
 
     /** @throws InvalidArgumentException */
@@ -50,7 +46,7 @@ final class Builder implements ContainerAwareInterface
             [
                 'route' => 'invitation_show',
                 'attributes' => ['dropdown' => 'true'],
-            ]
+            ],
         );
 
         foreach ($cachedData[$this->translator->trans('menu.invitations')] as $year => $eventList) {
@@ -69,7 +65,7 @@ final class Builder implements ContainerAwareInterface
                     [
                         'route' => 'invitation_show_by_Year_by_Slug',
                         'routeParameters' => ['year' => $year, 'slug' => $event['slug']],
-                    ]
+                    ],
                 );
             }
         }
@@ -80,7 +76,7 @@ final class Builder implements ContainerAwareInterface
             [
                 'route' => 'chronicle_show',
                 'attributes' => ['dropdown' => 'true'],
-            ]
+            ],
         );
 
         foreach ($cachedData[$this->translator->trans('menu.chronicle')] as $year => $eventList) {
@@ -89,7 +85,7 @@ final class Builder implements ContainerAwareInterface
                 [
                     'route' => 'chronicle_list_by_Year',
                     'routeParameters' => ['year' => $year],
-                ]
+                ],
             );
             $menu[$this->translator->trans('menu.chronicle')][$year]->setDisplayChildren(false);
 
@@ -98,8 +94,8 @@ final class Builder implements ContainerAwareInterface
                     $event['title'],
                     [
                         'route' => 'chronicle_show_by_Year_Slug',
-                        'routeParameters' => ['year' => $year, 'slug' => $event['slug']]
-                    ]
+                        'routeParameters' => ['year' => $year, 'slug' => $event['slug']],
+                    ],
                 );
             }
         }
@@ -110,14 +106,14 @@ final class Builder implements ContainerAwareInterface
                 'route' => 'plan',
                 'attributes' => [
                     'dropdown' => 'true',
-                ]
-            ]
+                ],
+            ],
         );
 
         foreach ($cachedData['Plán'] as $year) {
             $menu[$this->translator->trans('menu.plan')]->addChild($year, [
                 'route' => 'plan_show_by_Year',
-                'routeParameters' => ['year' => $year]
+                'routeParameters' => ['year' => $year],
             ]);
         }
           
@@ -138,15 +134,15 @@ final class Builder implements ContainerAwareInterface
                     'routeParameters' => [
                         'blogSectionSlug' => $blogSection[1],
                         'year' => $blog['year'],
-                        'slug' => $blog['slug']
-                    ]
+                        'slug' => $blog['slug'],
+                    ],
                 ]);
             }
         }
 
         $menu->addChild(
             $this->translator->trans('menu.contact'),
-            ['route' => 'contact']
+            ['route' => 'contact'],
         );
 
         return $menu;
@@ -170,14 +166,14 @@ final class Builder implements ContainerAwareInterface
             //Invitation
             $invitationList = $doctrine->getRepository(EventInvitation::class)->findBy(
                 ['publish' => 1],
-                ['startDate' => 'DESC']
+                ['startDate' => 'DESC'],
             );
             $data[$translator->trans('menu.invitations')] = $this->addEventsToYears($invitationList);
 
             //Chronicle
             $chronicleList = $doctrine->getRepository(EventChronicle::class)->findBy(
                 ['publish' => 1],
-                ['startDate' => 'DESC']
+                ['startDate' => 'DESC'],
             );
             $data[$translator->trans('menu.chronicle')] = $this->addEventsToYears($chronicleList);
 
@@ -227,18 +223,18 @@ final class Builder implements ContainerAwareInterface
             [
                 $translator->trans('menu.blog.sectionA.title'),
                 $translator->trans('menu.blog.sectionA.slug'),
-                $translator->trans('menu.blog.sectionA.shortcut')
+                $translator->trans('menu.blog.sectionA.shortcut'),
             ],
             [
                 $translator->trans('menu.blog.sectionB.title'),
                 $translator->trans('menu.blog.sectionB.slug'),
-                $translator->trans('menu.blog.sectionB.shortcut')
+                $translator->trans('menu.blog.sectionB.shortcut'),
             ],
             [
                 $translator->trans('menu.blog.sectionC.title'),
                 $translator->trans('menu.blog.sectionC.slug'),
                 $translator->trans('menu.blog.sectionC.shortcut'),
-            ]
+            ],
         ];
     }
 }

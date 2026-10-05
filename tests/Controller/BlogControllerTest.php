@@ -6,6 +6,7 @@ namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class BlogControllerTest extends WebTestCase
@@ -62,8 +63,8 @@ class BlogControllerTest extends WebTestCase
 
     /**
      * Test list of wrong links
-     * @dataProvider provide404Urls
      */
+    #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {
         $client = static::createClient();
@@ -72,7 +73,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertTrue($client->getResponse()->isNotFound());
     }
 
-    public function provide404Urls(): iterable
+    public static function provide404Urls(): iterable
     {
         yield ['/blo'];
         yield ['/bloga'];
@@ -90,8 +91,8 @@ class BlogControllerTest extends WebTestCase
 
     /**
      * Test links which required login
-     * @dataProvider provide302Urls
      */
+    #[DataProvider('provide302Urls')]
     public function testRequiredLogin(string $url): void
     {
         $client = static::createClient();
@@ -105,7 +106,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
-    public function provide302Urls(): iterable
+    public static function provide302Urls(): iterable
     {
         yield ['/blog/2000/pridat-novy/add'];
         yield ['/blog/blog-slug/pridat-novy/add'];
@@ -116,9 +117,9 @@ class BlogControllerTest extends WebTestCase
 
     /**
      * Test if admin get correct 404
-     * @dataProvider provideAdmin404Urls
      * @throws Exception
      */
+    #[DataProvider('provideAdmin404Urls')]
     public function testAdmin404(string $url): void
     {
         $client = static::createClient();
@@ -131,7 +132,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
-    public function provideAdmin404Urls(): iterable
+    public static function provideAdmin404Urls(): iterable
     {
         yield ['/blog/viacdnove-akcie1/pridat-novy/add'];
         yield ['/blog/z-klubovej-kuchyne1/pridat-novy/add'];

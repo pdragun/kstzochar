@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Blog;
-use App\Entity\BlogSection;
-use App\Entity\Event;
-use App\Entity\EventChronicle;
-use App\Entity\EventInvitation;
+use App\Repository\BlogRepository;
+use App\Repository\BlogSectionRepository;
+use App\Repository\EventChronicleRepository;
+use App\Repository\EventInvitationRepository;
+use App\Repository\EventRepository;
 use App\Utils\SecondLevelCachePDO;
-use Doctrine\Persistence\ManagerRegistry;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class HomePageController extends AbstractController
 {
-    public function __construct(private readonly ManagerRegistry $doctrine) {}
+    public function __construct(
+        private readonly EventRepository $eventRepository,
+        private readonly EventInvitationRepository $eventInvitationRepository,
+        private readonly EventChronicleRepository $eventChronicleRepository,
+        private readonly BlogSectionRepository $blogSectionRepository,
+        private readonly BlogRepository $blogRepository,
+    ) {}
 
     /**
      * Home page
@@ -33,33 +38,28 @@ class HomePageController extends AbstractController
         $cached = $cache->get('home-page', function (ItemInterface $item) {
 
             $fromDB = [];
-            $fromDB['latestEventPlanYear'] = $this->doctrine->getRepository(Event::class)->findMaxStartYear();
+            $fromDB['latestEventPlanYear'] = $this->eventRepository->findMaxStartYear();
 
-             /** @var $fromDB['latestInvitations'] EventChronicle */
-            $fromDB['latestInvitations'] = $this->doctrine->getRepository(EventInvitation::class)->findLatest();
+            $fromDB['latestInvitations'] = $this->eventInvitationRepository->findLatest();
 
-            /** @var $fromDB['latestChronicle'] EventChronicle */
-            $fromDB['latestChronicle'] = $this->doctrine->getRepository(EventChronicle::class)->findLatest();
+            $fromDB['latestChronicle'] = $this->eventChronicleRepository->findLatest();
 
-            /** @var $fromDB['latestBlogSectionId1'] Blog */
-            $idFirstSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('z-klubovej-kuchyne');
+            $idFirstSection = $this->blogSectionRepository->findBySlug('z-klubovej-kuchyne');
             $fromDB['latestBlogSectionId1'] = null;
             if ($idFirstSection !== null) {
-                $fromDB['latestBlogSectionId1'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idFirstSection->getId());
+                $fromDB['latestBlogSectionId1'] = $this->blogRepository->findLatestByBlogSectionId($idFirstSection->getId());
             }
 
-            /** @var $fromDB['latestBlogSectionId2'] Blog */
-            $idSecondSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('viacdnove-akcie');
+            $idSecondSection = $this->blogSectionRepository->findBySlug('viacdnove-akcie');
             $fromDB['latestBlogSectionId2'] = null;
             if ($idSecondSection !== null) {
-                $fromDB['latestBlogSectionId2'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
+                $fromDB['latestBlogSectionId2'] = $this->blogRepository->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
             }
 
-            /** @var $fromDB['latestBlogSectionId3'] Blog */
-            $idThirdSection = $this->doctrine->getRepository(BlogSection::class)->findBySlug('receptury-na-tury');
+            $idThirdSection = $this->blogSectionRepository->findBySlug('receptury-na-tury');
             $fromDB['latestBlogSectionId3'] = null;
             if ($idThirdSection !== null) {
-                $fromDB['latestBlogSectionId3'] = $this->doctrine->getRepository(Blog::class)->findLatestByBlogSectionId($idThirdSection->getId());
+                $fromDB['latestBlogSectionId3'] = $this->blogRepository->findLatestByBlogSectionId($idThirdSection->getId());
             }
 
             return $fromDB;

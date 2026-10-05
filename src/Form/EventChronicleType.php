@@ -66,6 +66,7 @@ class EventChronicleType extends AbstractType
                 UrlType::class,
                 [
                     'label' => 'form.eventChronicleType.photoAlbumG',
+                    'default_protocol' => 'https',
                     'required' => false,
                 ],
             )
