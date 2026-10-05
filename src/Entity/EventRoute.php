@@ -24,13 +24,13 @@ class EventRoute
     #[ORM\Column(type: Types::STRING)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::INTEGER)]
     #[Assert\Type('integer')]
     #[Assert\NotBlank]
     #[Assert\Positive]
-    private ?int $length = null;
+    private int $length;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
@@ -73,7 +73,7 @@ class EventRoute
         return $this->id;
     }
     
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -85,7 +85,7 @@ class EventRoute
         return $this;
     }
 
-    public function getLength(): ?int
+    public function getLength(): int
     {
         return $this->length;
     }

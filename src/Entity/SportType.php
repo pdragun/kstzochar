@@ -24,22 +24,22 @@ class SportType
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $slug = null;
+    private string $slug;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $description = null;
+    private string $description;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $shortcut = null;
+    private string $shortcut;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Type('string')]
@@ -74,7 +74,7 @@ class SportType
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -86,7 +86,7 @@ class SportType
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -98,7 +98,7 @@ class SportType
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -110,7 +110,7 @@ class SportType
         return $this;
     }
 
-    public function getShortcut(): ?string
+    public function getShortcut(): string
     {
         return $this->shortcut;
     }

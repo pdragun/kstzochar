@@ -24,13 +24,13 @@ class BlogSection
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $title = null;
+    private string $title;
 
 
     #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $slug = null;
+    private string $slug;
 
     /** @var Collection<int, Blog> */
     #[ORM\OneToMany(mappedBy: 'section', targetEntity: Blog::class)]
@@ -46,7 +46,7 @@ class BlogSection
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -58,7 +58,7 @@ class BlogSection
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -89,11 +89,8 @@ class BlogSection
     public function removeBlog(Blog $blog): self
     {
         if ($this->blog->contains($blog)) {
+            // the owning side is required, the blog has to be moved to another section or deleted
             $this->blog->removeElement($blog);
-            // set the owning side to null (unless already changed)
-            if ($blog->getSection() === $this) {
-                $blog->setSection(null);
-            }
         }
 
         return $this;

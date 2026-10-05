@@ -24,18 +24,18 @@ class BlogType extends AbstractType
             ->add(
                 'title',
                 TextType::class,
-                ['label' => 'form.blogType.title'],
+                ['label' => 'form.blogType.title', 'empty_data' => ''],
             )
             ->add(
                 'summary',
                 TextareaType::class,
-                ['label' => 'form.blogType.summary'],
+                ['label' => 'form.blogType.summary', 'empty_data' => ''],
             )
             // ->add('slug')
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.blogType.content'],
+                ['label' => 'form.blogType.content', 'empty_data' => ''],
             )
             // ->add('publish')
             // ->add('createdAt')

@@ -21,10 +21,8 @@ class EventRouteType extends AbstractType
             ->add(
                 'title',
                 TextType::class,
-                [
-                    'required' => false,
-                    'label' => 'form.eventRouteType.title',
-                ])
+                ['label' => 'form.eventRouteType.title', 'empty_data' => ''],
+            )
             ->add(
                 'length',
                 IntegerType::class,

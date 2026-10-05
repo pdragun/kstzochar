@@ -24,25 +24,25 @@ class Event
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
     #[Assert\NotBlank]
-    private ?DateTimeImmutable $startDate = null;
+    private DateTimeImmutable $startDate;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $endDate = null;
 
     #[ORM\OneToOne(inversedBy: 'event', targetEntity: EventInvitation::class, cascade: ['persist', 'remove'])]
-    private ?EventInvitation $eventInvitation;
+    private ?EventInvitation $eventInvitation = null;
 
     #[ORM\OneToOne(inversedBy: 'event', targetEntity: EventChronicle::class, cascade: ['persist', 'remove'])]
-    private ?EventChronicle $eventChronicle;
+    private ?EventChronicle $eventChronicle = null;
 
     #[ORM\OneToOne(inversedBy: 'event', targetEntity: Blog::class, cascade: ['persist', 'remove'])]
-    private ?Blog $blog;
+    private ?Blog $blog = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
@@ -56,15 +56,15 @@ class Event
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
-    private ?bool $publish = true;
+    private bool $publish = true;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
-    private ?DateTimeImmutable $createdAt = null;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
-    private ?bool $showDate = true;
+    private bool $showDate = true;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
@@ -91,7 +91,7 @@ class Event
         return $this->id;
     }
 
-     public function getTitle(): ?string
+     public function getTitle(): string
     {
         return $this->title;
     }
@@ -103,7 +103,7 @@ class Event
         return $this;
     }
 
-    public function getStartDate(): ?DateTimeImmutable
+    public function getStartDate(): DateTimeImmutable
     {
         return $this->startDate;
     }
@@ -222,7 +222,7 @@ class Event
         return $this;
     }
 
-    public function getPublish(): ?bool
+    public function getPublish(): bool
     {
         return $this->publish;
     }
@@ -234,7 +234,7 @@ class Event
         return $this;
     }
 
-    public function getCreatedAt(): ?DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -246,7 +246,7 @@ class Event
         return $this;
     }
 
-    public function getShowDate(): ?bool
+    public function getShowDate(): bool
     {
         return $this->showDate;
     }

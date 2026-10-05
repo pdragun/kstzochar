@@ -61,14 +61,14 @@ class EventChronicle
    /** @var ?string $photoAlbumG URL to Google photos album */
     #[ORM\Column(type: Types::STRING, length: 255, unique: true, nullable: true)]
     #[Assert\Type('string')]
-    private ?string $photoAlbumG;
+    private ?string $photoAlbumG = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
     private User $createdBy;
 
     #[ORM\OneToOne(mappedBy: 'eventChronicle', targetEntity: Event::class, cascade: ['persist', 'remove'])]
-    private ?Event $event;
+    private ?Event $event = null;
 
     /** @var Collection<int, SportType> $sportType */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventChronicles')]
@@ -76,14 +76,14 @@ class EventChronicle
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
-    private ?bool $publish = true;
+    private bool $publish = true;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
-    private ?User $authorBy;
+    private ?User $authorBy = null;
 
     /** @var Collection<int, EventRoute> */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
@@ -278,7 +278,7 @@ class EventChronicle
         return $this;
     }
 
-    public function getPublish(): ?bool
+    public function getPublish(): bool
     {
         return $this->publish;
     }
