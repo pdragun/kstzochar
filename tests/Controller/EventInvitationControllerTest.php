@@ -34,6 +34,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return iterable<array{string}> */
     public static function provide404Urls(): iterable
     {
         yield ['/pozvank'];
@@ -117,6 +118,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
+    /** @return iterable<array{string}> */
     public static function provide302Urls(): iterable
     {
         yield ['/pozvanky/2000/pridat-novu/add'];
@@ -142,6 +144,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return iterable<array{string}> */
     public static function provideAdmin404Urls(): iterable
     {
         yield ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'];

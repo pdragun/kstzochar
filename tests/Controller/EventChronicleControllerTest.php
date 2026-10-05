@@ -32,6 +32,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return iterable<array{string}> */
     public static function provide404Urls(): iterable
     {
         yield ['/kronik'];
@@ -86,6 +87,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
     }
 
+    /** @return iterable<array{string}> */
     public static function provide302Urls(): iterable
     {
         yield ['/kronika/2000/pridat-novu/add'];
@@ -111,6 +113,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return list<array{string}> */
     public static function provideAdmin404Urls(): array
     {
         return [

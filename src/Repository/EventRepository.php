@@ -12,12 +12,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
-/**
- * @method Event|null find($id, $lockMode = null, $lockVersion = null)
- * @method Event|null findOneBy(array $criteria, array $orderBy = null)
- * @method Event[]    findAll()
- * @method Event[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
+/** @extends ServiceEntityRepository<Event> */
 class EventRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -100,6 +95,7 @@ class EventRepository extends ServiceEntityRepository
         return (int) $date->format('Y');
     }
 
+    /** @return list<array{y: string}> */
     public function getUniqueYearsFromDB(): array
     {
         $em = $this->getEntityManager();
@@ -108,7 +104,7 @@ class EventRepository extends ServiceEntityRepository
         return $query->getArrayResult();
     }
 
-    /** @return array<int, int> $clearYears */
+    /** @return list<string> Years with an event, newest first */
     public function findUniqueYears(): array
     {
         $years = $this->getUniqueYearsFromDB();

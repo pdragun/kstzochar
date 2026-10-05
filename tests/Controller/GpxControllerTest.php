@@ -31,6 +31,7 @@ class GpxControllerTest extends WebTestCase
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
 
+    /** @return iterable<array{string}> */
     public static function provide404Urls(): iterable
     {
         yield ['/gpp'];

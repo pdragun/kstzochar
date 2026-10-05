@@ -17,6 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
+/** @extends AbstractType<EventInvitation> */
 class EventInvitationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
