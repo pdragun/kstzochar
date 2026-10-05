@@ -62,7 +62,7 @@ class EventInvitationControllerTest extends WebTestCase
     }
 
     /** Test existing invitation */
-    public function testShowInvitation()
+    public function testShowInvitation(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/pozvanky/2011/gulasove-opojenie-v-tesaroch');
@@ -76,7 +76,7 @@ class EventInvitationControllerTest extends WebTestCase
     }
 
     /** Test upcoming invitations */
-    public function testShowLatestInvitation()
+    public function testShowLatestInvitation(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/pozvanky/aktualne');

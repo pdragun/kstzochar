@@ -170,10 +170,8 @@ class EventInvitationController extends AbstractController
             $invitation->setTitle($firstEvent->getTitle());
             $invitation->setEndDate($firstEvent->getEndDate());
             $invitation->setStartDate($firstEvent->getStartDate());
-            if ($firstEvent->getSportType() !== null) {
-                foreach ($firstEvent->getSportType() as $key => $value) {
-                    $invitation->addSportType($firstEvent->getSportType()[$key]);
-                }
+            foreach ($firstEvent->getSportType() as $sportType) {
+                $invitation->addSportType($sportType);
             }
             if ($firstEvent->getEventInvitation() !== null) {
                 foreach ($firstEvent->getEventInvitation()->getRoutes() as $key => $value) {

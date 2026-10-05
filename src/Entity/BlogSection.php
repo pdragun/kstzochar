@@ -32,9 +32,9 @@ class BlogSection
     #[Assert\NotBlank]
     private ?string $slug = null;
 
-    /** @var ?Collection<int, Blog> $blog */
+    /** @var Collection<int, Blog> */
     #[ORM\OneToMany(mappedBy: 'section', targetEntity: Blog::class)]
-    private ?Collection $blog;
+    private Collection $blog;
 
     public function __construct()
     {
@@ -70,8 +70,8 @@ class BlogSection
         return $this;
     }
 
-    /** @return ?Collection<int, Blog> $blog */
-    public function getBlog(): ?Collection
+    /** @return Collection<int, Blog> */
+    public function getBlog(): Collection
     {
         return $this->blog;
     }

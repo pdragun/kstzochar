@@ -65,9 +65,9 @@ class EventInvitation
     #[ORM\OneToOne(mappedBy: 'eventInvitation', targetEntity: Event::class, cascade: ['persist'])]
     private ?Event $event = null;
 
-    /** @var ?Collection<int, SportType> $sportType */
+    /** @var Collection<int, SportType> */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'eventInvitations')]
-    private ?Collection $sportType;
+    private Collection $sportType;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
@@ -78,11 +78,11 @@ class EventInvitation
     private ?DateTimeImmutable $modifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventInvitationsAuthorBy')]
-    private User $authorBy;
+    private ?User $authorBy = null;
 
-    /** @var ?Collection<int, EventRoute> $routes */
+    /** @var Collection<int, EventRoute> */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
-    private ?Collection $routes;
+    private Collection $routes;
 
     public function __construct()
     {
@@ -232,8 +232,8 @@ class EventInvitation
         return $this;
     }
 
-    /** @return ?Collection<int, SportType> */
-    public function getSportType(): ?Collection
+    /** @return Collection<int, SportType> */
+    public function getSportType(): Collection
     {
         return $this->sportType;
     }
@@ -292,7 +292,8 @@ class EventInvitation
         return $this;
     }
 
-    public function getRoutes(): ?Collection
+    /** @return Collection<int, EventRoute> */
+    public function getRoutes(): Collection
     {
         return $this->routes;
     }

@@ -158,10 +158,8 @@ class EventChronicleController extends AbstractController
             $chronicle->setTitle($firstEvent->getTitle());
             $chronicle->setEndDate($firstEvent->getEndDate());
             $chronicle->setStartDate($firstEvent->getStartDate());
-            if ($firstEvent->getSportType() !== null) {
-                foreach ($firstEvent->getSportType() as $key => $value) {
-                    $chronicle->addSportType($firstEvent->getSportType()[$key]);
-                }
+            foreach ($firstEvent->getSportType() as $sportType) {
+                $chronicle->addSportType($sportType);
             }
             if ($firstEvent->getEventChronicle() !== null) {
                 foreach ($firstEvent->getEventChronicle()->getRoutes() as $key => $value) {

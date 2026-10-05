@@ -45,13 +45,13 @@ class EventRoute
     #[Assert\Type('DateTimeImmutable')]
     private ?DateTimeImmutable $eventDate = null;
 
-    /** @var ?Collection<int, EventInvitation> $eventInvitations */
+    /** @var Collection<int, EventInvitation> */
     #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'routes')]
-    private ?Collection $eventInvitations;
+    private Collection $eventInvitations;
 
-    /** @var ?Collection<int, EventChronicle> $eventChronicles */
+    /** @var Collection<int, EventChronicle> */
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'routes')]
-    private ?Collection $eventChronicles;
+    private Collection $eventChronicles;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     #[Assert\Type('integer')]
@@ -133,8 +133,8 @@ class EventRoute
         return $this;
     }
 
-    /** @return ?Collection<int, EventInvitation> */
-    public function getEventInvitations(): ?Collection
+    /** @return Collection<int, EventInvitation> */
+    public function getEventInvitations(): Collection
     {
         return $this->eventInvitations;
     }
@@ -159,7 +159,8 @@ class EventRoute
         return $this;
     }
 
-    public function getEventChronicles(): ?Collection
+    /** @return Collection<int, EventChronicle> */
+    public function getEventChronicles(): Collection
     {
         return $this->eventChronicles;
     }

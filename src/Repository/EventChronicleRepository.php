@@ -23,26 +23,9 @@ class EventChronicleRepository extends ServiceEntityRepository
         parent::__construct($registry, EventChronicle::class);
     }
 
-
-    /** @return EventChronicle[] Returns an array of EventChronicle objects */
-    public function findByStartDate($value)
+    /** @return list<array<string, mixed>> Published chronicles from the year, hydrated as arrays */
+    public function findByYear(int $year): array
     {
-        return $this->createQueryBuilder('e')
-            ->andWhere('e.startDate = :val')
-            ->setParameter('val', $value)
-            ->orderBy('e.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /** @return EventChronicle[] EventChronicle an array of EventChronicle objects */
-    public function findByYear($year): array
-    {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('p')
             ->andWhere('SUBSTRING(p.startDate, 1, 4) = :year')
             ->andWhere('p.publish = :publish')
@@ -53,8 +36,8 @@ class EventChronicleRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    /** @return array<int, <int, EventChronicle>> Returns prepared array of Events for table */
-    public function getPreparedByYear($year): array
+    /** @return array<int, list<array<string, mixed>>> Chronicles grouped by month */
+    public function getPreparedByYear(int $year): array
     {
         $clearResults = [];
         $res = $this->findByYear($year);
@@ -69,9 +52,6 @@ class EventChronicleRepository extends ServiceEntityRepository
     /** @throws NonUniqueResultException */
     public function findByYearSlug(int $year, string $slug): ?EventChronicle
     {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('p')
             ->where('p.slug = :slug')
             ->andWhere('SUBSTRING(p.startDate, 1, 4) = :year')

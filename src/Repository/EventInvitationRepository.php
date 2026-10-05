@@ -26,9 +26,6 @@ class EventInvitationRepository extends ServiceEntityRepository
     /** @throws NonUniqueResultException */
     public function findByYearSlug(int $year, string $slug): ?EventInvitation
     {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('p')
             ->andWhere('p.slug = :slug')
             ->andWhere('SUBSTRING(p.startDate, 1, 4) = :year')
@@ -56,12 +53,9 @@ class EventInvitationRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-    /** @return Event[] Returns an array of Event objects */
-    public function findByYear($year): array
+    /** @return list<array<string, mixed>> Published invitations from the year, hydrated as arrays */
+    public function findByYear(int $year): array
     {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('p')
             ->andWhere('SUBSTRING(p.startDate, 1, 4) = :year')
             ->andWhere('p.publish = :publish')
@@ -72,8 +66,8 @@ class EventInvitationRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    /** @return Event[]|[] Returns an prepared array of Events for table */
-    public function getPreparedByYear($year): array
+    /** @return array<int, list<array<string, mixed>>> Invitations grouped by month (1-12), or an empty array */
+    public function getPreparedByYear(int $year): array
     {
         $clearResults = [];
         for ($i = 1; $i <= 12; $i++) {

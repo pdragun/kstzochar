@@ -61,6 +61,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /** @return list<array<string, mixed>> */
     public function findAllByBlogSectionId(int $sectionId): array
     {
         return $this->createQueryBuilder('b')
@@ -72,6 +73,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
+    /** @return list<array<string, mixed>> */
     public function findAllByBlogSectionIdOrderByStartDate(int $sectionId): array
     {
         return $this->createQueryBuilder('b')
@@ -83,7 +85,7 @@ class BlogRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    /** @return array<int <int, Blog>> Returns prepared array of Blogs for table */
+    /** @return array<int, list<array<string, mixed>>> Blogs grouped by year of creation */
     public function getPreparedByYear(int $sectionId): array
     {
         $clearResults = [];
@@ -97,7 +99,7 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    /** @return array<int, Blog> Returns prepared array of Blogs for table */
+    /** @return array<int, list<array<string, mixed>>> Blogs grouped by year of the start date */
     public function getPreparedByYearStartDate(int $sectionId): array
     {
         $clearResults = [];
@@ -113,9 +115,6 @@ class BlogRepository extends ServiceEntityRepository
     /** @throws NonUniqueResultException */
     public function findBySectionYearSlug(int $sectionId, int $year, string $slug): ?Blog
     {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('b')
             ->andWhere('b.slug = :slug')
             ->andWhere('SUBSTRING(b.createdAt, 1, 4) = :year')

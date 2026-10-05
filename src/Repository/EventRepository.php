@@ -27,13 +27,10 @@ class EventRepository extends ServiceEntityRepository
 
     /**
      * Find list of events based on year
-     * @return array<int, Event> Returns an array of Event objects
+     * @return list<array<string, mixed>> Published events from the year, hydrated as arrays
      */
     public function findByYear(int $year): array
     {
-        $em = $this->getEntityManager()->getConfiguration();
-        $em->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-
         return $this->createQueryBuilder('e')
             ->select('e', 'st', 'b')
             ->leftJoin('e.sportType', 'st')
@@ -49,7 +46,7 @@ class EventRepository extends ServiceEntityRepository
 
     /**
      * Get list of event from one year ordered according to months
-     * @return array<int, <int, Event>> Returns prepared array of Events for table or empty arrary
+     * @return array<int, list<array<string, mixed>>> Events grouped by month (1-12), or an empty array
      */
     public function getPreparedByYear(int $year): array
     {
@@ -72,10 +69,11 @@ class EventRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return array<int|string, mixed>
      * @throws NonUniqueResultException
      * @throws NoResultException
      */
-    public function findMaxStartDate()
+    public function findMaxStartDate(): array
     {
         $query = $this->createQueryBuilder('e')
             ->select('e, MAX(e.startDate) as maxYear')

@@ -45,21 +45,21 @@ class SportType
     #[Assert\Type('string')]
     private ?string $image = null;
 
-    /** @var ?Collection<int, Event> $events */
+    /** @var Collection<int, Event> */
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'sportType')]
-    private ?Collection $events;
+    private Collection $events;
 
-    /** @var ?Collection<int, EventChronicle> $eventChronicles */
+    /** @var Collection<int, EventChronicle> */
     #[ORM\ManyToMany(targetEntity: EventChronicle::class, mappedBy: 'sportType')]
-    private ?Collection $eventChronicles;
+    private Collection $eventChronicles;
 
-    /** @var ?Collection<int, Blog> $blogs */
+    /** @var Collection<int, Blog> */
     #[ORM\ManyToMany(targetEntity: Blog::class, mappedBy: 'sportType')]
-    private ?Collection $blogs;
+    private Collection $blogs;
 
-    /** @var ?Collection<int, EventInvitation> $eventInvitations */
+    /** @var Collection<int, EventInvitation> */
     #[ORM\ManyToMany(targetEntity: EventInvitation::class, mappedBy: 'sportType')]
-    private ?Collection $eventInvitations;
+    private Collection $eventInvitations;
 
     public function __construct()
     {
@@ -134,8 +134,8 @@ class SportType
         return $this;
     }
 
-    /** @return ?Collection<int, Event> */
-    public function getEvents(): ?Collection
+    /** @return Collection<int, Event> */
+    public function getEvents(): Collection
     {
         return $this->events;
     }
@@ -160,8 +160,8 @@ class SportType
         return $this;
     }
 
-    /** @return ?Collection<int, EventChronicle> */
-    public function getEventChronicles(): ?Collection
+    /** @return Collection<int, EventChronicle> */
+    public function getEventChronicles(): Collection
     {
         return $this->eventChronicles;
     }
@@ -186,8 +186,8 @@ class SportType
         return $this;
     }
 
-    /** @return ?Collection<int, Blog> */
-    public function getBlogs(): ?Collection
+    /** @return Collection<int, Blog> */
+    public function getBlogs(): Collection
     {
         return $this->blogs;
     }
@@ -212,8 +212,8 @@ class SportType
         return $this;
     }
 
-    /** @return ?Collection<int, EventInvitation> */
-    public function getEventInvitations(): ?Collection
+    /** @return Collection<int, EventInvitation> */
+    public function getEventInvitations(): Collection
     {
         return $this->eventInvitations;
     }
