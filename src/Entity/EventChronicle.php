@@ -87,6 +87,7 @@ class EventChronicle
 
     /** @var Collection<int, EventRoute> */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
+    #[Assert\Valid]
     private Collection $routes;
 
     public function __construct()

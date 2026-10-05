@@ -130,7 +130,7 @@ class EventChronicleControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $userRepository = static::getContainer()->get(UserRepository::class);
-        
+
         $testUser = $userRepository->findOneByEmail('john.doe@example.com');
         $client->loginUser($testUser); // login admin
 
@@ -173,7 +173,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][1]['length'] = 10; // add new Route #2
 
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles()); // save
-        
+
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu1', $client->getResponse()->headers->get('location'));
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
@@ -211,7 +211,7 @@ class EventChronicleControllerTest extends WebTestCase
         $values[$formName]['routes'][0]['length'] = 15;
         $values[$formName]['routes'][0]['elevation'] = 11;
         unset($values[$formName]['routes'][1]); // delete second route (both title and length)
-      
+
         $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
 
         $this->assertEquals('/kronika/2010/Jaskyne-Uhradu', $client->getResponse()->headers->get('location'));
@@ -219,6 +219,68 @@ class EventChronicleControllerTest extends WebTestCase
 
         $crawler = $client->followRedirect();
         $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu'); // chronicle has the same values as before test
+    }
+
+    /** Empty required fields show form errors instead of failing in the entity setters */
+    public function testEditWithEmptyRequiredFields(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+
+        $testUser = $userRepository->findOneByEmail('john.doe@example.com');
+        $client->loginUser($testUser); // login admin
+
+        $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+
+        $values[$formName]['title'] = '';
+        $values[$formName]['routes'][0]['length'] = ''; // route with a title, but without a length
+        $values[$formName]['routes'][1] = ['title' => '', 'length' => '5', 'elevation' => '']; // new route without a title
+
+        $crawler = $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode()); // form shown again, nothing saved
+        $this->assertSelectorTextContains('html h1', 'Upraviť túto kroniku');
+        foreach (['event_chronicle_title', 'event_chronicle_routes_0_length', 'event_chronicle_routes_1_title'] as $field) {
+            $this->assertSelectorTextSame('#' . $field . '_error1', 'Táto hodnota by mala byť vyplnená.');
+        }
+
+        $client->request('GET', '/kronika/2010/jaskyne-uhradu');
+        $this->assertSelectorTextContains('html h1', 'Jaskyne Úhradu'); // chronicle is unchanged
+    }
+
+    /** A route without a title and a length is not added, the user left the row empty */
+    public function testEditSkipsEmptyRoute(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+
+        $testUser = $userRepository->findOneByEmail('john.doe@example.com');
+        $client->loginUser($testUser); // login admin
+
+        $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
+        foreach (['title', 'length', 'elevation'] as $field) { // the browser lets the user submit an empty route row
+            $this->assertNull($crawler->filter('#event_chronicle_routes_0_' . $field)->attr('required'), $field);
+        }
+        $this->assertStringNotContainsString('required=', $crawler->filter('#event_chronicle_routes')->attr('data-prototype'));
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+
+        $values[$formName]['routes'][1] = ['title' => '', 'length' => '', 'elevation' => '12']; // new empty route
+        $values[$formName]['routes'][2] = ['title' => ' ', 'length' => '']; // new route with a blank title
+
+        $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertResponseRedirects('/kronika/2010/Jaskyne-Uhradu');
+        $crawler = $client->followRedirect();
+        $this->assertCount(0, $crawler->filter('#routes ul')); // a list is shown only for more routes
+        $this->assertSelectorTextContains(
+            '#routes',
+            'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km, prevýšenie 11 m).',
+        );
     }
 
     public function testCreateDelete(): void

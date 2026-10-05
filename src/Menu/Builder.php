@@ -17,12 +17,12 @@ use Psr\Cache\InvalidArgumentException;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class Builder
+final readonly class Builder
 {
     public function __construct(
-        private readonly FactoryInterface $factory,
-        private readonly ManagerRegistry $doctrine,
-        private readonly TranslatorInterface $translator,
+        private FactoryInterface $factory,
+        private ManagerRegistry $doctrine,
+        private TranslatorInterface $translator,
     ) {}
 
     /**

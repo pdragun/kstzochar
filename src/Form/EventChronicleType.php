@@ -6,6 +6,7 @@ namespace App\Form;
 
 use App\Entity\EventChronicle;
 use App\Entity\SportType;
+use App\Form\EventListener\RemoveEmptyRoutesSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -115,6 +116,8 @@ class EventChronicleType extends AbstractType
                 ['label' => 'form.eventChronicleType.save'],
             )
         ;
+
+        $builder->get('routes')->addEventSubscriber(new RemoveEmptyRoutesSubscriber());
     }
 
     public function configureOptions(OptionsResolver $resolver): void

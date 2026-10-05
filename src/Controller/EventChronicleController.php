@@ -148,7 +148,7 @@ class EventChronicleController extends AbstractController
         ManagerRegistry $doctrine,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
-        $dateTime = (new DateTimeImmutable($date))->setTime(0, 0, 0);
+        $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
         $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => null]);
 
         $chronicle = new EventChronicle();
