@@ -244,8 +244,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode()); // form shown again, nothing saved
         $this->assertSelectorTextContains('html h1', 'Upraviť túto kroniku');
         foreach (['event_chronicle_title', 'event_chronicle_routes_0_length', 'event_chronicle_routes_1_title'] as $field) {
-            $error = $crawler->filterXPath(sprintf('//*[@id="%s"]/preceding-sibling::*[contains(@class, "invalid-feedback")]', $field));
-            $this->assertSame('Chyba Táto hodnota by mala byť vyplnená.', $error->text(), $field);
+            $this->assertSelectorTextSame('#' . $field . '_error1', 'Táto hodnota by mala byť vyplnená.');
         }
 
         $client->request('GET', '/kronika/2010/jaskyne-uhradu');
@@ -262,6 +261,10 @@ class EventChronicleControllerTest extends WebTestCase
         $client->loginUser($testUser); // login admin
 
         $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
+        foreach (['title', 'length', 'elevation'] as $field) { // the browser lets the user submit an empty route row
+            $this->assertNull($crawler->filter('#event_chronicle_routes_0_' . $field)->attr('required'), $field);
+        }
+        $this->assertStringNotContainsString('required=', $crawler->filter('#event_chronicle_routes')->attr('data-prototype'));
         $form = $crawler->selectButton('Uložiť kroniku')->form();
         $values = $form->getPhpValues();
         $formName = $form->getName();

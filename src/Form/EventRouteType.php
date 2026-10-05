@@ -18,23 +18,27 @@ use Symfony\Component\Validator\Constraints\File;
 /** @extends AbstractType<EventRoute> */
 class EventRouteType extends AbstractType
 {
+    /**
+     * The fields are not required in HTML, so the user can leave a route row empty and
+     * RemoveEmptyRoutesSubscriber skips it. A row with only a title or a length fails validation.
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(
                 'title',
                 TextType::class,
-                ['label' => 'form.eventRouteType.title', 'empty_data' => ''],
+                ['label' => 'form.eventRouteType.title', 'empty_data' => '', 'required' => false],
             )
             ->add(
                 'length',
                 IntegerType::class,
-                ['label' => 'form.eventRouteType.length'],
+                ['label' => 'form.eventRouteType.length', 'required' => false],
             )
             ->add(
                 'elevation',
                 IntegerType::class,
-                ['label' => 'form.eventRouteType.elevation'],
+                ['label' => 'form.eventRouteType.elevation', 'required' => false],
             )
             // ->add('createdAt')
             // ->add('gpxSlug')
