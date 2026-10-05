@@ -25,33 +25,33 @@ class Blog
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $title;
+    private string $title;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $summary;
+    private string $summary;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
-    private ?string $slug;
+    private string $slug;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
-    private ?string $content;
+    private string $content;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Assert\Type('bool')]
-    private ?bool $publish;
+    private bool $publish = true;
 
     #[ORM\ManyToOne(targetEntity: BlogSection::class, inversedBy: 'blog')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?BlogSection $section = null;
+    private BlogSection $section;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'blogsCreatedBy')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $createdBy = null;
+    private User $createdBy;
 
     #[ORM\OneToOne(mappedBy: 'blog', targetEntity: Event::class, cascade: ['persist', 'remove'])]
     private ?Event $event = null;
@@ -89,7 +89,7 @@ class Blog
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -101,7 +101,7 @@ class Blog
         return $this;
     }
 
-    public function getSummary(): ?string
+    public function getSummary(): string
     {
         return $this->summary;
     }
@@ -113,7 +113,7 @@ class Blog
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -125,7 +125,7 @@ class Blog
         return $this;
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -137,7 +137,7 @@ class Blog
         return $this;
     }
 
-    public function getPublish(): ?bool
+    public function getPublish(): bool
     {
         return $this->publish;
     }
@@ -149,24 +149,24 @@ class Blog
         return $this;
     }
 
-    public function getSection(): ?BlogSection
+    public function getSection(): BlogSection
     {
         return $this->section;
     }
 
-    public function setSection(?BlogSection $section): self
+    public function setSection(BlogSection $section): self
     {
         $this->section = $section;
 
         return $this;
     }
 
-    public function getCreatedBy(): ?User
+    public function getCreatedBy(): User
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?User $createdBy): self
+    public function setCreatedBy(User $createdBy): self
     {
         $this->createdBy = $createdBy;
 

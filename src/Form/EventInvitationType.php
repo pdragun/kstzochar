@@ -25,18 +25,18 @@ class EventInvitationType extends AbstractType
             ->add(
                 'title',
                 TextType::class,
-                ['label' => 'form.eventInvitationType.title'],
+                ['label' => 'form.eventInvitationType.title', 'empty_data' => ''],
             )
             //->add('slug')
             ->add(
                 'summary',
                 TextareaType::class,
-                ['label' => 'form.eventInvitationType.summary'],
+                ['label' => 'form.eventInvitationType.summary', 'empty_data' => ''],
             )
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.eventInvitationType.content'],
+                ['label' => 'form.eventInvitationType.content', 'empty_data' => ''],
             )
             // ->add('publishedAt')
             ->add(

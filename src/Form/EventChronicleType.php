@@ -27,18 +27,18 @@ class EventChronicleType extends AbstractType
             ->add(
                 'title',
                 TextType::class,
-                ['label' => 'form.eventChronicleType.title'],
+                ['label' => 'form.eventChronicleType.title', 'empty_data' => ''],
             )
             // ->add('slug')
             ->add(
                 'summary',
                 TextareaType::class,
-                ['label' => 'form.eventChronicleType.summary'],
+                ['label' => 'form.eventChronicleType.summary', 'empty_data' => ''],
             )
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.eventChronicleType.content'],
+                ['label' => 'form.eventChronicleType.content', 'empty_data' => ''],
             )
             // ->add('publishedAt')
             ->add(

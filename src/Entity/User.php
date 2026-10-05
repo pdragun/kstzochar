@@ -246,11 +246,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeBlogsCreatedBy(Blog $blogsCreatedBy): self
     {
         if ($this->blogsCreatedBy->contains($blogsCreatedBy)) {
+            // the owning side is required, the blog has to get another creator or be deleted
             $this->blogsCreatedBy->removeElement($blogsCreatedBy);
-            // set the owning side to null (unless already changed)
-            if ($blogsCreatedBy->getCreatedBy() === $this) {
-                $blogsCreatedBy->setCreatedBy(null);
-            }
         }
 
         return $this;
