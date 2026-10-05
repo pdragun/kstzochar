@@ -187,7 +187,7 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals('Gulášové opojenie v Tesároch', $values[$formName]['title']);
         $this->assertEquals('Turisticko-športový deň 10.9. v Tesároch', $values[$formName]['summary']);
         $this->assertEquals($content, $values[$formName]['content']);
-        $this->assertEquals('2011-09-10T10:00:00', $values[$formName]['startDate']);
+        $this->assertEquals('2011-09-10T10:00', $values[$formName]['startDate']);
         $this->assertEquals('peso', $values[$formName]['sportType'][0]);
         $this->assertEquals('cyklo', $values[$formName]['sportType'][2]);
         $this->assertEquals('Okolie Tesár, športové hry', $values[$formName]['routes'][0]['title']);

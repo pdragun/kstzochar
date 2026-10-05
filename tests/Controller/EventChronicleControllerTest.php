@@ -146,7 +146,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('Jaskyne Úhradu', $values[$formName]['title']);
         $this->assertEquals('Novoročný výstup na Úhrad sme spojili s návštevou jaskýň.', $values[$formName]['summary']);
         $this->assertEquals($content, $values[$formName]['content']);
-        $this->assertEquals('2010-01-02T00:00:00', $values[$formName]['startDate']);
+        $this->assertEquals('2010-01-02T00:00', $values[$formName]['startDate']);
         $this->assertEquals('bezky', $values[$formName]['sportType'][1]);
         $this->assertEquals('zjazdove-lyzovanie', $values[$formName]['sportType'][4]);
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie', $values[$formName]['routes'][0]['title']);

@@ -32,3 +32,9 @@ vendor/
 .env.local
 .env.local.php
 .env.test
+.docker/
+.idea/
+docker/
+node_modules/
+public/build/
+bin/.phpunit/

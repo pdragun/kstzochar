@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\EventInvitation;
-use App\DataFixtures\EventRouteFixtures;
-use App\DataFixtures\SportTypeFixtures;
-use App\DataFixtures\UserFixtures;
+use App\Entity\EventRoute;
+use App\Entity\SportType;
+use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -44,12 +44,12 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
         <p>Pr&iacute;ďte načerpať nov&eacute; sily, zas&uacute;ťažiť si, zaspom&iacute;nať na pekn&eacute; podujatia, pripraviť nov&eacute; a str&aacute;viť pr&iacute;jemn&eacute; chv&iacute;le v kruhu svojich kamar&aacute;tov.</p>
         <p>Te&scaron;&iacute;me sa na spoločn&eacute; stretnutie v pr&iacute;jemnom prostred&iacute;.</p>
         <p>www.krokovelo.webnode.cz</p>');
-        $invitation1->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
-        $invitation1->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
-        $invitation1->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE));
-        $invitation1->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE));
-        $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE));
-        $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE));
+        $invitation1->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation1->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation1->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE, EventRoute::class));
+        $invitation1->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE, EventRoute::class));
+        $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE, SportType::class));
+        $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE, SportType::class));
         $manager->persist($invitation1);
 
         // new upcoming event
@@ -63,12 +63,12 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
         $invitation2->setModifiedAt(null);
         $invitation2->setPublish(true);
         $invitation2->setContent('<p>Test upcoming event. Everyone is welcome.</p>');
-        $invitation2->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
-        $invitation2->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE));
-        $invitation2->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE));
-        $invitation2->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE));
-        $invitation2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE));
-        $invitation2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE));
+        $invitation2->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation2->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation2->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE, EventRoute::class));
+        $invitation2->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE, EventRoute::class));
+        $invitation2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE, SportType::class));
+        $invitation2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE, SportType::class));
         $manager->persist($invitation2);
 
         $manager->flush();

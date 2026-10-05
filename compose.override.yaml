@@ -1,0 +1,47 @@
+---
+# Development environment override
+services:
+  php:
+    image: ${IMAGES_PREFIX:-}kstzochar-php-dev
+    build:
+      context: .
+      target: frankenphp_dev
+    volumes:
+      - ./:/app
+      - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
+      - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+      # Keep var/ off the bind-mount for faster I/O on Mac/Windows; comment to inspect from the host.
+      - /app/var
+      # If you develop on Mac or Windows you can remove the vendor/ directory
+      #  from the bind-mount for better performance by enabling the next line:
+      #- /app/vendor
+    environment:
+      # See https://xdebug.org/docs/all_settings#mode
+      XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
+      APP_ENV: "${APP_ENV:-dev}"
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
+    tty: true
+
+  # Webpack Encore: rebuilds public/build/ on changes (npm run watch)
+  node:
+    image: node:24-slim
+    # Keep node_modules/ and public/build/ owned by the host user
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /app
+    command: sh -c "npm install --no-audit --no-fund && npm run watch"
+    environment:
+      HOME: /tmp
+    volumes:
+      - ./:/app
+    depends_on:
+      # Encore copies the CKEditor files from vendor/, which the php container installs
+      php:
+        condition: service_healthy
+
+###> doctrine/doctrine-bundle ###
+  database:
+    ports:
+      - "${MYSQL_HOST_PORT:-3311}:3306"
+###< doctrine/doctrine-bundle ###

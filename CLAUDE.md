@@ -4,11 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Symfony 6.4 (PHP >= 8.2) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
+Symfony 6.4 (PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
 
 ## Commands
 
+Local stack is Docker (dunglas/symfony-docker: FrankenPHP + PHP 8.5, MySQL 8.4, Node for Encore), see README. Run PHP commands inside it, e.g. `docker compose exec php bin/phpunit`.
+
 ```bash
+docker compose up --wait                    # php (https://localhost), database, node (encore watch)
+
 # Backend
 composer install
 bin/console doctrine:fixtures:load          # load dev/test data (src/DataFixtures)
@@ -22,7 +26,7 @@ npm run dev      # or: npm run watch / npm run dev-server
 npm run build    # production
 ```
 
-Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`config/packages/doctrine.yaml`), and the functional tests assert against fixture data, so load fixtures into the test DB first: `bin/console --env=test doctrine:fixtures:load`. `DATABASE_URL` (MySQL) is set in `.env.local`, which is git-ignored. The `migrations/` directory holds no migrations.
+Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`config/packages/doctrine.yaml`), and the functional tests assert against fixture data, so load fixtures into the test DB first: `bin/console --env=test doctrine:fixtures:load`. In Docker, `DATABASE_URL` comes from `compose.yaml` (real env vars win over `.env*` files); the MySQL init script `docker/mysql/01-test-database.sh` creates the `_test` database. The schema has to be created with `doctrine:schema:create`. The `migrations/` directory holds no migrations.
 
 ## Architecture
 
@@ -34,4 +38,5 @@ Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`con
 - **GPX**: `App\Service\Gpx` wraps `sibyx/phpgpx` to sanitize uploaded GPX tracks (it resets metadata and author) before `GpxController` serves them.
 - **Auth**: form login against `User` by email (`config/packages/security.yaml`, `src/Security/LoginFormAuthenticator.php`). `ROLE_ADMIN` inherits `ROLE_USER`.
 - **Tests** (`tests/Controller/`) are functional `WebTestCase`s. They check status codes (200, 404 via data providers, 302 redirects to login for admin routes) and assert Slovak text from the fixtures using CSS and XPath selectors.
+- **Docker**: `Dockerfile` (stages `frankenphp_dev`, `frankenphp_prod`, `assets_builder`), `compose*.yaml`, `frankenphp/` (Caddyfile, php.ini, entrypoint). FrankenPHP runs in classic mode, not worker mode, because `SecondLevelCachePDO` keeps static state between requests.
 - **Frontend**: Encore entries `app`, `a2lixSfCollection` and `css/app` (SCSS, Bootstrap 5). Encore also copies images, downloads and the CKEditor assets from `vendor/friendsofsymfony/ckeditor-bundle` into `public/build/`.

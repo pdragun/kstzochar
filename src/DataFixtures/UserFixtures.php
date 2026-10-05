@@ -15,7 +15,7 @@ class UserFixtures extends Fixture
 
     public function __construct(private readonly UserPasswordHasherInterface $hasher) {}
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $userAdmin = new User();
         $userAdmin->setEmail('john.doe@example.com');
