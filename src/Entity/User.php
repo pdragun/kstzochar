@@ -41,40 +41,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     private string $password;
 
-    /** @var ?Collection<int, EventInvitation> */
+    /** @var Collection<int, EventInvitation> */
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: EventInvitation::class)]
-    private ?Collection $eventInvitationsCreatedBy;
+    private Collection $eventInvitationsCreatedBy;
 
-    /** @var ?Collection<int, EventChronicle> $eventChroniclesCreatedBy */
+    /** @var Collection<int, EventChronicle> */
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: EventChronicle::class)]
-    private ?Collection $eventChroniclesCreatedBy;
+    private Collection $eventChroniclesCreatedBy;
 
-    /** @var ?Collection<int, Blog> $blogsCreatedBy */
+    /** @var Collection<int, Blog> */
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Blog::class)]
-    private ?Collection $blogsCreatedBy;
+    private Collection $blogsCreatedBy;
 
-    /** @var ?Collection<int, Event> $eventsCreatedBy */
+    /** @var Collection<int, Event> */
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
-    private ?Collection $eventsCreatedBy;
+    private Collection $eventsCreatedBy;
 
     #[ORM\Column(type: 'string', length: 190)]
     private string $displayName;
 
-    /** @var ?Collection<int, Blog> $blogsAuthorBy */
+    /** @var Collection<int, Blog> */
     #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: Blog::class)]
-    private ?Collection $blogsAuthorBy;
+    private Collection $blogsAuthorBy;
 
-    /** @var ?Collection<int, Event> $eventsAuthorBy */
+    /** @var Collection<int, Event> */
     #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: Event::class)]
-    private ?Collection $eventsAuthorBy;
+    private Collection $eventsAuthorBy;
 
-    /** @var ?Collection<int, EventInvitation> $eventInvitationsAuthorBy */
+    /** @var Collection<int, EventInvitation> */
     #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: EventInvitation::class)]
-    private ?Collection $eventInvitationsAuthorBy;
+    private Collection $eventInvitationsAuthorBy;
 
-    /** @var ?Collection<int, EventChronicle> $eventChroniclesAuthorBy */
+    /** @var Collection<int, EventChronicle> */
     #[ORM\OneToMany(mappedBy: 'authorBy', targetEntity: EventChronicle::class)]
-    private ?Collection $eventChroniclesAuthorBy;
+    private Collection $eventChroniclesAuthorBy;
 
     public function __construct()
     {
@@ -169,7 +169,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    /** @return ArrayCollection<EventInvitation> */
+    /** @return Collection<int, EventInvitation> */
     public function getEventInvitationsCreatedBy(): Collection
     {
         return $this->eventInvitationsCreatedBy;
@@ -227,8 +227,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, Blog> */
-    public function getBlogsCreatedBy(): ?Collection
+    /** @return Collection<int, Blog> */
+    public function getBlogsCreatedBy(): Collection
     {
         return $this->blogsCreatedBy;
     }
@@ -256,8 +256,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, Event> */
-    public function getEventsCreatedBy(): ?Collection
+    /** @return Collection<int, Event> */
+    public function getEventsCreatedBy(): Collection
     {
         return $this->eventsCreatedBy;
     }
@@ -297,8 +297,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, Blog> */
-    public function getBlogsAuthorBy(): ?Collection
+    /** @return Collection<int, Blog> */
+    public function getBlogsAuthorBy(): Collection
     {
         return $this->blogsAuthorBy;
     }
@@ -326,8 +326,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, Event> */
-    public function getEventsAuthorBy(): ?Collection
+    /** @return Collection<int, Event> */
+    public function getEventsAuthorBy(): Collection
     {
         return $this->eventsAuthorBy;
     }
@@ -355,8 +355,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, EventInvitation> */
-    public function getEventInvitationsAuthorBy(): ?Collection
+    /** @return Collection<int, EventInvitation> */
+    public function getEventInvitationsAuthorBy(): Collection
     {
         return $this->eventInvitationsAuthorBy;
     }
@@ -384,8 +384,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /** @return ?Collection<int, EventChronicle> */
-    public function getEventChroniclesAuthorBy(): ?Collection
+    /** @return Collection<int, EventChronicle> */
+    public function getEventChroniclesAuthorBy(): Collection
     {
         return $this->eventChroniclesAuthorBy;
     }

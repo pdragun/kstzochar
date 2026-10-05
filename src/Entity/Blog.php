@@ -56,9 +56,9 @@ class Blog
     #[ORM\OneToOne(mappedBy: 'blog', targetEntity: Event::class, cascade: ['persist', 'remove'])]
     private ?Event $event = null;
 
-    /** @var ?Collection<int, SportType> $sportType */
+    /** @var Collection<int, SportType> */
     #[ORM\ManyToMany(targetEntity: SportType::class, inversedBy: 'blogs')]
-    private ?Collection $sportType;
+    private Collection $sportType;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Assert\Type('DateTimeImmutable')]
@@ -201,8 +201,8 @@ class Blog
         return $this;
     }
 
-    /** @return ?Collection<int, SportType> $sportType */
-    public function getSportType(): ?Collection
+    /** @return Collection<int, SportType> */
+    public function getSportType(): Collection
     {
         return $this->sportType;
     }

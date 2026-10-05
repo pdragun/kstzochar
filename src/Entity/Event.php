@@ -79,7 +79,7 @@ class Event
     private ?DateTimeImmutable $publishedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAuthorBy')]
-    private User $authorBy;
+    private ?User $authorBy = null;
 
     public function __construct()
     {
@@ -198,6 +198,7 @@ class Event
         return $this;
     }
 
+    /** @return Collection<int, SportType> */
     public function getSportType(): Collection
     {
         return $this->sportType;

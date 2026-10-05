@@ -85,9 +85,9 @@ class EventChronicle
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventChroniclesAuthorBy')]
     private ?User $authorBy;
 
-    /** @var ?Collection<int, EventRoute> $routes */
+    /** @var Collection<int, EventRoute> */
     #[ORM\ManyToMany(targetEntity: EventRoute::class, inversedBy: 'eventChronicles', cascade: ['persist'])]
-    private ?Collection $routes;
+    private Collection $routes;
 
     public function __construct()
     {
@@ -314,8 +314,8 @@ class EventChronicle
         return $this;
     }
 
-    /** @return ?Collection<int, EventRoute> */
-    public function getRoutes(): ?Collection
+    /** @return Collection<int, EventRoute> */
+    public function getRoutes(): Collection
     {
         return $this->routes;
     }

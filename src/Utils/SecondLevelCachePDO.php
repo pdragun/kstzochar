@@ -7,23 +7,20 @@ namespace App\Utils;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 
-class SecondLevelCachePDO {
+final class SecondLevelCachePDO {
 
-    protected static ?SecondLevelCachePDO $instance = null;
+    private static ?self $instance = null;
     private DoctrineDbalAdapter $cache;
 
-    protected function __construct() {
+    private function __construct() {
         $this->cache = new DoctrineDbalAdapter($_ENV['DATABASE_URL'], 'app');
     }
 
-    protected function __clone() {}
+    private function __clone() {}
 
-    public static function getInstance(): static
+    public static function getInstance(): self
     {
-        if (!isset(static::$instance)) {
-            static::$instance = new static;
-        }
-        return static::$instance;
+        return self::$instance ??= new self();
     }
 
     public function getCache(): DoctrineDbalAdapter
