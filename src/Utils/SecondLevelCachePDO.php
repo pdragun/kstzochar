@@ -10,7 +10,7 @@ use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
 final class SecondLevelCachePDO {
 
     private static ?self $instance = null;
-    private DoctrineDbalAdapter $cache;
+    private readonly DoctrineDbalAdapter $cache;
 
     private function __construct() {
         $this->cache = new DoctrineDbalAdapter($_ENV['DATABASE_URL'], 'app');
