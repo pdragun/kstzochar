@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Symfony 7.4 (PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
+Symfony 8.1 (Doctrine ORM 3, DBAL 4; PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
 
 ## Commands
 
@@ -19,7 +19,8 @@ bin/console doctrine:fixtures:load          # load dev/test data (src/DataFixtur
 bin/phpunit                                 # run all tests (PHPUnit 13, symfony/phpunit-bridge extension)
 bin/phpunit tests/Controller/BlogControllerTest.php
 bin/phpunit --filter testShowInvitation
-vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon
+vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon (with phpstan-doctrine and phpstan-symfony; needs the dev container in var/cache/dev; known errors in phpstan-baseline.neon)
+vendor/bin/rector process --dry-run         # config in rector.php
 
 # Frontend (Webpack Encore -> public/build/)
 npm run dev      # or: npm run watch / npm run dev-server
