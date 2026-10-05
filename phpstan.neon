@@ -1,6 +1,13 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+    - phpstan-baseline.neon
+
 parameters:
     level: 6
-    phpVersion: 80100
+    phpVersion: 80500
     reportUnmatchedIgnoredErrors: false
 
     tmpDir: .phpstan.cache
@@ -13,3 +20,9 @@ parameters:
         - ./tests
     excludePaths:
         - ./config/reference.php (?)
+
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
+
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml

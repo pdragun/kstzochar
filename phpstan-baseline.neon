@@ -1,0 +1,1003 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$envKey of class Symfony\\Component\\Dotenv\\Dotenv constructor expects string, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/bootstrap.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Doctrine\\Common\\Collections\\Collection and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Controller/EventChronicleController.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between Doctrine\\Common\\Collections\\Collection and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Controller/EventInvitationController.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$content type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$createdBy type mapping mismatch\: property can contain App\\Entity\\User\|null but database expects App\\Entity\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$publish type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$section type mapping mismatch\: property can contain App\\Entity\\BlogSection\|null but database expects App\\Entity\\BlogSection\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$slug type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$sportType type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\SportType\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\SportType\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$sportType type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\SportType\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\SportType\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$summary type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\Blog\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Blog.php
+
+		-
+			message: '#^Property App\\Entity\\BlogSection\:\:\$blog type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/BlogSection.php
+
+		-
+			message: '#^Property App\\Entity\\BlogSection\:\:\$blog type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/BlogSection.php
+
+		-
+			message: '#^Property App\\Entity\\BlogSection\:\:\$slug type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/BlogSection.php
+
+		-
+			message: '#^Property App\\Entity\\BlogSection\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/BlogSection.php
+
+		-
+			message: '#^Method App\\Entity\\Event\:\:getSportType\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$authorBy type mapping mismatch\: database can contain App\\Entity\\User\|null but property expects App\\Entity\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$createdAt type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$publish type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$showDate type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$startDate type mapping mismatch\: property can contain DateTimeImmutable\|null but database expects DateTimeImmutable\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\Event\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/Event.php
+
+		-
+			message: '#^Property App\\Entity\\EventChronicle\:\:\$publish type mapping mismatch\: property can contain bool\|null but database expects bool\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/EventChronicle.php
+
+		-
+			message: '#^Property App\\Entity\\EventChronicle\:\:\$routes type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventRoute\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventRoute\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventChronicle.php
+
+		-
+			message: '#^Property App\\Entity\\EventChronicle\:\:\$routes type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventRoute\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventRoute\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventChronicle.php
+
+		-
+			message: '#^Method App\\Entity\\EventInvitation\:\:getRoutes\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Property App\\Entity\\EventInvitation\:\:\$authorBy type mapping mismatch\: database can contain App\\Entity\\User\|null but property expects App\\Entity\\User\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Property App\\Entity\\EventInvitation\:\:\$routes type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventRoute\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventRoute\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Property App\\Entity\\EventInvitation\:\:\$routes type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventRoute\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventRoute\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Property App\\Entity\\EventInvitation\:\:\$sportType type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\SportType\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\SportType\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Property App\\Entity\\EventInvitation\:\:\$sportType type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\SportType\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\SportType\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventInvitation.php
+
+		-
+			message: '#^Method App\\Entity\\EventRoute\:\:getEventChronicles\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$eventChronicles type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$eventChronicles type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$eventInvitations type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$eventInvitations type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$length type mapping mismatch\: property can contain int\|null but database expects int\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\EventRoute\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/EventRoute.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$blogs type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$blogs type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$description type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$eventChronicles type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$eventChronicles type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$eventInvitations type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$eventInvitations type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$events type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$events type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$shortcut type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$slug type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Property App\\Entity\\SportType\:\:\$title type mapping mismatch\: property can contain string\|null but database expects string\.$#'
+			identifier: doctrine.columnType
+			count: 1
+			path: src/Entity/SportType.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getEventInvitationsCreatedBy\(\) return type with generic class Doctrine\\Common\\Collections\\ArrayCollection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getEventInvitationsCreatedBy\(\) should return Doctrine\\Common\\Collections\\ArrayCollection&iterable\<App\\Entity\\EventInvitation\> but returns Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:setRoles\(\) has parameter \$roles with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$blogsAuthorBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$blogsAuthorBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$blogsCreatedBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$blogsCreatedBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Blog\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Blog\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventChroniclesAuthorBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventChroniclesAuthorBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventChroniclesCreatedBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventChroniclesCreatedBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventChronicle\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventChronicle\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventInvitationsAuthorBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventInvitationsAuthorBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventInvitationsCreatedBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventInvitationsCreatedBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\EventInvitation\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\EventInvitation\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventsAuthorBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventsAuthorBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventsCreatedBy type mapping mismatch\: database can contain Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\> but property expects Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$eventsCreatedBy type mapping mismatch\: property can contain Doctrine\\Common\\Collections\\Collection\<int, App\\Entity\\Event\>\|null but database expects Doctrine\\Common\\Collections\\Collection&iterable\<App\\Entity\\Event\>\.$#'
+			identifier: doctrine.associationType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$roles type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Class App\\Form\\BlogSectionType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/BlogSectionType.php
+
+		-
+			message: '#^Class App\\Form\\BlogType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/BlogType.php
+
+		-
+			message: '#^Class App\\Form\\EventChronicleType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/EventChronicleType.php
+
+		-
+			message: '#^Class App\\Form\\EventInvitationType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/EventInvitationType.php
+
+		-
+			message: '#^Class App\\Form\\EventRouteType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/EventRouteType.php
+
+		-
+			message: '#^Class App\\Form\\EventType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/EventType.php
+
+		-
+			message: '#^Class App\\Form\\SetDateType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/SetDateType.php
+
+		-
+			message: '#^Class App\\Form\\SportTypeType extends generic class Symfony\\Component\\Form\\AbstractType but does not specify its types\: TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Form/SportTypeType.php
+
+		-
+			message: '#^Method App\\Menu\\Builder\:\:addEventsToYears\(\) has parameter \$events with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Menu/Builder.php
+
+		-
+			message: '#^Method App\\Menu\\Builder\:\:addEventsToYears\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Menu/Builder.php
+
+		-
+			message: '#^Method App\\Menu\\Builder\:\:createMainMenu\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Menu/Builder.php
+
+		-
+			message: '#^Method App\\Menu\\Builder\:\:getBlogSections\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Menu/Builder.php
+
+		-
+			message: '#^Class App\\Repository\\BlogRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\BlogRepository\:\:findAllByBlogSectionId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\BlogRepository\:\:findAllByBlogSectionIdOrderByStartDate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\BlogRepository\:\:getPreparedByYear\(\) return type has no value type specified in iterable type array\<mixed\>\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\BlogRepository\:\:getPreparedByYearStartDate\(\) should return array\<int, App\\Entity\\Blog\> but returns array\<list\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^PHPDoc tag @return contains unresolvable type\.$#'
+			identifier: return.unresolvableType
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Parameter \#2 \$className of method Doctrine\\ORM\\Configuration\:\:addCustomDatetimeFunction\(\) expects \(callable\(string\)\: Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\)\|class\-string\<Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\>, ''DoctrineExtensions…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Repository/BlogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogSectionRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/BlogSectionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogSectionRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogSectionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogSectionRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogSectionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogSectionRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogSectionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\BlogSectionRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/BlogSectionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventChronicleRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventChronicleRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventChronicleRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventChronicleRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventChronicleRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:findByStartDate\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:findByYear\(\) has parameter \$year with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:findLatest\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:findUniqueYears\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:getPreparedByYear\(\) has parameter \$year with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:getPreparedByYear\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventChronicleRepository\:\:getUniqueYearsFromDB\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(array\<int, \<int, EventChronicle\>\> Returns prepared array of Events for table\)\: Unexpected token "\<", expected type at offset 23 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Parameter \#2 \$className of method Doctrine\\ORM\\Configuration\:\:addCustomDatetimeFunction\(\) expects \(callable\(string\)\: Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\)\|class\-string\<Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\>, ''DoctrineExtensions…'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Repository/EventChronicleRepository.php
+
+		-
+			message: '#^Access to offset ''startDate'' on an unknown class App\\Repository\\Event\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventInvitationRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventInvitationRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventInvitationRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventInvitationRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventInvitationRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventInvitationRepository\:\:findByYear\(\) has invalid return type App\\Repository\\Event\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventInvitationRepository\:\:findByYear\(\) has parameter \$year with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventInvitationRepository\:\:findLatest\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventInvitationRepository\:\:getPreparedByYear\(\) has parameter \$year with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventInvitationRepository\:\:getPreparedByYear\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(Event\[\]\|\[\] Returns an prepared array of Events for table\)\: Unexpected token "\[", expected type at offset 20 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Parameter \#2 \$className of method Doctrine\\ORM\\Configuration\:\:addCustomDatetimeFunction\(\) expects \(callable\(string\)\: Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\)\|class\-string\<Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\>, ''DoctrineExtensions…'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Repository/EventInvitationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventRepository\:\:findMaxStartDate\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventRepository\:\:getPreparedByYear\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Method App\\Repository\\EventRepository\:\:getUniqueYearsFromDB\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(array\<int, \<int, Event\>\> Returns prepared array of Events for table or empty arrary\)\: Unexpected token "\<", expected type at offset 97 on line 3$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Parameter \#2 \$className of method Doctrine\\ORM\\Configuration\:\:addCustomDatetimeFunction\(\) expects \(callable\(string\)\: Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\)\|class\-string\<Doctrine\\ORM\\Query\\AST\\Functions\\FunctionNode\>, ''DoctrineExtensions…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Repository/EventRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRouteRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/EventRouteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRouteRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRouteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRouteRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRouteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRouteRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRouteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventRouteRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EventRouteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SportTypeRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/SportTypeRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SportTypeRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SportTypeRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SportTypeRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SportTypeRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SportTypeRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SportTypeRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SportTypeRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SportTypeRepository.php
+
+		-
+			message: '#^Class App\\Repository\\UserRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Class App\\Repository\\UserRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Class App\\Repository\\UserRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Class App\\Repository\\UserRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Method App\\Utils\\SecondLevelCachePDO\:\:getInstance\(\) should return static\(App\\Utils\\SecondLevelCachePDO\) but returns App\\Utils\\SecondLevelCachePDO\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Utils/SecondLevelCachePDO.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/Utils/SecondLevelCachePDO.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\BlogControllerTest\:\:provide302Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/BlogControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\BlogControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/BlogControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\BlogControllerTest\:\:provideAdmin404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/BlogControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\ContactControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/ContactControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventChronicleControllerTest\:\:provide302Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventChronicleControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventChronicleControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventChronicleControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventChronicleControllerTest\:\:provideAdmin404Urls\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventChronicleControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventInvitationControllerTest\:\:provide302Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventInvitationControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventInvitationControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventInvitationControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventInvitationControllerTest\:\:provideAdmin404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventInvitationControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventInvitationControllerTest\:\:testShowInvitation\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Controller/EventInvitationControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventInvitationControllerTest\:\:testShowLatestInvitation\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/Controller/EventInvitationControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\EventPlanControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/EventPlanControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\GpxControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/GpxControllerTest.php
+
+		-
+			message: '#^Method App\\Tests\\Controller\\SecurityControllerTest\:\:provide404Urls\(\) return type has no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Controller/SecurityControllerTest.php
