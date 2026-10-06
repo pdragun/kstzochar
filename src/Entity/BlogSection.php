@@ -16,6 +16,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'blog_section')]
 class BlogSection
 {
+    public const string CLUB_KITCHEN_SLUG = 'z-klubovej-kuchyne';
+    public const string MULTI_DAY_EVENTS_SLUG = 'viacdnove-akcie';
+    public const string RECIPES_SLUG = 'receptury-na-tury';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
@@ -39,6 +43,12 @@ class BlogSection
     public function __construct()
     {
         $this->blog = new ArrayCollection();
+    }
+
+    /** Multi-day events have a start date and sport types and are listed by the start date */
+    public function isMultiDayEvents(): bool
+    {
+        return $this->slug === self::MULTI_DAY_EVENTS_SLUG;
     }
 
     public function getId(): ?int

@@ -36,6 +36,21 @@ class HomePageControllerTest extends WebTestCase
         $this->assertSelectorTextContains('a[href="/plan/2012"]', '2012');
     }
 
+    /** The main menu renders when there is no content yet */
+    public function testMenuWithoutContent(): void
+    {
+        $client = static::createClient();
+        $contentCache = static::getContainer()->get('content.cache');
+        $contentCache->clear();
+        $contentCache->get('main-menu-data', static fn (): array => []); // as built from an empty database
+
+        $client->request('GET', '/kontakt');
+        $contentCache->clear();
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('a[href="/pozvanky"]');
+    }
+
     /** Cached home page data expires at midnight and is stored in the test database */
     public function testHomePageCache(): void
     {

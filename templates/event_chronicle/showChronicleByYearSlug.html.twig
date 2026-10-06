@@ -10,7 +10,7 @@
 <p>
     <a class="btn btn-primary btn-sm" href="{{ path('chronicle_create_from_date', {year: yearInUrl}) }}" role="button">Pridať novú kroniku</a>
     <a class="btn btn-primary btn-sm" href="{{ path('chronicle_edit', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Upraviť túto</a>
-    <a class="btn btn-danger btn-sm" href="{{ path('chronicle_delete', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button" data-toggle="modal" data-target="#delete">Zmazať túto</a>
+    <a class="btn btn-danger btn-sm" href="{{ path('chronicle_delete', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button" data-bs-toggle="modal" data-bs-target="#delete">Zmazať túto</a>
 </p>
 <hr>
 <!-- Modal -->
@@ -18,16 +18,14 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="deleteModalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
       </div>
       <div class="modal-body">
         Skutočne si želáte zmazať tento článok?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie!</button>
         <form class="d-inline" method="post" action="{{ path('chronicle_delete_yes', {year: yearInUrl, slug: chronicle.getSlug()}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ chronicle.id) }}">
             <button type="submit" class="btn btn-danger">Chcem zmazať</button>

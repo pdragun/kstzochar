@@ -61,6 +61,18 @@ class DeleteCsrfTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    /** The delete button opens the confirmation modal, which uses the Bootstrap 5 data attributes */
+    #[DataProvider('provideContentUrls')]
+    public function testDeleteModalUsesBootstrap5(string $url): void
+    {
+        $client = $this->createAdminClient();
+        $client->request('GET', $url);
+
+        $this->assertSelectorExists('a[data-bs-toggle="modal"][data-bs-target="#delete"]');
+        $this->assertSelectorExists('#delete[aria-labelledby="deleteModalLabel"] #deleteModalLabel');
+        $this->assertSelectorCount(2, '#delete [data-bs-dismiss="modal"]'); // the close button and "Nie!"
+    }
+
     /** @return iterable<array{string}> */
     public static function provideContentUrls(): iterable
     {

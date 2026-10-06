@@ -22,6 +22,18 @@ class GpxControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 
+    /** A route without a GPX track has no GPX file */
+    public function testRouteWithoutGpx(): void
+    {
+        $client = static::createClient();
+        $route = static::getContainer()->get(EventRouteRepository::class)->findOneBy(['title' => 'Test title']);
+        $this->assertNull($route->getGpx());
+
+        $client->request('GET', sprintf('/gpx/%d', $route->getId()));
+
+        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+    }
+
     #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {

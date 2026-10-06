@@ -66,8 +66,10 @@ class Gpx
     }
 
     private function sanitizeTrack(): void {
-        $this->gpx->tracks[0]->name = null;
-        $this->gpx->tracks[0]->description = null;
+        foreach ($this->gpx->tracks as $track) {
+            $track->name = null;
+            $track->description = null;
+        }
     }
 
 }

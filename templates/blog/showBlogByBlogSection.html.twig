@@ -3,11 +3,11 @@
 
 {# @TODO move description to DB #}
 {% set descText = null %}
-{% if blogSectionId == 1 %}
+{% if blogSectionSlug == constant('App\\Entity\\BlogSection::CLUB_KITCHEN_SLUG') %}
    {% set descText = 'Články o dianí v klube KST Žochár Topoľčany.' %}
-{% elseif blogSectionId == 2 %}
+{% elseif blogSectionSlug == constant('App\\Entity\\BlogSection::MULTI_DAY_EVENTS_SLUG') %}
    {% set descText = 'Bližšie informácie o plánovanýh viac dňových podujatiach, ktoré organizuje KST Žochár Topoľčany.' %}
-{% elseif blogSectionId == 3 %}
+{% elseif blogSectionSlug == constant('App\\Entity\\BlogSection::RECIPES_SLUG') %}
    {% set descText = 'Recepty na rôzne sladkosti, ktoré sa osvedčili na podujatiach KST Žochár Topoľčany.' %}
 {% endif %}
 {% block description %}{{ descText }}{% endblock %}

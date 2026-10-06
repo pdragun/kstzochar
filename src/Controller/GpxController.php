@@ -15,6 +15,10 @@ class GpxController extends AbstractController
 
     #[Route('/gpx/{id}', name: 'gpx', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function index(EventRoute $eventRoute): Response {
+        if ($eventRoute->getGpx() === null) {
+            throw $this->createNotFoundException();
+        }
+
         $gpx = Gpx::transform($eventRoute->getGpx());
 
         return new Response(

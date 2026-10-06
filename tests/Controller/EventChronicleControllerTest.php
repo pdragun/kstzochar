@@ -436,4 +436,28 @@ class EventChronicleControllerTest extends WebTestCase
             'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km',
         );
     }
+
+    /** Deleting the only chronicle of a year leads to the chronicle index, the year list would be a 404 */
+    public function testDeleteLastChronicleOfYear(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $crawler = $client->request('GET', '/kronika/2030/pridat-novu/2030-05-01/add');
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $formName = $form->getName();
+        $form[$formName . '[title]'] = 'Jediná kronika roka';
+        $form[$formName . '[summary]'] = 'Jediná kronika roka 2030';
+        $form[$formName . '[content]'] = '<p>Jediná kronika roka 2030</p>';
+        $client->submit($form);
+        $this->assertResponseRedirects('/kronika/2030/Jedina-kronika-roka');
+
+        $crawler = $client->followRedirect();
+        $client->submit($crawler->selectButton('Chcem zmazať')->form());
+
+        $this->assertResponseRedirects('/kronika');
+        $client->followRedirect();
+        $this->assertResponseIsSuccessful();
+    }
 }

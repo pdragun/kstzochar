@@ -428,6 +428,10 @@ class EventInvitationController extends AbstractController
             sprintf('Pozvánka: „%s“ bola zmazaná!', $invitationTitle),
         );
 
+        if ($eventInvitationRepository->getPreparedByYear($year) === []) { // the year list would be a 404
+            return $this->redirectToRoute('invitation_show');
+        }
+
         return $this->redirectToRoute('invitation_list_by_Year', ['year' => $year]);
     }
 }
