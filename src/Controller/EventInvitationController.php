@@ -10,13 +10,12 @@ use App\Form\EventInvitationType;
 use App\Form\SetDateType;
 use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
-use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Psr\Cache\InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -143,7 +142,7 @@ class EventInvitationController extends AbstractController
     /**
      * Create invitation
      * @return RedirectResponse|Response Show form or redirect to new invitation
-     * @throws InvalidArgumentException|Exception
+     * @throws Exception
      */
     #[Route(
         '/pozvanky/{year}/pridat-novu/{date}/add',
@@ -158,6 +157,7 @@ class EventInvitationController extends AbstractController
         Request $request,
         EventRepository $eventRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
         $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
@@ -230,8 +230,7 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -259,7 +258,7 @@ class EventInvitationController extends AbstractController
     /**
      * Edit invitation
      * @return RedirectResponse|Response Show form or redirect to new invitation
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException
      */
     #[Route(
         '/pozvanky/{year}/{slug}/edit',
@@ -274,6 +273,7 @@ class EventInvitationController extends AbstractController
         Request $request,
         EventInvitationRepository $eventInvitationRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -323,8 +323,7 @@ class EventInvitationController extends AbstractController
             $entityManager->persist($invitation);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -378,7 +377,7 @@ class EventInvitationController extends AbstractController
     /**
      * Delete invitation
      * @return RedirectResponse Redirect to list of invitations for year
-     * @throws InvalidArgumentException|NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     #[Route(
         '/pozvanky/{year}/{slug}/delete/yes',
@@ -393,6 +392,7 @@ class EventInvitationController extends AbstractController
         EventInvitationRepository $eventInvitationRepository,
         Request $request,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -410,8 +410,7 @@ class EventInvitationController extends AbstractController
         $entityManager->remove($invitation);
         $entityManager->flush();
 
-        $cache = SecondLevelCachePDO::getInstance();
-        $cache->clearAllCache();
+        $contentCache->clear();
 
         $this->addFlash(
             'success',

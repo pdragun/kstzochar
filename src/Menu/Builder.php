@@ -9,11 +9,11 @@ use App\Entity\BlogSection;
 use App\Entity\Event;
 use App\Entity\EventChronicle;
 use App\Entity\EventInvitation;
-use App\Utils\SecondLevelCachePDO;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface as CacheItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -23,6 +23,7 @@ final readonly class Builder
         private FactoryInterface $factory,
         private ManagerRegistry $doctrine,
         private TranslatorInterface $translator,
+        private CacheInterface $contentCache,
     ) {}
 
     /**
@@ -158,12 +159,10 @@ final readonly class Builder
      */
     private function getData(): mixed
     {
-
-        $cache = SecondLevelCachePDO::getInstance()->getCache();
         $doctrine = $this->doctrine;
         $translator = $this->translator;
 
-        return $cache->get('main-menu-data', function (CacheItemInterface $item) use ($doctrine, $translator) {
+        return $this->contentCache->get('main-menu-data', function (CacheItemInterface $item) use ($doctrine, $translator) {
             $data = [];
 
             //Invitation

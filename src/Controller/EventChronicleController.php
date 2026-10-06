@@ -10,13 +10,12 @@ use App\Repository\EventChronicleRepository;
 use App\Repository\EventRepository;
 use App\Form\EventChronicleType;
 use App\Form\SetDateType;
-use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Psr\Cache\InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -131,7 +130,7 @@ class EventChronicleController extends AbstractController
      * Create chronicle
      * Take start date from previous form, check if exist Event (from plan), if yes set Event data to form.
      * @return RedirectResponse|Response Show form or redirect to new chronicle
-     * @throws InvalidArgumentException|Exception
+     * @throws Exception
      */
     #[Route(
         '/kronika/{year}/pridat-novu/{date}/add',
@@ -146,6 +145,7 @@ class EventChronicleController extends AbstractController
         Request $request,
         EventRepository $eventRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
         $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
@@ -219,8 +219,7 @@ class EventChronicleController extends AbstractController
             $entityManager->persist($chronicle);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -248,7 +247,7 @@ class EventChronicleController extends AbstractController
     /**
      * Edit chronicle
      * @return RedirectResponse|Response Show form or redirect to new chronicle
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException
      */
     #[Route(
         '/kronika/{year}/{slug}/edit',
@@ -263,6 +262,7 @@ class EventChronicleController extends AbstractController
         Request $request,
         EventChronicleRepository $eventChronicleRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -314,8 +314,7 @@ class EventChronicleController extends AbstractController
             $entityManager->persist($chronicle);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -369,7 +368,7 @@ class EventChronicleController extends AbstractController
     /**
      * Delete chronicle
      * @return RedirectResponse Redirect to list of chronicles for year
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException
      */
     #[Route(
         '/kronika/{year}/{slug}/delete/yes',
@@ -384,6 +383,7 @@ class EventChronicleController extends AbstractController
         EventChronicleRepository $eventChronicleRepository,
         Request $request,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
@@ -402,8 +402,7 @@ class EventChronicleController extends AbstractController
         $entityManager->remove($chronicle);
         $entityManager->flush();
 
-        $cache = SecondLevelCachePDO::getInstance();
-        $cache->clearAllCache();
+        $contentCache->clear();
 
         $this->addFlash(
             'success',
