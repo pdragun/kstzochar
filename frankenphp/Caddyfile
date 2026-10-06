@@ -25,8 +25,8 @@
 	}
 	rewrite @phpRoute index.php
 
-	# Classic (non-worker) mode: Symfony 6.4 needs runtime/frankenphp-symfony for worker mode,
-	# and SecondLevelCachePDO keeps static state that would leak between requests in a worker.
+	# Classic (non-worker) mode. The app no longer keeps static state between requests,
+	# but it has not been tested in worker mode yet.
 	@frontController path index.php
 	php @frontController {
 		{$FRANKENPHP_SITE_CONFIG}

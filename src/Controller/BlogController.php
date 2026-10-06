@@ -9,12 +9,11 @@ use App\Entity\User;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
 use App\Repository\BlogSectionRepository;
-use App\Utils\SecondLevelCachePDO;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Psr\Cache\InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -100,7 +99,7 @@ class BlogController extends AbstractController
 
     /**
      * Create blog
-     * @throws NonUniqueResultException|InvalidArgumentException
+     * @throws NonUniqueResultException
      */
     #[Route('/blog/{blogSectionSlug}/pridat-novy/add', name: 'blog_create', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -109,6 +108,7 @@ class BlogController extends AbstractController
         Request $request,
         BlogSectionRepository $blogSectionRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -161,8 +161,7 @@ class BlogController extends AbstractController
             $entityManager->persist($blog);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -185,7 +184,7 @@ class BlogController extends AbstractController
         ]);
     }
 
-    /** @throws NonUniqueResultException|InvalidArgumentException */
+    /** @throws NonUniqueResultException */
     #[Route(
         '/blog/{blogSectionSlug}/{year}/{slug}/edit',
         name: 'blog_edit',
@@ -201,6 +200,7 @@ class BlogController extends AbstractController
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
 
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -250,8 +250,7 @@ class BlogController extends AbstractController
             $entityManager->persist($blog);
             $entityManager->flush();
 
-            $cache = SecondLevelCachePDO::getInstance();
-            $cache->clearAllCache();
+            $contentCache->clear();
 
             $this->addFlash(
                 'success',
@@ -276,7 +275,7 @@ class BlogController extends AbstractController
     /**
      * Delete blog
      * @return RedirectResponse Redirect to list of blogs
-     * @throws InvalidArgumentException|NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     #[Route(
         '/blog/{blogSectionSlug}/{year}/{slug}/delete/yes',
@@ -293,6 +292,7 @@ class BlogController extends AbstractController
         BlogSectionRepository $blogSectionRepository,
         Request $request,
         ManagerRegistry $doctrine,
+        CacheItemPoolInterface $contentCache,
     ): RedirectResponse {
 
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -316,8 +316,7 @@ class BlogController extends AbstractController
         $entityManager->remove($blog);
         $entityManager->flush();
 
-        $cache = SecondLevelCachePDO::getInstance();
-        $cache->clearAllCache();
+        $contentCache->clear();
 
         $this->addFlash(
             'success',

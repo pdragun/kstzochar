@@ -9,9 +9,10 @@ use App\Repository\BlogSectionRepository;
 use App\Repository\EventChronicleRepository;
 use App\Repository\EventInvitationRepository;
 use App\Repository\EventRepository;
-use App\Utils\SecondLevelCachePDO;
+use DateTimeImmutable;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +25,7 @@ class HomePageController extends AbstractController
         private readonly EventChronicleRepository $eventChronicleRepository,
         private readonly BlogSectionRepository $blogSectionRepository,
         private readonly BlogRepository $blogRepository,
+        private readonly CacheInterface $contentCache,
     ) {}
 
     /**
@@ -33,9 +35,9 @@ class HomePageController extends AbstractController
     #[Route('/', name: 'home_page', methods: ['GET'])]
     public function index(): Response
     {
-
-        $cache = SecondLevelCachePDO::getInstance()->getCache();
-        $cached = $cache->get('home-page', function (ItemInterface $item) {
+        $cached = $this->contentCache->get('home-page', function (ItemInterface $item) {
+            // Upcoming invitations and the next multi-day event depend on today's date
+            $item->expiresAt(new DateTimeImmutable('tomorrow'));
 
             $fromDB = [];
             $fromDB['latestEventPlanYear'] = $this->eventRepository->findMaxStartYear();

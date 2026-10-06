@@ -15,5 +15,9 @@ framework:
         #app: cache.adapter.apcu
 
         # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        pools:
+            # Home page and main menu data, stored in the app database (the _test database in tests).
+            # Autowired as $contentCache; content writes clear the whole pool.
+            content.cache:
+                adapter: cache.adapter.doctrine_dbal
+                provider: doctrine.dbal.default_connection
