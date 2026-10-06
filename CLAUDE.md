@@ -10,6 +10,18 @@ Symfony 8.1 (Doctrine ORM 3, DBAL 4; PHP >= 8.5) website for the Slovak hiking c
 
 Local stack is Docker (dunglas/symfony-docker: FrankenPHP + PHP 8.5, MySQL 8.4, Node for Encore), see README. Run PHP commands inside it, e.g. `docker compose exec php bin/phpunit`.
 
+`Taskfile.yaml` (go-task) wraps the common operations and runs them in the `php` service as the host user (`task --list` shows them all). You can add personal tasks in an optional `Taskfile.local.yml`, which git ignores:
+
+```bash
+task up                 # rebuild and start the stack
+task install            # composer install, cache clear/warmup, assets:install
+task dbr                # recreate the dev schema and load fixtures (asks first)
+task test [-- <args>]   # recreate the test schema, load fixtures, run phpunit
+task stan / rector      # phpstan / rector process (rector:check is the dry run)
+task check              # phpstan + rector:check + phpunit
+task console -- <args>  # bin/console; also: task composer -- <args>, task npm -- <args>, task sh
+```
+
 ```bash
 docker compose up --wait                    # php (https://localhost), database, node (encore watch)
 

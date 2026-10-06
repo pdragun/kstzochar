@@ -1,0 +1,183 @@
+version: '3'
+
+includes:
+    custom: # optional Taskfile.local.yml for your own tasks in this project
+        taskfile: ./Taskfile.local.yml
+        optional: true
+
+vars:
+    # run as the host user so files written in the container (cache, vendor, phpstan/rector output) stay owned by you
+    UID:
+        sh: id -u
+    GID:
+        sh: id -g
+
+tasks:
+    # Application
+    app:up:
+        desc: Rebuild and start the Docker stack
+        aliases: [up]
+        cmds:
+            - task: app:docker:rebuild
+
+    app:install:
+        desc: Install dependencies, rebuild the cache and install assets
+        aliases: [install]
+        cmds:
+            - task: composer:install
+            - task: symfony:cache:clear-with-warmup
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console assets:install
+
+    app:docker:rebuild:
+        desc: Recreate the Docker stack and wait until it is healthy
+        aliases: [dr]
+        cmds:
+            - docker compose down --remove-orphans
+            - docker compose up -d --build --remove-orphans --wait
+
+    # There are no migrations, so the schema is recreated from the entities. Recreating it (rather than only
+    # loading fixtures) also resets auto-increment ids, which the tests depend on.
+    app:db:reset:
+        desc: 'Drop and recreate the database schema, then load fixtures (APP_ENV=test task dbr for the test DB)'
+        aliases: [dbr]
+        prompt: This drops the {{default "dev" .APP_ENV}} database. Continue?
+        cmds:
+            - task: db:recreate
+
+    db:recreate:
+        internal: true
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:schema:drop --force --full-database
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:schema:create
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:fixtures:load --no-interaction
+
+    # Docker
+    docker:exec:
+        desc: Run a command in the php service as the host user (default is an interactive shell)
+        cmds:
+            - docker compose exec {{if .COMMAND}}-T {{end}}-u {{.UID}}:{{.GID}} -e HOME=/tmp php {{default "bash" .COMMAND}}
+        interactive: true
+
+    shell:
+        desc: Open a shell in the php service
+        aliases: [sh]
+        cmds:
+            - task: docker:exec
+
+    console:
+        desc: 'Run bin/console, e.g. task console -- debug:router'
+        aliases: [c]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console {{.CLI_ARGS}}
+
+    # Symfony cache
+    symfony:cache:clear:
+        desc: Remove var/cache and clear the cache without warmup
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: rm -rf var/cache/{{default "dev" .APP_ENV}}
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console cache:clear --no-warmup {{.CLI_ARGS}}
+
+    symfony:cache:warmup:
+        desc: Warm the cache
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console cache:warmup
+
+    symfony:cache:clear-with-warmup:
+        desc: Clear and warm the cache
+        aliases: [cc]
+        cmds:
+            - task: symfony:cache:clear
+            - task: symfony:cache:warmup
+
+    # Composer
+    composer:
+        desc: 'Run composer, e.g. task composer -- outdated'
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: composer {{.CLI_ARGS}}
+
+    composer:install:
+        desc: Install composer dependencies
+        aliases: [ci]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: composer install
+
+    # Frontend (the node service runs encore watch on its own)
+    npm:
+        desc: 'Run npm in the node service, e.g. task npm -- run build'
+        cmds:
+            - docker compose exec -T node npm {{.CLI_ARGS}}
+
+    assets:build:
+        desc: Build production assets
+        aliases: [build]
+        cmds:
+            - docker compose exec -T node npm run build
+
+    # Checks
+    check:
+        desc: Run phpstan, the rector dry run and the tests
+        cmds:
+            - task: phpstan
+            - task: rector:check
+            - task: phpunit
+
+    phpstan:
+        desc: Run phpstan (level 6, phpstan.neon)
+        aliases: [stan]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/phpstan analyse --memory-limit=1G {{.CLI_ARGS}}
+
+    rector:check:
+        desc: Show rector changes (dry run)
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/rector process --dry-run
+
+    rector:fix:
+        desc: Apply rector changes
+        aliases: [rector]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/rector process
+
+    test:db:reset:
+        desc: Recreate the test database schema and load fixtures
+        aliases: [tdbr]
+        cmds:
+            - task: db:recreate
+              vars:
+                  APP_ENV: test
+
+    # The suite mutates fixture data, so the test database is reset before every run.
+    phpunit:
+        desc: 'Reset the test DB and run phpunit, e.g. task phpunit -- --filter testName'
+        aliases: [test]
+        cmds:
+            - task: test:db:reset
+            - task: docker:exec
+              vars:
+                  COMMAND: php -d memory_limit=1G bin/phpunit --testdox --colors=always {{.CLI_ARGS}}
