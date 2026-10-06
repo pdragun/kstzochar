@@ -79,7 +79,7 @@ class BlogController extends AbstractController
         }
 
         $blogSectionId = $blogSection->getId();
-        if ($blogSection->getId() === 2) { //Multiday events
+        if ($blogSection->isMultiDayEvents()) {
             $blogs = $blogRepository->getPreparedByYearStartDate($blogSectionId);
         } else {
             $blogs = $blogRepository->getPreparedByYear($blogSectionId);
@@ -93,7 +93,6 @@ class BlogController extends AbstractController
             'blogSectionSlug' => $blogSectionSlug,
             'blogSection' => $blogSection,
             'blogs' => $blogs,
-            'blogSectionId' => $blogSectionId,
         ]);
     }
 
@@ -119,15 +118,9 @@ class BlogController extends AbstractController
         }
 
         $blog = new Blog();
-        $originalSportTypes = new ArrayCollection();
-        if ($blogSection->getId() === 2) { //Only for multiday events
-            foreach ($blog->getSportType() as $sportType) {
-                $originalSportTypes->add($sportType);
-            }
-        }
 
         $form = $this->createForm(BlogType::class, $blog);
-        if ($blogSection->getId() !== 2) {//Only for multiday events
+        if (!$blogSection->isMultiDayEvents()) {
             $form->remove('sportType');
             $form->remove('startDate');
         }
@@ -154,17 +147,6 @@ class BlogController extends AbstractController
             $blog->setSection($blogSection);
 
             $entityManager = $doctrine->getManager();
-
-            if ($blogSection->getId() === 2) {//Only for multiday events
-            // remove or update SportTypes for Blog
-                foreach ($originalSportTypes as $sportType) {
-                    if ($blog->getSportType()->contains($sportType) === false) {
-                        $sportType->removeBlog($blog);
-                        $entityManager->persist($sportType);
-                    }
-                }
-            }
-
             $entityManager->persist($blog);
             $entityManager->flush();
 
@@ -221,15 +203,13 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        if ($blogSection->getId() === 2) { //Only for multiday events
-            $originalSportTypes = new ArrayCollection();
-            foreach ($blog->getSportType() as $sportType) {
-                $originalSportTypes->add($sportType);
-            }
+        $originalSportTypes = new ArrayCollection();
+        foreach ($blog->getSportType() as $sportType) {
+            $originalSportTypes->add($sportType);
         }
 
         $form = $this->createForm(BlogType::class, $blog);
-        if ($blogSection->getId() !== 2) {//Only for multiday events
+        if (!$blogSection->isMultiDayEvents()) {
             $form->remove('sportType');
             $form->remove('startDate');
         }
@@ -251,13 +231,11 @@ class BlogController extends AbstractController
             $blog->setModifiedAt(new DateTimeImmutable());
 
             $entityManager = $doctrine->getManager();
-            if ($blogSection->getId() === 2) {//Only for multiday events
             // remove or update SportTypes for Blog
-                foreach ($originalSportTypes as $sportType) {
-                    if ($blog->getSportType()->contains($sportType) === false) {
-                        $sportType->removeBlog($blog);
-                        $entityManager->persist($sportType);
-                    }
+            foreach ($originalSportTypes as $sportType) {
+                if ($blog->getSportType()->contains($sportType) === false) {
+                    $sportType->removeBlog($blog);
+                    $entityManager->persist($sportType);
                 }
             }
 
@@ -336,6 +314,10 @@ class BlogController extends AbstractController
             'success',
             sprintf('Článok: „%s“ bol zmazaný!', $blogTitle),
         );
+
+        if ($blogRepository->findAllByBlogSectionId($blogSection->getId()) === []) { // the section list would be a 404
+            return $this->redirectToRoute('blog');
+        }
 
         return $this->redirectToRoute('blog_list_by_BlogSectionSlug', [
             'blogSectionSlug' => $blogSection->getSlug(),

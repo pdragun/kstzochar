@@ -18,8 +18,8 @@
     <a class="btn btn-danger btn-sm"
        href="{{ path('blog_delete', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}"
        role="button"
-       data-toggle="modal"
-       data-target="#delete"
+       data-bs-toggle="modal"
+       data-bs-target="#delete"
     >Zmazať tento</a>
 </p>
 <hr>
@@ -28,16 +28,14 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="deleteModalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
       </div>
       <div class="modal-body">
         Skutočne si želáte zmazať článok: "{{ blog.title }}"?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie!</button>
         <form class="d-inline" method="post" action="{{ path('blog_delete_yes', {blogSectionSlug: blogSection.getSlug(), year: year, slug: blog.getSlug()}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ blog.id) }}">
             <button type="submit" class="btn btn-danger">Chcem zmazať</button>

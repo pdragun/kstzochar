@@ -53,7 +53,7 @@ final readonly class Builder
             ],
         );
 
-        foreach ($cachedData[$this->translator->trans('menu.invitations')] as $year => $eventList) {
+        foreach ($cachedData[$this->translator->trans('menu.invitations')] ?? [] as $year => $eventList) {
             $menu[$this->translator->trans('menu.invitations')]->addChild(
                 $year,
                 [
@@ -83,7 +83,7 @@ final readonly class Builder
             ],
         );
 
-        foreach ($cachedData[$this->translator->trans('menu.chronicle')] as $year => $eventList) {
+        foreach ($cachedData[$this->translator->trans('menu.chronicle')] ?? [] as $year => $eventList) {
             $menu[$this->translator->trans('menu.chronicle')]->addChild(
                 $year,
                 [
@@ -114,7 +114,7 @@ final readonly class Builder
             ],
         );
 
-        foreach ($cachedData['Plán'] as $year) {
+        foreach ($cachedData[$this->translator->trans('menu.plan')] ?? [] as $year) {
             $menu[$this->translator->trans('menu.plan')]->addChild($year, [
                 'route' => 'plan_show_by_Year',
                 'routeParameters' => ['year' => $year],
@@ -132,7 +132,7 @@ final readonly class Builder
             ]);
             $menu[$blogSection[0]]->setDisplayChildren(false);
 
-            foreach ($cachedData[$blogSection[0]] as $blog) {
+            foreach ($cachedData[$blogSection[0]] ?? [] as $blog) {
                 $menu[$blogSection[0]]->addChild($blog['title'], [
                     'route' => 'blog_show_by_BlogSectionSlug_Year_Slug',
                     'routeParameters' => [
@@ -189,8 +189,11 @@ final readonly class Builder
             $blogSections = $this->getBlogSections($translator);
              foreach ($blogSections as $blogSection) {
 
-                $idSection1 = $doctrine->getRepository(BlogSection::class)->findBySlug($blogSection[1]);
-                $blogs = $doctrine->getRepository(Blog::class)->findAllByBlogSectionId($idSection1->getId());
+                $section = $doctrine->getRepository(BlogSection::class)->findBySlug($blogSection[1]);
+                if ($section === null) {
+                    continue;
+                }
+                $blogs = $doctrine->getRepository(Blog::class)->findAllByBlogSectionId($section->getId());
 
                 $i = 0;
                 foreach ($blogs as $blog) {

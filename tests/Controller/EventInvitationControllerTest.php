@@ -280,7 +280,10 @@ class EventInvitationControllerTest extends WebTestCase
 
         $client->submit($crawler->selectButton('Chcem zmazať')->form());
 
-        $this->assertResponseRedirects('/pozvanky/' . new DateTimeImmutable('tomorrow')->format('Y'));
+        // it was the only invitation of its year, so the year list would be a 404
+        $this->assertResponseRedirects('/pozvanky');
+        $client->followRedirect();
+        $this->assertResponseIsSuccessful();
 
         $crawler = $client->request('GET', '/pozvanky/aktualne');
         $this->assertCount(0, $crawler->selectLink('Upcoming event'));

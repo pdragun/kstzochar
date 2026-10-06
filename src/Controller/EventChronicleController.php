@@ -425,6 +425,10 @@ class EventChronicleController extends AbstractController
             sprintf('Kronika: „%s“ bola zmazaná!', $chronicleTitle),
         );
 
+        if ($eventChronicleRepository->getPreparedByYear($year) === []) { // the year list would be a 404
+            return $this->redirectToRoute('chronicle_show');
+        }
+
         return $this->redirectToRoute('chronicle_list_by_Year', ['year' => $year]);
     }
 }

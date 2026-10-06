@@ -20,8 +20,8 @@
     <a
         class="btn btn-danger btn-sm"
         href="{{ path('invitation_delete', {year: yearInUrl, slug: invitation.getSlug()}) }}"
-        role="button" data-toggle="modal"
-        data-target="#delete"
+        role="button" data-bs-toggle="modal"
+        data-bs-target="#delete"
     >{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.delete'|trans }}</a>
 </p>
 <hr>
@@ -30,16 +30,14 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteodalLabel">Naozaj zmazať?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="deleteModalLabel">Naozaj zmazať?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
       </div>
       <div class="modal-body">
         Skutočne si želáte zmazať tento článok?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie!</button>
         <form class="d-inline" method="post" action="{{ path('invitation_delete_yes', {year: yearInUrl, slug: invitation.getSlug()}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ invitation.id) }}">
             <button type="submit" class="btn btn-danger">Chcem zmazať</button>

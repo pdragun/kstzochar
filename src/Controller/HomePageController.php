@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\BlogSection;
 use App\Repository\BlogRepository;
 use App\Repository\BlogSectionRepository;
 use App\Repository\EventChronicleRepository;
@@ -46,19 +47,19 @@ class HomePageController extends AbstractController
 
             $fromDB['latestChronicle'] = $this->eventChronicleRepository->findLatest();
 
-            $idFirstSection = $this->blogSectionRepository->findBySlug('z-klubovej-kuchyne');
+            $idFirstSection = $this->blogSectionRepository->findBySlug(BlogSection::CLUB_KITCHEN_SLUG);
             $fromDB['latestBlogSectionId1'] = null;
             if ($idFirstSection !== null) {
                 $fromDB['latestBlogSectionId1'] = $this->blogRepository->findLatestByBlogSectionId($idFirstSection->getId());
             }
 
-            $idSecondSection = $this->blogSectionRepository->findBySlug('viacdnove-akcie');
+            $idSecondSection = $this->blogSectionRepository->findBySlug(BlogSection::MULTI_DAY_EVENTS_SLUG);
             $fromDB['latestBlogSectionId2'] = null;
             if ($idSecondSection !== null) {
                 $fromDB['latestBlogSectionId2'] = $this->blogRepository->findLatestByBlogSectionIdStartDate($idSecondSection->getId());
             }
 
-            $idThirdSection = $this->blogSectionRepository->findBySlug('receptury-na-tury');
+            $idThirdSection = $this->blogSectionRepository->findBySlug(BlogSection::RECIPES_SLUG);
             $fromDB['latestBlogSectionId3'] = null;
             if ($idThirdSection !== null) {
                 $fromDB['latestBlogSectionId3'] = $this->blogRepository->findLatestByBlogSectionId($idThirdSection->getId());
