@@ -10,6 +10,7 @@ use App\Form\EventInvitationType;
 use App\Form\SetDateType;
 use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
+use App\Service\SharedRoutes;
 use App\Service\SlugGenerator;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -175,11 +176,6 @@ class EventInvitationController extends AbstractController
             foreach ($firstEvent->getSportType() as $sportType) {
                 $invitation->addSportType($sportType);
             }
-            if ($firstEvent->getEventInvitation() !== null) {
-                foreach ($firstEvent->getEventInvitation()->getRoutes() as $key => $value) {
-                    $invitation->addRoute($firstEvent->getEventInvitation()->getRoutes()[$key]);
-                }
-            }
             $invitation->setEvent($firstEvent);
         } else { //No parent Event = no additional information
             $invitation->setStartDate($dateTime);
@@ -297,6 +293,7 @@ class EventInvitationController extends AbstractController
         foreach ($invitation->getRoutes() as $route) {
             $originalRoutes->add($route);
         }
+        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
 
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
@@ -315,6 +312,7 @@ class EventInvitationController extends AbstractController
                 ),
             ));
 
+            $sharedRoutes->copyEditedSharedRoutes($invitation);
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Invitation

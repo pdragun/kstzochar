@@ -324,7 +324,6 @@ class EventChronicle
     public function addRoute(EventRoute $route): self
     {
         if (!$this->routes->contains($route)) {
-            $route->setCreatedAt(new DateTimeImmutable('now')); //Ugly hack :( createdAt can not be NULL
             $this->routes[] = $route;
         }
 

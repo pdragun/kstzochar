@@ -6,6 +6,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Blog;
 use App\Entity\Event;
+use App\Entity\EventInvitation;
 use App\Entity\SportType;
 use App\Entity\User;
 use App\DataFixtures\UserFixtures;
@@ -40,6 +41,7 @@ class EventPlanFixtures extends Fixture implements DependentFixtureInterface
         $event2->setPublish(true);
         $event2->setShowDate(true);
         $event2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_4_REFERENCE, SportType::class));
+        $event2->setEventInvitation($this->getReference(EventInvitationFixtures::INVITATION_FOR_EVENT_REFERENCE, EventInvitation::class));
         $manager->persist($event2);
 
         $event3 = new Event();
@@ -74,6 +76,7 @@ class EventPlanFixtures extends Fixture implements DependentFixtureInterface
             UserFixtures::class,
             SportTypeFixtures::class,
             BlogFixtures::class,
+            EventInvitationFixtures::class,
         ];
     }
 }

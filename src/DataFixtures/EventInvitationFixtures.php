@@ -17,6 +17,7 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
 {
     use SlugTrait;
     public const INVITATION_1_REFERENCE = 'invitation';
+    public const INVITATION_FOR_EVENT_REFERENCE = 'invitation-for-event';
 
     public function load(ObjectManager $manager): void
     {
@@ -71,8 +72,27 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
         $invitation2->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE, SportType::class));
         $manager->persist($invitation2);
 
+        // invitation to a planned event, a new chronicle for the event copies its routes
+        $invitation3 = new EventInvitation();
+        $invitation3->setTitle('Zimný výstup na Javorový vrch');
+        $invitation3->setSlug($this->createSlug('Zimny-vystup-na-Javorovy-vrch'));
+        $invitation3->setSummary('Autobusom pod Javorový vrch');
+        $invitation3->setStartDate(new DateTimeImmutable('2010-01-09 07:00:00'));
+        $invitation3->setPublishedAt(new DateTimeImmutable());
+        $invitation3->setCreatedAt(new DateTimeImmutable());
+        $invitation3->setModifiedAt(null);
+        $invitation3->setPublish(true);
+        $invitation3->setContent('<p>Odchod autobusu o 7:00.</p>');
+        $invitation3->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation3->setAuthorBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $invitation3->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_INVITATION_REFERENCE, EventRoute::class));
+        $invitation3->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE, EventRoute::class));
+        $invitation3->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_4_REFERENCE, SportType::class));
+        $manager->persist($invitation3);
+
         $manager->flush();
         $this->addReference(self::INVITATION_1_REFERENCE, $invitation1);
+        $this->addReference(self::INVITATION_FOR_EVENT_REFERENCE, $invitation3);
     }
 
     public function getDependencies(): array

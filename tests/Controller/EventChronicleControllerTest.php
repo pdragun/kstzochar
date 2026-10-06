@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Repository\EventRouteRepository;
 use App\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -363,5 +364,76 @@ class EventChronicleControllerTest extends WebTestCase
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Klubová kronika z roku 2010');
+    }
+
+    /**
+     * A chronicle for a planned event starts with the routes of the event's invitation.
+     * An unchanged route stays shared, an edited one is saved as a new route and the invitation keeps the original.
+     */
+    public function testCreateFromEventCopiesInvitationRoutes(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+        $routeRepository = static::getContainer()->get(EventRouteRepository::class);
+        $editedTitle = 'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie';
+
+        $crawler = $client->request('GET', '/kronika/2010/pridat-novu/2010-01-09/add');
+        $this->assertResponseIsSuccessful();
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+
+        $this->assertEquals('Zimný výstup na Javorový vrch', $values[$formName]['title']);
+        $routeTitles = array_column($values[$formName]['routes'], 'title');
+        sort($routeTitles);
+        $this->assertEquals(['Okolie Tesár, športové hry', $editedTitle], $routeTitles);
+
+        $values[$formName]['summary'] = 'Autobusom pod Javorový vrch';
+        $values[$formName]['content'] = '<p>Na vrchole bolo veterno.</p>';
+        foreach ($values[$formName]['routes'] as $key => $route) {
+            if ($route['title'] === $editedTitle) {
+                $values[$formName]['routes'][$key]['length'] = 16; // walked a bit more than planned
+            }
+        }
+        $editedCount = count($routeRepository->findBy(['title' => $editedTitle]));
+        $unchangedCount = count($routeRepository->findBy(['title' => 'Okolie Tesár, športové hry']));
+        $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertResponseRedirects('/kronika/2010/Zimny-vystup-na-Javorovy-vrch');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('#routes', $editedTitle . ' (dĺžka 16 km, prevýšenie 11 m)');
+        $this->assertSelectorTextContains('#routes', 'Okolie Tesár, športové hry (dĺžka 5 km, prevýšenie 10 m)');
+
+        $client->request('GET', '/pozvanky/2010/Zimny-vystup-na-Javorovy-vrch');
+        $this->assertSelectorTextContains('#routes', $editedTitle . ' (dĺžka 15 km');
+
+        $this->assertCount($editedCount + 1, $routeRepository->findBy(['title' => $editedTitle])); // the edited route is a new one
+        $this->assertCount($unchangedCount, $routeRepository->findBy(['title' => 'Okolie Tesár, športové hry'])); // the unchanged one is shared
+    }
+
+    /** Editing a route that the chronicle shares with invitations does not change it in the invitations */
+    public function testEditSharedRouteKeepsInvitationRoute(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $crawler = $client->request('GET', '/kronika/2010/jaskyne-uhradu/edit');
+        $form = $crawler->selectButton('Uložiť kroniku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+        $values[$formName]['routes'][0]['title'] = 'Podhradie – jaskyne – Úhrad – Podhradie';
+        $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertResponseRedirects('/kronika/2010/Jaskyne-Uhradu');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('#routes', 'Podhradie – jaskyne – Úhrad – Podhradie (dĺžka 15 km, prevýšenie 11 m).');
+
+        $client->request('GET', '/pozvanky/2011/Gulasove-opojenie-v-Tesaroch');
+        $this->assertSelectorTextContains(
+            '#routes',
+            'Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km',
+        );
     }
 }
