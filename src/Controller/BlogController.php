@@ -9,12 +9,8 @@ use App\Entity\User;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
 use App\Repository\BlogSectionRepository;
-use App\Service\SlugGenerator;
-use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Service\BlogEditor;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\Persistence\ManagerRegistry;
-use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +21,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BlogController extends AbstractController
 {
-
     /** Let user choose section */
     #[Route('/blog', name: 'blog', methods: ['GET'])]
     public function index(): Response
@@ -59,7 +54,7 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-  		return $this->render('blog/showBlogByBlogSectionSlugYearSlug.html.twig', [
+        return $this->render('blog/showBlogByBlogSectionSlugYearSlug.html.twig', [
             'blog' => $blog,
             'blogSection' => $blogSection,
             'year' => $year,
@@ -105,11 +100,8 @@ class BlogController extends AbstractController
     public function createBlog(
         string $blogSectionSlug,
         Request $request,
-        BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        BlogEditor $editor,
         #[CurrentUser] User $user,
     ): Response {
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
@@ -127,30 +119,7 @@ class BlogController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var Blog $blog */
-            $blog = $form->getData();
-            $now = new DateTimeImmutable();
-            $blog->setSlug($slugGenerator->uniqueSlug(
-                $blog->getTitle(),
-                fn (string $slug): bool => $blogRepository->slugExists(
-                    $blogSection->getId(),
-                    (int) $now->format('Y'),
-                    $slug,
-                    $blog->getId(),
-                ),
-            ));
-            $blog->setPublishedAt($now);
-            $blog->setCreatedAt($now);
-            $blog->setModifiedAt($now);
-            $blog->setPublish(true);
-            $blog->setCreatedBy($user);
-            $blog->setSection($blogSection);
-
-            $entityManager = $doctrine->getManager();
-            $entityManager->persist($blog);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->create($blog, $blogSection, $user);
 
             $this->addFlash(
                 'success',
@@ -159,17 +128,14 @@ class BlogController extends AbstractController
 
             return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', [
                 'blogSectionSlug' => $blogSectionSlug,
-                'year' => $now->format('Y'),
+                'year' => $blog->getCreatedAt()->format('Y'),
                 'slug' => $blog->getSlug(),
             ]);
         }
 
-  		return $this->render('blog/create.html.twig', [
+        return $this->render('blog/create.html.twig', [
             'form' => $form->createView(),
-            'blogSectionSlug' => $blogSectionSlug,
-            'blogSection' => $blogSection,
             'title' => 'Vytvoriť nový článok',
-            'actionName' => 'Pridať',
         ]);
     }
 
@@ -181,18 +147,15 @@ class BlogController extends AbstractController
         methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
-    public function editInvitation(
+    public function editBlog(
         string $blogSectionSlug,
         int $year,
         string $slug,
         Request $request,
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        BlogEditor $editor,
     ): RedirectResponse|Response {
-
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
         if ($blogSection === null) { // 404
             throw $this->createNotFoundException();
@@ -203,10 +166,7 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $originalSportTypes = new ArrayCollection();
-        foreach ($blog->getSportType() as $sportType) {
-            $originalSportTypes->add($sportType);
-        }
+        $originalSportTypes = array_values($blog->getSportType()->toArray());
 
         $form = $this->createForm(BlogType::class, $blog);
         if (!$blogSection->isMultiDayEvents()) {
@@ -216,38 +176,13 @@ class BlogController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
-            /** @var Blog $blog */
-            $blog = $form->getData();
-            $blog->setSlug($slugGenerator->uniqueSlug(
-                $blog->getTitle(),
-                fn (string $slug): bool => $blogRepository->slugExists(
-                    $blogSection->getId(),
-                    (int) $blog->getCreatedAt()->format('Y'),
-                    $slug,
-                    $blog->getId(),
-                ),
-            ));
-            $blog->setModifiedAt(new DateTimeImmutable());
-
-            $entityManager = $doctrine->getManager();
-            // remove or update SportTypes for Blog
-            foreach ($originalSportTypes as $sportType) {
-                if ($blog->getSportType()->contains($sportType) === false) {
-                    $sportType->removeBlog($blog);
-                    $entityManager->persist($sportType);
-                }
-            }
-
-            $entityManager->persist($blog);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->update($blog, $originalSportTypes);
 
             $this->addFlash(
                 'success',
                 sprintf('Zmeny v článku: „%s“ boli uložené!', $blog->getTitle()),
             );
+
             return $this->redirectToRoute('blog_show_by_BlogSectionSlug_Year_Slug', [
                 'blogSectionSlug' => $blogSectionSlug,
                 'year' => $year,
@@ -255,12 +190,9 @@ class BlogController extends AbstractController
             ]);
         }
 
-  		return $this->render('blog/create.html.twig', [
+        return $this->render('blog/create.html.twig', [
             'form' => $form->createView(),
-            'blogSection' => $blogSection,
             'title' => $blog->getTitle(),
-            'year' => $year,
-            'actionName' => 'Upraviť',
         ]);
     }
 
@@ -283,10 +215,8 @@ class BlogController extends AbstractController
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
         Request $request,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        BlogEditor $editor,
     ): RedirectResponse {
-
         $blogSection = $blogSectionRepository->findBySlug($blogSectionSlug);
         if ($blogSection === null) {
             throw $this->createNotFoundException();
@@ -301,14 +231,8 @@ class BlogController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        $blog->removeEvent();
         $blogTitle = $blog->getTitle();
-
-        $entityManager = $doctrine->getManager();
-        $entityManager->remove($blog);
-        $entityManager->flush();
-
-        $contentCache->clear();
+        $editor->delete($blog);
 
         $this->addFlash(
             'success',
@@ -352,7 +276,7 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-  		return $this->render('blog/delete.html.twig', [
+        return $this->render('blog/delete.html.twig', [
             'blog' => $blog,
             'year' => $year,
             'blogSection' => $blogSection,
