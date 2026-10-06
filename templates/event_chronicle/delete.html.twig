@@ -7,10 +7,13 @@
 {% block body %}
 {% if is_granted('ROLE_ADMIN') %}
 <hr>
-<p>
+<div>
     <a class="btn btn-secondary btn-sm" href="{{ path('chronicle_show_by_Year_Slug', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Nechcem zmazať</a>
-    <a class="btn btn-danger btn-sm" href="{{ path('chronicle_delete_yes', {year: yearInUrl, slug: chronicle.getSlug()}) }}" role="button">Chcem zmazať</a>
-</p>
+    <form class="d-inline" method="post" action="{{ path('chronicle_delete_yes', {year: yearInUrl, slug: chronicle.getSlug()}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ chronicle.id) }}">
+        <button type="submit" class="btn btn-danger btn-sm">Chcem zmazať</button>
+    </form>
+</div>
 <hr>
 {% endif %}
 

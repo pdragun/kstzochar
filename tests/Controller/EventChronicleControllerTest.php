@@ -94,7 +94,6 @@ class EventChronicleControllerTest extends WebTestCase
         yield ['/kronika/2000/pridat-novu/2020-10-25/add'];
         yield ['/kronika/2020/invitation-slug/edit'];
         yield ['/kronika/2020/invitation-slug/delete'];
-        yield ['/kronika/2020/invitation-slug/delete/yes'];
     }
 
     /**
@@ -357,8 +356,7 @@ class EventChronicleControllerTest extends WebTestCase
         $this->assertEquals('Donovaly - Chopok - Ďumbier a späť (dĺžka 10 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
         $this->assertEquals('Donovaly - Krížna a späť (dĺžka 20 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
 
-        $link = $crawler->selectLink('Chcem zmazať')->link();
-        $crawler = $client->click($link);
+        $client->submit($crawler->selectButton('Chcem zmazať')->form());
         
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $client->followRedirect();

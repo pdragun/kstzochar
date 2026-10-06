@@ -40,7 +40,10 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie!</button>
-        <a type="button" class="btn btn-danger" href="{{ path('invitation_delete_yes', {year: yearInUrl, slug: invitation.getSlug()}) }}" role="button">Chcem zmazať</a>
+        <form class="d-inline" method="post" action="{{ path('invitation_delete_yes', {year: yearInUrl, slug: invitation.getSlug()}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ invitation.id) }}">
+            <button type="submit" class="btn btn-danger">Chcem zmazať</button>
+        </form>
       </div>
     </div>
   </div>

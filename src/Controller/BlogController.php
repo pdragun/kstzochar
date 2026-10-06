@@ -282,7 +282,7 @@ class BlogController extends AbstractController
         '/blog/{blogSectionSlug}/{year}/{slug}/delete/yes',
         name: 'blog_delete_yes',
         requirements: ['year' => '\d+'],
-        methods: ['GET'],
+        methods: ['POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteBlog(
@@ -291,6 +291,7 @@ class BlogController extends AbstractController
         string $slug,
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
+        Request $request,
         ManagerRegistry $doctrine,
     ): RedirectResponse {
 
@@ -302,6 +303,10 @@ class BlogController extends AbstractController
         $blog = $blogRepository->findBySectionYearSlug($blogSection->getId(), $year, $slug);
         if ($blog === null) {
             throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete-' . $blog->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
         $blog->removeEvent();
