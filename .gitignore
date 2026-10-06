@@ -29,3 +29,4 @@ yarn-error.log
 
 ### IDE
 /.idea
+/Taskfile.local.yml
