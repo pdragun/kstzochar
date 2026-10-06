@@ -125,7 +125,6 @@ class EventInvitationControllerTest extends WebTestCase
         yield ['/pozvanky/2000/pridat-novu/2020-10-25/add'];
         yield ['/pozvanky/2020/invitation-slug/edit'];
         yield ['/pozvanky/2020/invitation-slug/delete'];
-        yield ['/pozvanky/2020/invitation-slug/delete/yes'];
     }
 
     /**
@@ -261,5 +260,24 @@ class EventInvitationControllerTest extends WebTestCase
         $this->assertEquals('Dátum konania: 10. 9. 2011.', $crawler->filterXPath('//*[@id="start-date"]')->text());
         $this->assertEquals('Okolie Tesár, športové hry (dĺžka 5 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[1]')->text());
         $this->assertEquals('Podhradie – Opálená skala – Džimova spása – Úhrad – Podhradie (dĺžka 15 km)', $crawler->filterXPath('//*[@id="routes"]/ul/li[2]')->text());
+    }
+
+    /** Admin deletes an invitation from the confirmation in its detail page */
+    public function testDelete(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $crawler = $client->request('GET', '/pozvanky/aktualne');
+        $crawler = $client->click($crawler->selectLink('Upcoming event')->link());
+        $this->assertSelectorTextContains('html h1', 'Upcoming event');
+
+        $client->submit($crawler->selectButton('Chcem zmazať')->form());
+
+        $this->assertResponseRedirects('/pozvanky/' . new DateTimeImmutable('tomorrow')->format('Y'));
+
+        $crawler = $client->request('GET', '/pozvanky/aktualne');
+        $this->assertCount(0, $crawler->selectLink('Upcoming event'));
     }
 }

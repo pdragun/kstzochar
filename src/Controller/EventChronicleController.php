@@ -375,19 +375,24 @@ class EventChronicleController extends AbstractController
         '/kronika/{year}/{slug}/delete/yes',
         name: 'chronicle_delete_yes',
         requirements: ['year' => '\d+'],
-        methods: ['GET'],
+        methods: ['POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteChronicle(
         int $year,
         string $slug,
         EventChronicleRepository $eventChronicleRepository,
+        Request $request,
         ManagerRegistry $doctrine,
     ): RedirectResponse {
 
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
         if ($chronicle === null) {
             throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete-' . $chronicle->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
         $chronicle->removeEvent();

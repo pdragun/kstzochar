@@ -384,18 +384,23 @@ class EventInvitationController extends AbstractController
         '/pozvanky/{year}/{slug}/delete/yes',
         name: 'invitation_delete_yes',
         requirements: ['year' => '\d+'],
-        methods: ['GET'],
+        methods: ['POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function deleteInvitation(
         int $year,
         string $slug,
         EventInvitationRepository $eventInvitationRepository,
+        Request $request,
         ManagerRegistry $doctrine,
     ): RedirectResponse {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
             throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete-' . $invitation->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
         $invitation->removeEvent();

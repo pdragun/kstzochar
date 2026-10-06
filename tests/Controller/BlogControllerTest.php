@@ -132,7 +132,6 @@ class BlogControllerTest extends WebTestCase
         yield ['/blog/blog-slug/pridat-novy/add'];
         yield ['/blog/blog-slug/2020/article-slug/edit'];
         yield ['/blog/blog-slug/2020/article-slug/delete'];
-        yield ['/blog/blog-slug/2020/article-slug/delete/yes'];
     }
 
     /**
@@ -343,8 +342,7 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Grlík');
         $this->assertSelectorTextContains('html h2', 'Pôvodný názov „rezy Orlík“ – pri nepozornom prepise vznikol Grlík.');
 
-        $link = $crawler->selectLink('Chcem zmazať')->link(); // click on delete button
-        $crawler = $client->click($link);
+        $client->submit($crawler->selectButton('Chcem zmazať')->form()); // confirm delete
         
         $this->assertEquals(302, $client->getResponse()->getStatusCode());
         $client->followRedirect();
