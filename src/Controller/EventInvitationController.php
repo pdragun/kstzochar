@@ -6,18 +6,14 @@ namespace App\Controller;
 
 use App\Entity\EventInvitation;
 use App\Entity\User;
+use App\Service\EventContentEditor;
+use App\Service\EventContentSnapshot;
 use App\Form\EventInvitationType;
 use App\Form\SetDateType;
-use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
-use App\Service\SharedRoutes;
-use App\Service\SlugGenerator;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -156,84 +152,19 @@ class EventInvitationController extends AbstractController
         int $year,
         string $date,
         Request $request,
-        EventRepository $eventRepository,
-        EventInvitationRepository $eventInvitationRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
         $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
-        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventInvitation' => null]);
-
         $invitation = new EventInvitation();
-        if (isset($events[0])) { //Parent Event exist, get additional info from it
-            $firstEvent = $events[0];
-
-            $invitation->setTitle($firstEvent->getTitle());
-            $invitation->setEndDate($firstEvent->getEndDate());
-            $invitation->setStartDate($firstEvent->getStartDate());
-            foreach ($firstEvent->getSportType() as $sportType) {
-                $invitation->addSportType($sportType);
-            }
-            $invitation->setEvent($firstEvent);
-        } else { //No parent Event = no additional information
-            $invitation->setStartDate($dateTime);
-        }
-
-        $originalSportTypes = new ArrayCollection();
-        foreach ($invitation->getSportType() as $sportType) {
-            $originalSportTypes->add($sportType);
-        }
-
-        $originalRoutes = new ArrayCollection();
-        foreach ($invitation->getRoutes() as $route) {
-            $originalRoutes->add($route);
-        }
+        $editor->prefillFromEvent($invitation, $dateTime);
+        $snapshot = EventContentSnapshot::of($invitation);
 
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var EventInvitation $invitation */
-            $invitation = $form->getData();
-            $invitation->setSlug($slugGenerator->uniqueSlug(
-                $invitation->getTitle(),
-                fn (string $slug): bool => $eventInvitationRepository->slugExists(
-                    (int) $invitation->getStartDate()->format('Y'),
-                    $slug,
-                    $invitation->getId(),
-                ),
-            ));
-            $now = new DateTimeImmutable();
-            $invitation->setPublishedAt($now);
-            $invitation->setCreatedAt($now);
-            $invitation->setModifiedAt($now);
-            $invitation->setPublish(true);
-            $invitation->setCreatedBy($user);
-
-            $entityManager = $doctrine->getManager();
-
-            // remove or update SportTypes for Invitation
-            foreach ($originalSportTypes as $sportType) {
-                if ($invitation->getSportType()->contains($sportType) === false) {
-                    $sportType->removeEventInvitation($invitation);
-                    $entityManager->persist($sportType);
-                }
-            }
-
-            // remove or update Routes for Invitation
-            foreach ($originalRoutes as $route) {
-                if ($invitation->getRoutes()->contains($route) === false) {
-                    $route->removeEventInvitation($invitation);
-                    $entityManager->persist($route);
-                }
-            }
-
-            $entityManager->persist($invitation);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->create($invitation, $snapshot, $user);
 
             $this->addFlash(
                 'success',
@@ -275,66 +206,19 @@ class EventInvitationController extends AbstractController
         string $slug,
         Request $request,
         EventInvitationRepository $eventInvitationRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
     ): RedirectResponse|Response {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
             throw $this->createNotFoundException();
         }
-
-        $originalSportTypes = new ArrayCollection();
-        foreach ($invitation->getSportType() as $sportType) {
-            $originalSportTypes->add($sportType);
-        }
-
-        $originalRoutes = new ArrayCollection();
-        foreach ($invitation->getRoutes() as $route) {
-            $originalRoutes->add($route);
-        }
-        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
+        $snapshot = EventContentSnapshot::of($invitation);
 
         $form = $this->createForm(EventInvitationType::class, $invitation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            /** @var EventInvitation $invitation */
-            $invitation = $form->getData();
-            $invitation->setModifiedAt(new DateTimeImmutable());
-            $invitation->setSlug($slugGenerator->uniqueSlug(
-                $invitation->getTitle(),
-                fn (string $slug): bool => $eventInvitationRepository->slugExists(
-                    (int) $invitation->getStartDate()->format('Y'),
-                    $slug,
-                    $invitation->getId(),
-                ),
-            ));
-
-            $sharedRoutes->copyEditedSharedRoutes($invitation);
-            $entityManager = $doctrine->getManager();
-
-            // remove or update SportTypes for Invitation
-            foreach ($originalSportTypes as $sportType) {
-                if ($invitation->getSportType()->contains($sportType) === false) {
-                    $sportType->removeEventInvitation($invitation);
-                    $entityManager->persist($sportType);
-                }
-            }
-
-            // remove or update Routes for Invitation
-            foreach ($originalRoutes as $route) {
-                if ($invitation->getRoutes()->contains($route) === false) {
-                    $route->removeEventInvitation($invitation);
-                    $entityManager->persist($route);
-                }
-            }
-
-            $entityManager->persist($invitation);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->update($invitation, $snapshot);
 
             $this->addFlash(
                 'success',
@@ -402,8 +286,7 @@ class EventInvitationController extends AbstractController
         string $slug,
         EventInvitationRepository $eventInvitationRepository,
         Request $request,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
     ): RedirectResponse {
         $invitation = $eventInvitationRepository->findByYearSlug($year, $slug);
         if ($invitation === null) {
@@ -414,14 +297,8 @@ class EventInvitationController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        $invitation->removeEvent();
         $invitationTitle = $invitation->getTitle();
-
-        $entityManager = $doctrine->getManager();
-        $entityManager->remove($invitation);
-        $entityManager->flush();
-
-        $contentCache->clear();
+        $editor->delete($invitation);
 
         $this->addFlash(
             'success',

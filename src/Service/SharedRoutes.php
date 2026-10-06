@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Entity\EventChronicle;
-use App\Entity\EventInvitation;
+use App\Entity\EventContent;
 use App\Entity\EventRoute;
 
 /**
@@ -36,7 +35,7 @@ final readonly class SharedRoutes
      * Replace each route that was edited and that also belongs to another invitation or chronicle
      * with an edited copy in the same position, and restore the original route's data
      */
-    public function copyEditedSharedRoutes(EventInvitation|EventChronicle $owner): void
+    public function copyEditedSharedRoutes(EventContent $owner): void
     {
         $routes = $owner->getRoutes();
         foreach ($routes->toArray() as $key => $route) {
@@ -64,7 +63,7 @@ final readonly class SharedRoutes
         ];
     }
 
-    private static function isShared(EventRoute $route, EventInvitation|EventChronicle $owner): bool
+    private static function isShared(EventRoute $route, EventContent $owner): bool
     {
         if ($route->getId() === null) {
             return false;
@@ -72,7 +71,7 @@ final readonly class SharedRoutes
 
         return array_any(
             [...$route->getEventInvitations(), ...$route->getEventChronicles()],
-            static fn (EventInvitation|EventChronicle $other): bool => $other !== $owner,
+            static fn (EventContent $other): bool => $other !== $owner,
         );
     }
 }

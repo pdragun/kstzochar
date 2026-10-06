@@ -6,18 +6,14 @@ namespace App\Controller;
 
 use App\Entity\EventChronicle;
 use App\Entity\User;
+use App\Service\EventContentEditor;
+use App\Service\EventContentSnapshot;
 use App\Repository\EventChronicleRepository;
-use App\Repository\EventRepository;
-use App\Service\SharedRoutes;
-use App\Service\SlugGenerator;
 use App\Form\EventChronicleType;
 use App\Form\SetDateType;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -144,90 +140,19 @@ class EventChronicleController extends AbstractController
         int $year,
         string $date,
         Request $request,
-        EventRepository $eventRepository,
-        EventChronicleRepository $eventChronicleRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
         $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
-        $events = $eventRepository->findBy(['startDate' => $dateTime, 'eventChronicle' => null]);
-
         $chronicle = new EventChronicle();
-        if (isset($events[0])) { //Parent Event exist, get additional info from it
-            $firstEvent = $events[0];
-
-            $chronicle->setTitle($firstEvent->getTitle());
-            $chronicle->setEndDate($firstEvent->getEndDate());
-            $chronicle->setStartDate($firstEvent->getStartDate());
-            foreach ($firstEvent->getSportType() as $sportType) {
-                $chronicle->addSportType($sportType);
-            }
-            foreach ($firstEvent->getEventInvitation()?->getRoutes() ?? [] as $route) {
-                $chronicle->addRoute($route);
-            }
-            $chronicle->setEvent($firstEvent);
-        } else { //No parent Event = no additional information
-            $chronicle->setStartDate($dateTime);
-        }
-
-        $originalSportTypes = new ArrayCollection();
-        foreach ($chronicle->getSportType() as $sportType) {
-            $originalSportTypes->add($sportType);
-        }
-
-        $originalRoutes = new ArrayCollection();
-        foreach ($chronicle->getRoutes() as $route) {
-            $originalRoutes->add($route);
-        }
-        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
+        $editor->prefillFromEvent($chronicle, $dateTime);
+        $snapshot = EventContentSnapshot::of($chronicle);
 
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            /** @var EventChronicle $chronicle */
-            $chronicle = $form->getData();
-            $now = new DateTimeImmutable();
-            $chronicle->setSlug($slugGenerator->uniqueSlug(
-                $chronicle->getTitle(),
-                fn (string $slug): bool => $eventChronicleRepository->slugExists(
-                    (int) $chronicle->getStartDate()->format('Y'),
-                    $slug,
-                    $chronicle->getId(),
-                ),
-            ));
-            $chronicle->setPublishedAt($now);
-            $chronicle->setCreatedAt($now);
-            $chronicle->setModifiedAt($now);
-            $chronicle->setPublish(true);
-            $chronicle->setCreatedBy($user);
-
-            $sharedRoutes->copyEditedSharedRoutes($chronicle);
-            $entityManager = $doctrine->getManager();
-
-            // remove or update SportTypes for Chronicle
-            foreach ($originalSportTypes as $sportType) {
-                if ($chronicle->getSportType()->contains($sportType) === false) {
-                    $sportType->removeEventChronicle($chronicle);
-                    $entityManager->persist($sportType);
-                }
-            }
-
-            // remove or update Routes for Chronicle
-            foreach ($originalRoutes as $route) {
-                if ($chronicle->getRoutes()->contains($route) === false) {
-                    $route->removeEventChronicle($chronicle);
-                    $entityManager->persist($route);
-                }
-            }
-
-            $entityManager->persist($chronicle);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->create($chronicle, $snapshot, $user);
 
             $this->addFlash(
                 'success',
@@ -269,68 +194,19 @@ class EventChronicleController extends AbstractController
         string $slug,
         Request $request,
         EventChronicleRepository $eventChronicleRepository,
-        SlugGenerator $slugGenerator,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
     ): RedirectResponse|Response {
-
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
         if ($chronicle === null) {
             throw $this->createNotFoundException();
         }
-
-        $originalSportTypes = new ArrayCollection();
-        foreach ($chronicle->getSportType() as $sportType) {
-            $originalSportTypes->add($sportType);
-        }
-
-        $originalRoutes = new ArrayCollection();
-        foreach ($chronicle->getRoutes() as $route) {
-            $originalRoutes->add($route);
-        }
-        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
+        $snapshot = EventContentSnapshot::of($chronicle);
 
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
 
-
         if ($form->isSubmitted() && $form->isValid()) {
-
-            /** @var EventChronicle $chronicle */
-            $chronicle = $form->getData();
-            $chronicle->setModifiedAt(new DateTimeImmutable());
-            $chronicle->setSlug($slugGenerator->uniqueSlug(
-                $chronicle->getTitle(),
-                fn (string $slug): bool => $eventChronicleRepository->slugExists(
-                    (int) $chronicle->getStartDate()->format('Y'),
-                    $slug,
-                    $chronicle->getId(),
-                ),
-            ));
-
-            $sharedRoutes->copyEditedSharedRoutes($chronicle);
-            $entityManager = $doctrine->getManager();
-
-            // remove or update SportTypes for Chronicle
-            foreach ($originalSportTypes as $sportType) {
-                if ($chronicle->getSportType()->contains($sportType) === false) {
-                    $sportType->removeEventChronicle($chronicle);
-                    $entityManager->persist($sportType);
-                }
-            }
-
-            // remove or update Routes for Chronicle
-            foreach ($originalRoutes as $route) {
-                if ($chronicle->getRoutes()->contains($route) === false) {
-                    $route->removeEventChronicle($chronicle);
-                    $entityManager->persist($route);
-                }
-            }
-
-            $entityManager->persist($chronicle);
-            $entityManager->flush();
-
-            $contentCache->clear();
+            $editor->update($chronicle, $snapshot);
 
             $this->addFlash(
                 'success',
@@ -398,10 +274,8 @@ class EventChronicleController extends AbstractController
         string $slug,
         EventChronicleRepository $eventChronicleRepository,
         Request $request,
-        ManagerRegistry $doctrine,
-        CacheItemPoolInterface $contentCache,
+        EventContentEditor $editor,
     ): RedirectResponse {
-
         $chronicle = $eventChronicleRepository->findByYearSlug($year, $slug);
         if ($chronicle === null) {
             throw $this->createNotFoundException();
@@ -411,14 +285,8 @@ class EventChronicleController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
 
-        $chronicle->removeEvent();
         $chronicleTitle = $chronicle->getTitle();
-
-        $entityManager = $doctrine->getManager();
-        $entityManager->remove($chronicle);
-        $entityManager->flush();
-
-        $contentCache->clear();
+        $editor->delete($chronicle);
 
         $this->addFlash(
             'success',

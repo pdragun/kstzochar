@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventInvitationRepository::class)]
 #[ORM\Table(name: 'event_invitation')]
-class EventInvitation
+class EventInvitation implements EventContent
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
