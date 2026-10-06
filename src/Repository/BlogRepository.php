@@ -125,4 +125,22 @@ class BlogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /** Whether another blog from the section and year (by creation date) already uses the slug, published or not */
+    public function slugExists(int $sectionId, int $year, string $slug, ?int $excludeId): bool
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->andWhere('b.slug = :slug')
+            ->andWhere('b.section = :sectionId')
+            ->andWhere('SUBSTRING(b.createdAt, 1, 4) = :year')
+            ->setParameter('slug', $slug)
+            ->setParameter('sectionId', $sectionId)
+            ->setParameter('year', $year);
+        if ($excludeId !== null) {
+            $qb->andWhere('b.id != :excludeId')->setParameter('excludeId', $excludeId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }
