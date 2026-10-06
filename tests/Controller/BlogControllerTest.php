@@ -41,6 +41,21 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h1', 'Receptúry na túry');
     }
 
+    /** Multi-day blog without a start date is listed under the year it was created */
+    public function testListMultiDayBlogWithoutStartDate(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/blog/viacdnove-akcie');
+
+        $this->assertResponseIsSuccessful();
+        $link = $crawler->selectLink('Zimný prechod Malej Fatry')->link();
+        $this->assertStringEndsWith('/blog/viacdnove-akcie/2011/zimny-prechod-malej-fatry', $link->getUri());
+
+        $client->click($link);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('html h1', 'Zimný prechod Malej Fatry');
+    }
+
     /** Test blog entries for each category */
     public function testShowBlogPostInEachCategory(): void
     {
@@ -88,6 +103,9 @@ class BlogControllerTest extends WebTestCase
         yield ['/blog/z-klubovej-kuchyne/2asdf'];
         yield ['/blog/z-klubovej-kuchyne/2012/historia-turistiky'];
         yield ['/blog/z-klubovej-kuchyne/2011/historia-turistiky2'];
+        // Blog exists, but in another section
+        yield ['/blog/receptury-na-tury/2011/nizke-tatry'];
+        yield ['/blog/viacdnove-akcie/2011/cergovske-susienky'];
     }
 
     /**
@@ -214,7 +232,30 @@ class BlogControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html h2', 'Začiatky turistiky vo svete a v Európe');
     }
 
-    /** Test create and delete blog entry */
+    /** Multi-day blog cannot be saved without a start date */
+    public function testCreateMultiDayBlogRequiresStartDate(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $crawler = $client->request('GET', '/blog/viacdnove-akcie/pridat-novy/add');
+        $this->assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Uložiť článok')->form();
+        $formName = $form->getName();
+        $form[$formName . '[title]'] = 'Bez dátumu';
+        $form[$formName . '[summary]'] = 'Viacdňová akcia bez začiatku';
+        $form[$formName . '[content]'] = '<p>Bez dátumu</p>';
+        $form[$formName . '[startDate]'] = '';
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful(); // form shown again, nothing saved
+        $this->assertSelectorExists('#' . $formName . '_startDate.is-invalid');
+        $this->assertSelectorTextContains('#' . $formName . '_startDate_error1', 'Táto hodnota by mala byť vyplnená.');
+    }
+
+        /** Test create and delete blog entry */
     public function testCreateDeleteBlog(): void
     {
         $client = static::createClient();

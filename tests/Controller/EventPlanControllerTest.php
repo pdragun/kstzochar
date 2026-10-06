@@ -41,6 +41,30 @@ class EventPlanControllerTest extends WebTestCase
         
     }
 
+    /** Plan links to the blog under the year the blog was created, not the year of the event */
+    public function testLinkToBlogFromPlan(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/plan/2012');
+
+        $this->assertResponseIsSuccessful();
+        $link = $crawler->selectLink('Zimný prechod Malej Fatry')->link();
+        $this->assertStringEndsWith('/blog/viacdnove-akcie/2011/zimny-prechod-malej-fatry', $link->getUri());
+
+        $client->click($link);
+        $this->assertResponseIsSuccessful();
+    }
+
+    /** /plan offers the latest year with a published event */
+    public function testLatestPlanYear(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/plan');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('a[href="/plan/2012"]');
+    }
+
     #[DataProvider('provide404Urls')]
     public function test404(string $url): void
     {

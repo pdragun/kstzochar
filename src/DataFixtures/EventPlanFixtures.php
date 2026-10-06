@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use App\Entity\Blog;
 use App\Entity\Event;
 use App\Entity\SportType;
 use App\Entity\User;
@@ -52,6 +53,18 @@ class EventPlanFixtures extends Fixture implements DependentFixtureInterface
         $event3->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_6_REFERENCE, SportType::class));
 
         $manager->persist($event3);
+
+        $event4 = new Event();
+        $event4->setTitle('Zimný prechod Malej Fatry');
+        $event4->setStartDate(new DateTimeImmutable('2012-01-14'));
+        $event4->setCreatedAt(new DateTimeImmutable('2011-12-20 18:10:00'));
+        $event4->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $event4->setPublish(true);
+        $event4->setShowDate(true);
+        $event4->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE, SportType::class));
+        $event4->setBlog($this->getReference(BlogFixtures::BLOG_WITHOUT_START_DATE_REFERENCE, Blog::class));
+        $manager->persist($event4);
+
         $manager->flush();
     }
 
@@ -60,6 +73,7 @@ class EventPlanFixtures extends Fixture implements DependentFixtureInterface
         return [
             UserFixtures::class,
             SportTypeFixtures::class,
+            BlogFixtures::class,
         ];
     }
 }

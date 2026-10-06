@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Event;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
-use Exception;
 
 /** @extends ServiceEntityRepository<Event> */
 class EventRepository extends ServiceEntityRepository
@@ -63,36 +59,16 @@ class EventRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    /**
-     * @return array<int|string, mixed>
-     * @throws NonUniqueResultException
-     * @throws NoResultException
-     */
-    public function findMaxStartDate(): array
-    {
-        $query = $this->createQueryBuilder('e')
-            ->select('e, MAX(e.startDate) as maxYear')
-            ->where('e.publish = 1')
-            ->groupBy('e')
-            ->setMaxResults(1)
-            ->getQuery();
-
-        return $query->getSingleResult();
-    }
-
-    /**
-     * Find the latest year from event plan
-     * @throws Exception
-     */
+    /** Find the latest year from event plan, or null when no event is published */
     public function findMaxStartYear(): ?int
     {
-        $res = $this->findMaxStartDate();
-        if (!$res || $res[0] === null) {
-            return null;
-        }
-        $date = new DateTimeImmutable($res['maxYear']);
+        $max = $this->createQueryBuilder('e')
+            ->select('MAX(e.startDate)')
+            ->where('e.publish = 1')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        return (int) $date->format('Y');
+        return $max === null ? null : (int) substr((string) $max, 0, 4);
     }
 
     /** @return list<array{y: string}> */
