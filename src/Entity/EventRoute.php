@@ -66,6 +66,21 @@ class EventRoute
     {
         $this->eventInvitations = new ArrayCollection();
         $this->eventChronicles = new ArrayCollection();
+        $this->createdAt = new DateTimeImmutable();
+    }
+
+    /** A new route with the same data, not linked to any invitation or chronicle */
+    public function copy(): self
+    {
+        $copy = new self();
+        $copy->title = $this->title;
+        $copy->length = $this->length;
+        $copy->elevation = $this->elevation;
+        $copy->gpx = $this->gpx;
+        $copy->gpxSlug = $this->gpxSlug;
+        $copy->eventDate = $this->eventDate;
+
+        return $copy;
     }
 
     public function getId(): ?int

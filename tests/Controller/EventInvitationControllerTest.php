@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Entity\EventInvitation;
+use App\Repository\EventChronicleRepository;
+use App\Repository\EventInvitationRepository;
+use App\Repository\EventRouteRepository;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -279,5 +284,45 @@ class EventInvitationControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/pozvanky/aktualne');
         $this->assertCount(0, $crawler->selectLink('Upcoming event'));
+    }
+
+    /** Editing a route that the invitation shares with a chronicle does not change it in the chronicle */
+    public function testEditSharedRouteKeepsChronicleRoute(): void
+    {
+        $client = static::createClient();
+        $container = static::getContainer();
+        $client->loginUser($container->get(UserRepository::class)->findOneByEmail('john.doe@example.com'));
+
+        // share the invitation's first route with a chronicle
+        $entityManager = $container->get(EntityManagerInterface::class);
+        $invitation = $container->get(EventInvitationRepository::class)->findByYearSlug(2010, 'Zimny-vystup-na-Javorovy-vrch');
+        $route = $invitation->getRoutes()->first();
+        $container->get(EventChronicleRepository::class)->findByYearSlug(2010, 'jaskyne-uhradu')->addRoute($route);
+        $entityManager->flush();
+        $routeId = $route->getId();
+        $routeTitle = $route->getTitle();
+        $routeLength = $route->getLength();
+
+        $crawler = $client->request('GET', '/pozvanky/2010/Zimny-vystup-na-Javorovy-vrch/edit');
+        $form = $crawler->selectButton('Uložiť pozvánku')->form();
+        $values = $form->getPhpValues();
+        $formName = $form->getName();
+        foreach ($values[$formName]['routes'] as $key => $formRoute) {
+            if ($formRoute['title'] === $routeTitle) {
+                $values[$formName]['routes'][$key]['length'] = $routeLength + 3;
+            }
+        }
+        $client->request($form->getMethod(), $form->getUri(), $values, $form->getPhpFiles());
+
+        $this->assertResponseRedirects('/pozvanky/2010/Zimny-vystup-na-Javorovy-vrch');
+        $client->followRedirect();
+        $this->assertSelectorTextContains('#routes', $routeTitle . ' (dĺžka ' . ($routeLength + 3) . ' km');
+
+        $entityManager->clear();
+        $sharedRoute = $container->get(EventRouteRepository::class)->find($routeId);
+        $this->assertSame($routeLength, $sharedRoute->getLength()); // the chronicle keeps the original route
+        $this->assertCount(0, $sharedRoute->getEventInvitations()->filter(
+            static fn (EventInvitation $other): bool => $other->getSlug() === 'Zimny-vystup-na-Javorovy-vrch',
+        )); // the invitation uses its own copy
     }
 }

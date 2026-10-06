@@ -8,6 +8,7 @@ use App\Entity\EventChronicle;
 use App\Entity\User;
 use App\Repository\EventChronicleRepository;
 use App\Repository\EventRepository;
+use App\Service\SharedRoutes;
 use App\Service\SlugGenerator;
 use App\Form\EventChronicleType;
 use App\Form\SetDateType;
@@ -163,10 +164,8 @@ class EventChronicleController extends AbstractController
             foreach ($firstEvent->getSportType() as $sportType) {
                 $chronicle->addSportType($sportType);
             }
-            if ($firstEvent->getEventChronicle() !== null) {
-                foreach ($firstEvent->getEventChronicle()->getRoutes() as $key => $value) {
-                    $chronicle->addRoute($firstEvent->getEventChronicle()->getRoutes()[$key]);
-                }
+            foreach ($firstEvent->getEventInvitation()?->getRoutes() ?? [] as $route) {
+                $chronicle->addRoute($route);
             }
             $chronicle->setEvent($firstEvent);
         } else { //No parent Event = no additional information
@@ -182,6 +181,7 @@ class EventChronicleController extends AbstractController
         foreach ($chronicle->getRoutes() as $route) {
             $originalRoutes->add($route);
         }
+        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
 
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
@@ -205,6 +205,7 @@ class EventChronicleController extends AbstractController
             $chronicle->setPublish(true);
             $chronicle->setCreatedBy($user);
 
+            $sharedRoutes->copyEditedSharedRoutes($chronicle);
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
@@ -287,6 +288,7 @@ class EventChronicleController extends AbstractController
         foreach ($chronicle->getRoutes() as $route) {
             $originalRoutes->add($route);
         }
+        $sharedRoutes = SharedRoutes::snapshot($originalRoutes);
 
         $form = $this->createForm(EventChronicleType::class, $chronicle);
         $form->handleRequest($request);
@@ -306,6 +308,7 @@ class EventChronicleController extends AbstractController
                 ),
             ));
 
+            $sharedRoutes->copyEditedSharedRoutes($chronicle);
             $entityManager = $doctrine->getManager();
 
             // remove or update SportTypes for Chronicle
