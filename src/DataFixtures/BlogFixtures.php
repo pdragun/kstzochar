@@ -17,6 +17,9 @@ use Doctrine\Persistence\ObjectManager;
 class BlogFixtures extends Fixture implements DependentFixtureInterface
 {
     use SlugTrait;
+
+    public const string BLOG_WITHOUT_START_DATE_REFERENCE = 'blog-without-start-date';
+
     public function load(ObjectManager $manager): void
     {
        
@@ -95,6 +98,22 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
         $blog3->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
         $blog3->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_3_REFERENCE, BlogSection::class));
         $manager->persist($blog3);
+
+        // Multi-day event without a start date, created a year before its planned event
+        $blog4 = new Blog();
+        $blog4->setTitle('Zimný prechod Malej Fatry');
+        $blog4->setSlug($this->createSlug('zimny-prechod-malej-fatry'));
+        $blog4->setSummary('Na prelome rokov sa vyberieme na hrebeň Malej Fatry.');
+        $blog4->setStartDate(null);
+        $blog4->setPublishedAt(null);
+        $blog4->setCreatedAt(new DateTimeImmutable('2011-12-20 18:10:00'));
+        $blog4->setModifiedAt(null);
+        $blog4->setPublish(true);
+        $blog4->setContent('<p>Na prelome rokov sa vyberieme na hrebeň Malej Fatry.</p>');
+        $blog4->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $blog4->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_2_REFERENCE, BlogSection::class));
+        $manager->persist($blog4);
+        $this->addReference(self::BLOG_WITHOUT_START_DATE_REFERENCE, $blog4);
 
         $manager->flush();
     }

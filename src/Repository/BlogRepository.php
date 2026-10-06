@@ -94,15 +94,16 @@ class BlogRepository extends ServiceEntityRepository
         return $clearResults;
     }
 
-    /** @return array<int, list<array<string, mixed>>> Blogs grouped by year of the start date */
+    /** @return array<int, list<array<string, mixed>>> Blogs grouped by year of the start date (or of creation when there is no start date), newest first */
     public function getPreparedByYearStartDate(int $sectionId): array
     {
         $clearResults = [];
         $res = $this->findAllByBlogSectionIdOrderByStartDate($sectionId);
         foreach ($res as $blog) {
-            $year = $blog['startDate']->format('Y');
+            $year = ($blog['startDate'] ?? $blog['createdAt'])->format('Y');
             $clearResults[$year][] = $blog;
         }
+        krsort($clearResults);
 
         return $clearResults;
     }
@@ -111,15 +112,17 @@ class BlogRepository extends ServiceEntityRepository
     public function findBySectionYearSlug(int $sectionId, int $year, string $slug): ?Blog
     {
         return $this->createQueryBuilder('b')
+            ->andWhere('b.section = :sectionId')
             ->andWhere('b.slug = :slug')
             ->andWhere('SUBSTRING(b.createdAt, 1, 4) = :year')
             ->andWhere('b.publish = :publish')
+            ->setParameter('sectionId', $sectionId)
             ->setParameter('slug', $slug)
             ->setParameter('year', $year)
             ->setParameter('publish', 1)
             ->orderBy('b.createdAt', 'ASC')
             ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();        
+            ->getOneOrNullResult();
     }
 }

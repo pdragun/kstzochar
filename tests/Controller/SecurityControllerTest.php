@@ -50,6 +50,19 @@ class SecurityControllerTest extends WebTestCase
         yield ['/logouta'];
     }
 
+    /** Logged-in user sees a logout link on the login page */
+    public function testLoginPageWhenLoggedIn(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $crawler = $client->request('GET', '/login');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('/logout', $crawler->filter('a[href="/logout"]')->attr('href'));
+    }
+
     /** Test admin login */
     public function testLogIn(): void
     {

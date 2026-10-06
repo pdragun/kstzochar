@@ -29,7 +29,7 @@
             <td>{{ event.startDate|date('j. n.') }}{% if event.endDate|length %} – {{ event.endDate|date('j. n.') }}{% endif %}</td>
 
             {% if event.blog is not empty %}
-            <td><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'viacdnove-akcie', year: event.startDate|date('Y'), slug: event.blog.slug}) }}">{{ event.title }}</a></td>
+            <td><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'viacdnove-akcie', year: event.blog.createdAt|date('Y'), slug: event.blog.slug}) }}">{{ event.title }}</a></td>
             {% else %}
             <td>{{ event.title }}</td>
             {% endif %}

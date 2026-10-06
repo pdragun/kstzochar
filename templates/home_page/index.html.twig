@@ -63,7 +63,7 @@
       <p class="hp-header">{{ 'homepage.blog.sectionB.title'|trans }}</p>
       <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionB.description'|trans }}</p>
       {% if latestBlogSectionId2 %}
-        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'z-klubovej-kuchyne', year: latestBlogSectionId2.createdAt|date('Y'), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
+        <p class="hp-header"><a href="{{ path('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: 'viacdnove-akcie', year: latestBlogSectionId2.createdAt|date('Y'), slug: latestBlogSectionId2.slug}) }}">{{ latestBlogSectionId2.title }}</a></p>
         <div class="hp-button"><a href="{{ path('blog_list_by_BlogSectionSlug', {blogSectionSlug: 'viacdnove-akcie'}) }}">{{ 'homepage.blog.sectionB.next'|trans }}</a></div>
       {% else %}
         <p class="no-bottom hp-desc">{{ 'homepage.blog.sectionB.missing'|trans }}</p>
