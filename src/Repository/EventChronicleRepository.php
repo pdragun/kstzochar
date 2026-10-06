@@ -75,4 +75,20 @@ class EventChronicleRepository extends ServiceEntityRepository
 
         return $qb->getResult();
     }
+
+    /** Whether another chronicle from the year (by start date) already uses the slug, published or not */
+    public function slugExists(int $year, string $slug, ?int $excludeId): bool
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.slug = :slug')
+            ->andWhere('SUBSTRING(p.startDate, 1, 4) = :year')
+            ->setParameter('slug', $slug)
+            ->setParameter('year', $year);
+        if ($excludeId !== null) {
+            $qb->andWhere('p.id != :excludeId')->setParameter('excludeId', $excludeId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }

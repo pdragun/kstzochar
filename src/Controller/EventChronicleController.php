@@ -8,6 +8,7 @@ use App\Entity\EventChronicle;
 use App\Entity\User;
 use App\Repository\EventChronicleRepository;
 use App\Repository\EventRepository;
+use App\Service\SlugGenerator;
 use App\Form\EventChronicleType;
 use App\Form\SetDateType;
 use DateTimeImmutable;
@@ -22,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /** Stories about past events */
@@ -144,6 +144,8 @@ class EventChronicleController extends AbstractController
         string $date,
         Request $request,
         EventRepository $eventRepository,
+        EventChronicleRepository $eventChronicleRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
@@ -189,9 +191,14 @@ class EventChronicleController extends AbstractController
             /** @var EventChronicle $chronicle */
             $chronicle = $form->getData();
             $now = new DateTimeImmutable();
-            $slugger = new AsciiSlugger();
-            $slug = $slugger->slug($chronicle->getTitle());
-            $chronicle->setSlug($slug);
+            $chronicle->setSlug($slugGenerator->uniqueSlug(
+                $chronicle->getTitle(),
+                fn (string $slug): bool => $eventChronicleRepository->slugExists(
+                    (int) $chronicle->getStartDate()->format('Y'),
+                    $slug,
+                    $chronicle->getId(),
+                ),
+            ));
             $chronicle->setPublishedAt($now);
             $chronicle->setCreatedAt($now);
             $chronicle->setModifiedAt($now);
@@ -261,6 +268,7 @@ class EventChronicleController extends AbstractController
         string $slug,
         Request $request,
         EventChronicleRepository $eventChronicleRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
@@ -289,9 +297,14 @@ class EventChronicleController extends AbstractController
             /** @var EventChronicle $chronicle */
             $chronicle = $form->getData();
             $chronicle->setModifiedAt(new DateTimeImmutable());
-            $slugger = new AsciiSlugger();
-            $slug = $slugger->slug($chronicle->getTitle());
-            $chronicle->setSlug($slug);
+            $chronicle->setSlug($slugGenerator->uniqueSlug(
+                $chronicle->getTitle(),
+                fn (string $slug): bool => $eventChronicleRepository->slugExists(
+                    (int) $chronicle->getStartDate()->format('Y'),
+                    $slug,
+                    $chronicle->getId(),
+                ),
+            ));
 
             $entityManager = $doctrine->getManager();
 

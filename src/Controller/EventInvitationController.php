@@ -10,6 +10,7 @@ use App\Form\EventInvitationType;
 use App\Form\SetDateType;
 use App\Repository\EventRepository;
 use App\Repository\EventInvitationRepository;
+use App\Service\SlugGenerator;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -22,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /** Invitation to event */
@@ -156,6 +156,8 @@ class EventInvitationController extends AbstractController
         string $date,
         Request $request,
         EventRepository $eventRepository,
+        EventInvitationRepository $eventInvitationRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
@@ -199,9 +201,14 @@ class EventInvitationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var EventInvitation $invitation */
             $invitation = $form->getData();
-            $slugger = new AsciiSlugger();
-            $slug = $slugger->slug($invitation->getTitle());
-            $invitation->setSlug($slug);
+            $invitation->setSlug($slugGenerator->uniqueSlug(
+                $invitation->getTitle(),
+                fn (string $slug): bool => $eventInvitationRepository->slugExists(
+                    (int) $invitation->getStartDate()->format('Y'),
+                    $slug,
+                    $invitation->getId(),
+                ),
+            ));
             $now = new DateTimeImmutable();
             $invitation->setPublishedAt($now);
             $invitation->setCreatedAt($now);
@@ -272,6 +279,7 @@ class EventInvitationController extends AbstractController
         string $slug,
         Request $request,
         EventInvitationRepository $eventInvitationRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
@@ -298,9 +306,14 @@ class EventInvitationController extends AbstractController
             /** @var EventInvitation $invitation */
             $invitation = $form->getData();
             $invitation->setModifiedAt(new DateTimeImmutable());
-            $slugger = new AsciiSlugger();
-            $slug = $slugger->slug($invitation->getTitle());
-            $invitation->setSlug($slug);
+            $invitation->setSlug($slugGenerator->uniqueSlug(
+                $invitation->getTitle(),
+                fn (string $slug): bool => $eventInvitationRepository->slugExists(
+                    (int) $invitation->getStartDate()->format('Y'),
+                    $slug,
+                    $invitation->getId(),
+                ),
+            ));
 
             $entityManager = $doctrine->getManager();
 

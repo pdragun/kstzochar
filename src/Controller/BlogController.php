@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
 use App\Repository\BlogSectionRepository;
+use App\Service\SlugGenerator;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
@@ -20,7 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class BlogController extends AbstractController
@@ -106,7 +106,9 @@ class BlogController extends AbstractController
     public function createBlog(
         string $blogSectionSlug,
         Request $request,
+        BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
         #[CurrentUser] User $user,
@@ -135,10 +137,15 @@ class BlogController extends AbstractController
             /** @var Blog $blog */
             $blog = $form->getData();
             $now = new DateTimeImmutable();
-            $slugger = new AsciiSlugger();
-
-            $slug = $slugger->slug($blog->getTitle());
-            $blog->setSlug($slug);
+            $blog->setSlug($slugGenerator->uniqueSlug(
+                $blog->getTitle(),
+                fn (string $slug): bool => $blogRepository->slugExists(
+                    $blogSection->getId(),
+                    (int) $now->format('Y'),
+                    $slug,
+                    $blog->getId(),
+                ),
+            ));
             $blog->setPublishedAt($now);
             $blog->setCreatedAt($now);
             $blog->setModifiedAt($now);
@@ -199,6 +206,7 @@ class BlogController extends AbstractController
         Request $request,
         BlogRepository $blogRepository,
         BlogSectionRepository $blogSectionRepository,
+        SlugGenerator $slugGenerator,
         ManagerRegistry $doctrine,
         CacheItemPoolInterface $contentCache,
     ): RedirectResponse|Response {
@@ -231,9 +239,15 @@ class BlogController extends AbstractController
 
             /** @var Blog $blog */
             $blog = $form->getData();
-            $slugger = new AsciiSlugger();
-            $slug = $slugger->slug($blog->getTitle());
-            $blog->setSlug($slug);
+            $blog->setSlug($slugGenerator->uniqueSlug(
+                $blog->getTitle(),
+                fn (string $slug): bool => $blogRepository->slugExists(
+                    $blogSection->getId(),
+                    (int) $blog->getCreatedAt()->format('Y'),
+                    $slug,
+                    $blog->getId(),
+                ),
+            ));
             $blog->setModifiedAt(new DateTimeImmutable());
 
             $entityManager = $doctrine->getManager();
