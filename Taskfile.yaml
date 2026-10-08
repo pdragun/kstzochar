@@ -37,8 +37,8 @@ tasks:
             - docker compose down --remove-orphans
             - docker compose up -d --build --remove-orphans --wait
 
-    # There are no migrations, so the schema is recreated from the entities. Recreating it (rather than only
-    # loading fixtures) also resets auto-increment ids, which the tests depend on.
+    # Drop every table (including doctrine_migration_versions) and rebuild the schema with the migrations.
+    # Recreating it (rather than only loading fixtures) also resets auto-increment ids, which the tests depend on.
     app:db:reset:
         desc: 'Drop and recreate the database schema, then load fixtures (APP_ENV=test task dbr for the test DB)'
         aliases: [dbr]
@@ -54,7 +54,7 @@ tasks:
                   COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:schema:drop --force --full-database
             - task: docker:exec
               vars:
-                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:schema:create
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:migrations:migrate --no-interaction
             - task: docker:exec
               vars:
                   COMMAND: bin/console --env={{default "dev" .APP_ENV}} doctrine:fixtures:load --no-interaction
