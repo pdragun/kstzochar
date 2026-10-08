@@ -2,6 +2,9 @@
 
 {% block title %}{{ invitation.title }} - {{ 'templates.eventInvitation.showEventInvitationByYearBySlug.title'|trans }} - {% endblock %}
 {% block description %}{{invitation.summary}}{% endblock %}
+{% block head %}
+    <script type="application/ld+json">{{ event_json_ld(invitation) }}</script>
+{% endblock %}
 
 {% block body %}
 {% if is_granted('ROLE_ADMIN') %}
@@ -49,7 +52,10 @@
 {% endif %}
 <div class="h-event">
     <h1 class="p-name">{{ invitation.title }}</h1>
-    <p id="start-date">Dátum konania: <strong class="dt-start" datetime="{{ invitation.startDate|date('c') }}">{{ invitation.startDate|date('j. n. Y') }}</strong>.</p>
+    <data class="u-url" value="{{ invitation_url(invitation) }}"></data>
+    <data class="p-summary" value="{{ invitation.summary }}"></data>
+    <p id="start-date">Dátum konania: <strong><time class="dt-start" datetime="{{ invitation.startDate|event_iso_date }}">{{ invitation.startDate|date('j. n. Y') }}</time></strong>
+        {%- if invitation.endDate %} – <strong><time class="dt-end" datetime="{{ invitation.endDate|event_iso_date }}">{{ invitation.endDate|date('j. n. Y') }}</time></strong>{% endif %}.</p>
     {% if invitation.location %}
         {% set location = invitation.location %}
         <p id="start-location">{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.location'|trans }}:

@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8">
     <title>{% block title %} {% endblock %}{{ 'base.title'|trans }}</title>
-    <meta name="description" content="{% block description %}{{ 'base.description'|trans }}<{% endblock %}">
+    <meta name="description" content="{% block description %}{{ 'base.description'|trans }}{% endblock %}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% block head %}{% endblock %}
     {% block stylesheets %}
         {{ encore_entry_link_tags('css/app') }}
     {% endblock %}
