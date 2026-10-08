@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Twig;
 
+use App\Entity\Article;
+use App\Entity\Blog;
 use App\Entity\EventInvitation;
 use App\Entity\Location;
+use App\Entity\User;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -18,7 +21,7 @@ use Twig\Attribute\AsTwigFunction;
 /** schema.org structured data as JSON-LD */
 class StructuredDataExtension
 {
-    /** Dates are stored as the wall-clock time the admin typed, in the club's timezone */
+    /** Event dates are stored as the wall-clock time the admin typed, in the club's timezone */
     private const string TIMEZONE = 'Europe/Bratislava';
 
     public function __construct(
@@ -74,12 +77,43 @@ class StructuredDataExtension
             'eventStatus' => 'https://schema.org/EventScheduled',
             'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
             'location' => $location === null ? null : $this->place($location),
-            'organizer' => [
-                '@type' => 'Organization',
-                'name' => $this->translator->trans('base.title'),
-                'url' => $this->urlGenerator->generate('home_page', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            ],
+            'organizer' => $this->club(),
         ]));
+    }
+
+    /** BlogPosting for a blog post, Article for a chronicle; $url is the absolute URL of its detail page */
+    #[AsTwigFunction('article_json_ld', isSafe: ['html'])]
+    public function articleJsonLd(Article $article, string $url): string
+    {
+        $published = self::publishedAt($article);
+        $modified = $article->getModifiedAt();
+
+        return $this->encode(self::withoutNulls([
+            '@context' => 'https://schema.org',
+            '@type' => $article instanceof Blog ? 'BlogPosting' : 'Article',
+            'headline' => $article->getTitle(),
+            'description' => trim(strip_tags((string) $article->getSummary())),
+            'url' => $url,
+            'mainEntityOfPage' => $url,
+            'author' => ['@type' => 'Person', 'name' => $this->author($article)?->getDisplayName()],
+            'datePublished' => $published === null ? null : $this->isoTimestamp($published),
+            'dateModified' => $modified === null ? null : $this->isoTimestamp($modified),
+            'publisher' => $this->club(),
+        ]));
+    }
+
+    /** Who wrote the article: the author when set, otherwise who entered it */
+    #[AsTwigFunction('article_author')]
+    public function author(Article $article): ?User
+    {
+        return $article->getAuthorBy() ?? $article->getCreatedBy();
+    }
+
+    /** When the article was published; entries published before publishedAt existed fall back to createdAt */
+    #[AsTwigFunction('article_published_at')]
+    public static function publishedAt(Article $article): ?DateTimeImmutable
+    {
+        return $article->getPublishedAt() ?? $article->getCreatedAt();
     }
 
     /**
@@ -96,6 +130,18 @@ class StructuredDataExtension
         return new DateTimeImmutable($date->format('Y-m-d H:i:s'), new DateTimeZone(self::TIMEZONE))->format(DATE_ATOM);
     }
 
+    /**
+     * ISO 8601 date-time in the club's timezone for a timestamp (createdAt, publishedAt, ...),
+     * which PHP creates and stores in UTC
+     */
+    #[AsTwigFilter('iso_timestamp')]
+    public function isoTimestamp(DateTimeInterface $timestamp): string
+    {
+        return new DateTimeImmutable($timestamp->format('Y-m-d H:i:s'), new DateTimeZone('UTC'))
+            ->setTimezone(new DateTimeZone(self::TIMEZONE))
+            ->format(DATE_ATOM);
+    }
+
     /** Absolute URL of the invitation's detail page */
     #[AsTwigFunction('invitation_url')]
     public function invitationUrl(EventInvitation $invitation): string
@@ -105,6 +151,16 @@ class StructuredDataExtension
             ['year' => $invitation->getStartDate()?->format('Y'), 'slug' => $invitation->getSlug()],
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
+    }
+
+    /** @return array<string, string> */
+    private function club(): array
+    {
+        return [
+            '@type' => 'Organization',
+            'name' => $this->translator->trans('base.title'),
+            'url' => $this->urlGenerator->generate('home_page', [], UrlGeneratorInterface::ABSOLUTE_URL),
+        ];
     }
 
     /** @return array<string, mixed> */

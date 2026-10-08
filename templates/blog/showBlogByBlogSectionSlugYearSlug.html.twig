@@ -2,6 +2,10 @@
 
 {% block title %}{{ blog.title }} - {% endblock %}
 {% block description %}{{ blog.summary }}{% endblock %}
+{% set blogUrl = url('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSection.slug, year: year, slug: blog.slug}) %}
+{% block head %}
+    <script type="application/ld+json">{{ article_json_ld(blog, blogUrl) }}</script>
+{% endblock %}
 
 {% block body %}
 {% if is_granted('ROLE_ADMIN') %}
@@ -45,6 +49,13 @@
   </div>
 </div>
 {% endif %}
-    <h1>{{ blog.title }}</h1>
+<article class="h-entry">
+    <h1 class="p-name">{{ blog.title }}</h1>
+    <data class="u-url" value="{{ blogUrl }}"></data>
+    <data class="p-summary" value="{{ blog.summary }}"></data>
+    {{ include('_article_byline.html.twig', {article: blog}) }}
+    <div class="e-content">
     {{ blog.content|raw }}
+    </div>
+</article>
 {% endblock %}

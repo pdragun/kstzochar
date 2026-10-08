@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventChronicleRepository::class)]
 #[ORM\Table(name: 'event_chronicle')]
-class EventChronicle implements EventContent
+class EventChronicle implements EventContent, Article
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

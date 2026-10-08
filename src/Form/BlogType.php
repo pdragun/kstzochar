@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\User;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
 /** @extends AbstractType<Blog> */
@@ -67,7 +70,20 @@ class BlogType extends AbstractType
                     'expanded' => true,
                 ],
             )
-            // ->add('authorBy')
+            ->add(
+                'authorBy',
+                EntityType::class,
+                [
+                    'class' => User::class,
+                    'choice_label' => 'displayName',
+                    'label' => 'form.blogType.authorBy',
+                    'placeholder' => 'form.authorByNone',
+                    'required' => false,
+                    'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository
+                        ->createQueryBuilder('u')
+                        ->orderBy('u.displayName', 'ASC'),
+                ],
+            )
             ->add(
                 'save',
                 SubmitType::class,

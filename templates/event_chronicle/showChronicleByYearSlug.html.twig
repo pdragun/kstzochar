@@ -2,6 +2,10 @@
 
 {% block title %}{{ chronicle.title }} - {{ 'chronicle.chronicle'|trans }}  - {% endblock %}
 {% block description %}{{ chronicle.summary }}{% endblock %}
+{% set chronicleUrl = url('chronicle_show_by_Year_Slug', {year: chronicle.startDate|date('Y'), slug: chronicle.slug}) %}
+{% block head %}
+    <script type="application/ld+json">{{ article_json_ld(chronicle, chronicleUrl) }}</script>
+{% endblock %}
 
 
 {% block body %}
@@ -36,7 +40,11 @@
 </div>
 {% endif %}
 
-    <h1>{{ chronicle.title }}</h1>
+<article class="h-entry">
+    <h1 class="p-name">{{ chronicle.title }}</h1>
+    <data class="u-url" value="{{ chronicleUrl }}"></data>
+    <data class="p-summary" value="{{ chronicle.summary }}"></data>
+    {{ include('_article_byline.html.twig', {article: chronicle}) }}
 
     {% if chronicle.endDate is empty %}
         <p>Dátum konania: <b id="start-date">{{ chronicle.startDate|date("j. n. Y") }}</b></p>
@@ -58,11 +66,14 @@
         <div id="routes"><p><b>{{ 'route.route'|trans }}:</b> {{chronicle.routes[0].title}} ({{ 'route.length'|trans }} {{chronicle.routes[0].length}} km{% if chronicle.routes[0].elevation is not empty %}, {{ 'route.elevation'|trans }} {{chronicle.routes[0].elevation}} m{% endif %}).</p></div>
     {% endif %}
 
+    <div class="e-content">
     {{ chronicle.content|raw }}
+    </div>
 
-{% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}    
+{% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}
     <p><a href="{{chronicle.photoAlbumG}}"><strong>{{ 'photoAlbum.description'|trans }} {{ chronicle.title }}.</strong></a></p>
 {% endif %}
+</article>
 
 
 {% endblock %}

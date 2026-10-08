@@ -1,0 +1,7 @@
+{# Author and publication date of an article (blog post or chronicle), marked up for its h-entry #}
+{% set author = article_author(article) %}
+{% set published = article_published_at(article) %}
+<p class="byline text-muted">
+    {{- 'article.author'|trans }}: <span class="p-author h-card">{{ author ? author.displayName }}</span>
+    {%- if published %} · <time class="dt-published" datetime="{{ published|iso_timestamp }}">{{ published|date('j. n. Y', 'Europe/Bratislava') }}</time>{% endif -%}
+</p>

@@ -47,6 +47,8 @@ photoAlbum:
   description: Fotografie z podujatia
 chronicle:
   chronicle: Kronika
+article:
+  author: Autor
 homepage:
   plan:
     title: Plán na celý rok
@@ -138,6 +140,7 @@ form:
     content: 'Text článku:'
     startDate: 'Dátum konania (od):'
     sportType: 'Typ presunu:'
+    authorBy: 'Autor:'
     save: Uložiť článok
   eventInvitationType:
     title: 'Nadpis:'
@@ -178,7 +181,9 @@ form:
     photoAlbumG: 'Odkaz na Google Photos:'
     sportType: 'Typ presunu:'
     routes: 'Trasa/y:'
+    authorBy: 'Autor:'
     save: 'Uložiť kroniku'
+  authorByNone: '— ten, kto článok vytvoril —'
   setDateType:
     startDate: Dátum konania podujatia
 templates:
