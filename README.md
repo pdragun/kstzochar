@@ -32,11 +32,15 @@ docker compose up --wait     # https://localhost (accept the self-signed certifi
 
 # ports 80/443/3311 already taken? e.g. HTTP_PORT=8080 HTTPS_PORT=8443 HTTP3_PORT=8443 docker compose up --wait
 
-# first run: create schema (there are no migrations) and load fixtures, for dev and test DB
-docker compose exec php bin/console doctrine:schema:create
+# first run: the php container runs the migrations on the dev DB when it starts; load fixtures,
+# and migrate and load the test DB
 docker compose exec php bin/console doctrine:fixtures:load -n
-docker compose exec php bin/console --env=test doctrine:schema:create
+docker compose exec php bin/console --env=test doctrine:migrations:migrate -n
 docker compose exec php bin/console --env=test doctrine:fixtures:load -n
+
+# after changing an entity: generate a migration, review it, run it
+docker compose exec php bin/console doctrine:migrations:diff
+docker compose exec php bin/console doctrine:migrations:migrate
 
 docker compose exec php bin/phpunit
 docker compose exec php vendor/bin/phpstan analyse
