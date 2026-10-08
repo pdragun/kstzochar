@@ -2,22 +2,39 @@
 <html lang="sk-SK">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %} {% endblock %}{{ 'base.title'|trans }}</title>
-    <meta name="description" content="{% block description %}{{ 'base.description'|trans }}{% endblock %}">
+{# page_title is the child's title block without the trailing " - " separator; the block output is already escaped, so raw keeps trim() from escaping it again #}
+{% set page_title %}{% apply trim(' -')|raw %}{% block title %}{% endblock %}{% endapply %}{% endset %}
+{% set page_description %}{% block description %}{{ 'base.description'|trans }}{% endblock %}{% endset %}
+{% set canonical_route = app.request.attributes.get('_route') %}
+    <title>{% if page_title|length %}{{ page_title }} - {% endif %}{{ 'base.title'|trans }}</title>
+    <meta name="description" content="{{ page_description }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% if canonical_route %}
+{# detail pages override canonical_url with the entry's own URL, because slugs match case-insensitively #}
+{% set canonical_url %}{% block canonical_url %}{{ url(canonical_route, app.request.attributes.get('_route_params')) }}{% endblock %}{% endset %}
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+{% endif %}
+    <meta property="og:site_name" content="{{ 'base.title'|trans }}">
+    <meta property="og:locale" content="sk_SK">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{{ page_title|length ? page_title : 'base.title'|trans }}">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta name="twitter:card" content="summary">
     {% block head %}{% endblock %}
     {% block stylesheets %}
         {{ encore_entry_link_tags('css/app') }}
     {% endblock %}
     <link rel="icon" type="image/svg+xml" href="{{ asset('build/images/favicon.svg') }}">
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86981778-1"></script>
+{% if ga_measurement_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id|url_encode }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'UA-86981778-1');
+        gtag('config', '{{ ga_measurement_id|e('js') }}');
     </script>
+{% endif %}
 </head>
 <body>
 <div class="container">
@@ -30,7 +47,7 @@
             <p class="subtitle">{{ 'base.subtitle'|trans }}</p>
         </div>
     </div>
-    {%- if homepage is not defined %}
+{% if homepage is not defined %}
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
                 {{- knp_menu_render('main', {
                     'currentClass': 'active',
@@ -39,7 +56,7 @@
                     'template': 'extended_knp_menu.html.twig'
                 }) }}
         </nav>
-    {%- endif %}
+{% endif %}
 
     <div class="wrapper">
 
