@@ -146,7 +146,22 @@ form:
     startDate: 'Dátum konania (od):'
     endDate: 'Dátum konania (do):'
     sportType: 'Typ presunu:'
+    location: 'Miesto stretnutia:'
+    locationNone: '— bez miesta —'
+    newLocation: Nové miesto stretnutia
+    newLocationHelp: Vyplň, len ak miesto nie je v zozname.
+    addNewLocation: + pridať nové miesto
     save: Uložiť pozvánku
+  locationType:
+    name: 'Názov miesta:'
+    addressLocality: 'Obec / mesto:'
+    addressCountry: 'Krajina:'
+    streetAddress: 'Ulica a číslo:'
+    postalCode: 'PSČ:'
+    addressRegion: 'Kraj:'
+    latitude: 'Zemepisná šírka:'
+    longitude: 'Zemepisná dĺžka:'
+    coordinatesHelp: napr. 48.557700, z mapy.cz alebo Google Maps
   eventRouteType:
     title: 'Trasa:'
     length: 'Dĺžka (v km):'
@@ -179,3 +194,4 @@ templates:
       add: Pridať novú pozvánku
       edit: Upraviť túto
       delete: Zmazať túto
+      location: Miesto stretnutia

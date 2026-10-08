@@ -85,6 +85,10 @@ class EventInvitation implements EventContent
     #[Assert\Valid]
     private Collection $routes;
 
+    #[ORM\ManyToOne(targetEntity: Location::class, inversedBy: 'eventInvitations', cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Location $location = null;
+
     public function __construct()
     {
          $this->sportType = new ArrayCollection();
@@ -313,6 +317,18 @@ class EventInvitation implements EventContent
         if ($this->routes->contains($route)) {
             $this->routes->removeElement($route);
         }
+
+        return $this;
+    }
+
+    public function getLocation(): ?Location
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?Location $location): self
+    {
+        $this->location = $location;
 
         return $this;
     }

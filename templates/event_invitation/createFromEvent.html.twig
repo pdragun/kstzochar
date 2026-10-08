@@ -5,9 +5,12 @@
 
 {% block body %}
     <h1>{{invitationTitle}}</h1>
-    {{ form(form) }}
+    {{ form_start(form, {attr: {'data-new-location-label': 'form.eventInvitationType.addNewLocation'|trans}}) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
 {% endblock %}
 
 {% block javascripts %}
     {{ encore_entry_script_tags('a2lixSfCollection') }}
+    {{ encore_entry_script_tags('newLocation') }}
 {% endblock %}
