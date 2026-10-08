@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cookies.title'|trans }} - {% endblock %}
+{% block description %}{{ 'cookies.description'|trans }}{% endblock %}
+
+{% block body %}
+<h1>Cookies</h1>
+<p>Cookies sú malé súbory, ktoré si web ukladá vo vašom prehliadači.</p>
+
+<h2>Nevyhnutné cookies</h2>
+<p>Bez nich by web nefungoval, preto na ne nepotrebujeme súhlas:</p>
+<ul>
+    <li><strong>PHPSESSID</strong> – prihlásenie správcov webu, platí do zatvorenia prehliadača,</li>
+{% if ga_measurement_id %}
+    <li><strong>cookie_consent</strong> – zapamätá si, či ste so štatistickými cookies súhlasili, platí 6 mesiacov.</li>
+{% endif %}
+</ul>
+
+{% if ga_measurement_id %}
+<h2>Štatistické cookies</h2>
+<p>Ak súhlasíte, používame <a href="https://marketingplatform.google.com/about/analytics/">Google Analytics</a> od spoločnosti Google, aby sme vedeli, koľko ľudí web navštevuje a ktoré stránky čítajú. Google Analytics ukladá tieto cookies:</p>
+<ul>
+    <li><strong>_ga</strong> – rozlíšenie návštevníkov, platí 2 roky,</li>
+    <li><strong>_ga_{{ ga_measurement_id|replace({'G-': ''}) }}</strong> – stav návštevy, platí 2 roky.</li>
+</ul>
+<p>Bez súhlasu sa Google Analytics nenačíta a web funguje rovnako. Ako Google tieto údaje spracúva, popisujú <a href="https://policies.google.com/technologies/partner-sites?hl=sk">zásady spoločnosti Google</a>.</p>
+
+<h2>Zmena súhlasu</h2>
+<p>Súhlas môžete kedykoľvek zmeniť alebo odvolať; po odvolaní štatistické cookies zmažeme.</p>
+<p><button type="button" class="btn btn-primary btn-sm" data-cookie-settings hidden>{{ 'cookies.settings'|trans }}</button></p>
+<noscript><p>Bez JavaScriptu sa Google Analytics nikdy nenačíta.</p></noscript>
+{% else %}
+<p>Iné cookies web nepoužíva.</p>
+{% endif %}
+
+<p>Ak máte otázky, napíšte nám, kontakt nájdete na stránke <a href="{{ path('contact') }}">Kontakt</a>.</p>
+{% endblock %}

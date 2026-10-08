@@ -32,6 +32,7 @@ class SitemapControllerTest extends WebTestCase
             '/plan',
             '/blog',
             '/kontakt',
+            '/cookies',
             '/pozvanky/2010',
             '/pozvanky/2011',
             '/kronika/2010',
