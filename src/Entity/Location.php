@@ -63,6 +63,7 @@ class Location
 
     /** @var Collection<int, EventInvitation> */
     #[ORM\OneToMany(targetEntity: EventInvitation::class, mappedBy: 'location')]
+    #[ORM\OrderBy(['startDate' => 'DESC'])]
     private Collection $eventInvitations;
 
     public function __construct()

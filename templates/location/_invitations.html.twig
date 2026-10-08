@@ -1,0 +1,13 @@
+{% set invitations = location.eventInvitations %}
+<div id="location-invitations">
+{% if invitations is empty %}
+    <p>{{ 'templates.location.edit.noInvitations'|trans }}</p>
+{% else %}
+    <p>{{ 'templates.location.edit.invitations'|trans({'%count%': invitations|length}) }}</p>
+    <ul>
+    {% for invitation in invitations %}
+        <li><a href="{{ path('invitation_show_by_Year_by_Slug', {year: invitation.startDate|date('Y'), slug: invitation.slug}) }}">{{ invitation.title }}</a> ({{ invitation.startDate|date('j. n. Y') }})</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+</div>

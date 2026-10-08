@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}{{ location.name }} - {{ 'templates.location.list.title'|trans }} - {% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('location_list') }}">{{ 'templates.location.back'|trans }}</a></p>
+    <h1>{{ 'templates.location.edit.title'|trans }}</h1>
+    {{ include('location/_invitations.html.twig') }}
+    {{ form(form) }}
+    <hr>
+    <p>
+        <a class="btn btn-secondary btn-sm" href="{{ path('location_merge', {id: location.id}) }}" role="button">{{ 'templates.location.edit.merge'|trans }}</a>
+        {% if location.eventInvitations is empty %}
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete">{{ 'templates.location.edit.delete'|trans }}</button>
+        {% endif %}
+    </p>
+    {% if location.eventInvitations is empty %}
+    <div class="modal fade" id="delete" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">{{ 'templates.location.delete.title'|trans }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavrieť"></button>
+          </div>
+          <div class="modal-body">{{ 'templates.location.delete.body'|trans({'%name%': location.name}) }}</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'templates.location.delete.no'|trans }}</button>
+            <form class="d-inline" method="post" action="{{ path('location_delete', {id: location.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-location-' ~ location.id) }}">
+                <button type="submit" class="btn btn-danger">{{ 'templates.location.delete.yes'|trans }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+        <p class="text-muted">{{ 'templates.location.edit.deleteUsed'|trans }}</p>
+    {% endif %}
+{% endblock %}

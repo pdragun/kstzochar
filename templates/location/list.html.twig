@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'templates.location.list.title'|trans }} - {% endblock %}
+
+{% block body %}
+    <h1>{{ 'templates.location.list.title'|trans }}</h1>
+    <p>{{ 'templates.location.list.intro'|trans }}</p>
+    {% if locations is empty %}
+        <p>{{ 'templates.location.list.empty'|trans }}</p>
+    {% else %}
+        <table class="table table-sm" id="locations">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'templates.location.list.name'|trans }}</th>
+                    <th scope="col">{{ 'templates.location.list.locality'|trans }}</th>
+                    <th scope="col">{{ 'templates.location.list.invitations'|trans }}</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in locations %}
+                <tr>
+                    <td>{{ row.location.name }}</td>
+                    <td>{{ row.location.addressLocality }}</td>
+                    <td>{{ row.invitationCount }}</td>
+                    <td><a class="btn btn-primary btn-sm" href="{{ path('location_edit', {id: row.location.id}) }}">{{ 'templates.location.list.edit'|trans }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}{{ location.name }} - {{ 'templates.location.list.title'|trans }} - {% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('location_edit', {id: location.id}) }}">{{ 'templates.location.merge.back'|trans }}</a></p>
+    <h1>{{ 'templates.location.merge.title'|trans }}</h1>
+    <p>{{ 'templates.location.merge.intro'|trans({'%name%': location.name}) }}</p>
+    {{ include('location/_invitations.html.twig') }}
+    {{ form(form) }}
+{% endblock %}
