@@ -53,3 +53,12 @@ The php container runs as root, so files it creates on Linux (e.g. by `composer`
 `docker compose exec php chown -R $(id -u):$(id -g) .`
 
 Production image: `docker compose -f compose.yaml -f compose.prod.yaml build`.
+
+## Production
+
+Production runs on shared hosting, without Docker (the Docker setup is only for local development). After uploading a release, apply new migrations:
+
+- With a shell: `APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction`.
+- Without one (phpMyAdmin): generate the SQL locally with `bin/console doctrine:migrations:migrate --write-sql=prod.sql` against a copy of the production database, run it, and record each applied migration, e.g. `INSERT INTO doctrine_migration_versions (version, executed_at, execution_time) VALUES ('DoctrineMigrations\\Version20261008190100', NOW(), 0);`.
+
+The baseline migration `Version20000101000000` contains the schema from before migrations were introduced; on a database that already has it (production), it changes nothing and is only recorded.
