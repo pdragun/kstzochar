@@ -28,6 +28,7 @@ final readonly class SitemapBuilder
         'plan',
         'blog',
         'contact',
+        'cookies',
     ];
 
     public function __construct(

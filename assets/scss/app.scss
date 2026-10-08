@@ -69,6 +69,37 @@ footer p {
   font-size: 80%;
 }
 
+footer .btn-link {
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  vertical-align: baseline;
+}
+
+.cookie-consent {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  padding: 0.75rem 15px;
+  background-color: #ffcc00;
+  border-top: 1px solid black;
+  text-align: center;
+}
+
+.cookie-consent p {
+  margin: 0 0 0.5rem;
+}
+
+.cookie-consent .cookie-consent-buttons {
+  margin: 0;
+}
+
+.cookie-consent .btn + .btn {
+  margin-left: 0.5rem;
+}
+
 .hp-main {
   background-color: yellow;
 }

@@ -26,15 +26,6 @@
         {{ encore_entry_link_tags('css/app') }}
     {% endblock %}
     <link rel="icon" type="image/svg+xml" href="{{ asset('build/images/favicon.svg') }}">
-{% if ga_measurement_id %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id|url_encode }}"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ ga_measurement_id|e('js') }}');
-    </script>
-{% endif %}
 </head>
 <body>
 <div class="container">
@@ -92,8 +83,15 @@
     <footer>
         <p class="no-bottom">{{ 'base.footer1'|trans }}</p>
         <p>{{ 'base.footer2'|trans }}</p>
+        <p><a href="{{ path('cookies') }}">{{ 'cookies.footer'|trans }}</a>
+            {%- if ga_measurement_id %} · <button type="button" class="btn btn-link" data-cookie-settings hidden>{{ 'cookies.settings'|trans }}</button>{% endif %}</p>
     </footer>
 </div>
+{% if ga_measurement_id %}
+    {{ include('_cookie_consent.html.twig') }}
+    {# outside the javascripts block, which some pages override without parent() #}
+    {{ encore_entry_script_tags('cookieConsent') }}
+{% endif %}
 {% block javascripts %}
     {{ encore_entry_script_tags('app') }}
 {% endblock %}

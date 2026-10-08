@@ -38,6 +38,17 @@ menu:
       slug: receptury-na-tury
       shortcut: Recepty
   contact: Kontakt
+cookies:
+  footer: Cookies
+  settings: Nastavenia cookies
+  title: Cookies
+  description: Aké cookies používa web KST Žochár Topoľčany a ako môžete zmeniť svoj súhlas so štatistickými cookies.
+  banner:
+    label: Súhlas s cookies
+    text: Ak súhlasíte, použijeme Google Analytics, aby sme vedeli, ktoré stránky čítate. Bez súhlasu web funguje rovnako.
+    more: Viac o cookies
+    accept: Súhlasím
+    decline: Nesúhlasím
 route:
   length: dĺžka
   elevation: prevýšenie

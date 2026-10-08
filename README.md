@@ -61,6 +61,6 @@ Production runs on shared hosting, without Docker (the Docker setup is only for 
 - With a shell: `APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction`.
 - Without one (phpMyAdmin): generate the SQL locally with `bin/console doctrine:migrations:migrate --write-sql=prod.sql` against a copy of the production database, run it, and record each applied migration, e.g. `INSERT INTO doctrine_migration_versions (version, executed_at, execution_time) VALUES ('DoctrineMigrations\\Version20261008190100', NOW(), 0);`.
 
-Google Analytics only runs where `GA_MEASUREMENT_ID` is set (a GA4 ID like `G-XXXXXXXXXX`). It is empty in `.env`, so dev and test send nothing; on production set it in `.env.local` next to `DATABASE_URL` and `APP_SECRET`, otherwise the site runs without tracking.
+Google Analytics only runs where `GA_MEASUREMENT_ID` is set (a GA4 ID like `G-XXXXXXXXXX`). It is empty in `.env`, so dev and test send nothing; on production set it in `.env.local` next to `DATABASE_URL` and `APP_SECRET`, otherwise the site runs without tracking. With an ID set, a cookie banner asks for consent first, and Google Analytics is loaded only after the visitor accepts (`assets/js/cookieConsent.js`); `/cookies` lists the cookies the site uses.
 
 The baseline migration `Version20000101000000` contains the schema from before migrations were introduced; on a database that already has it (production), it changes nothing and is only recorded.

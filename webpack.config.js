@@ -23,6 +23,7 @@ Encore
     .addEntry('app', './assets/js/app.js')
     .addEntry('a2lixSfCollection', './assets/js/a2lixSfCollection.js')
     .addEntry('newLocation', './assets/js/newLocation.js')
+    .addEntry('cookieConsent', './assets/js/cookieConsent.js')
     .addStyleEntry('css/app', ['./assets/scss/app.scss'])
 
     .copyFiles([

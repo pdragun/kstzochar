@@ -1,0 +1,8 @@
+{# Cookie banner; cookieConsent.js shows it until the visitor accepts or declines, and loads Google Analytics only after consent #}
+<div class="cookie-consent" id="cookie-consent" data-ga-id="{{ ga_measurement_id }}" role="region" aria-label="{{ 'cookies.banner.label'|trans }}" hidden>
+    <p>{{ 'cookies.banner.text'|trans }} <a href="{{ path('cookies') }}">{{ 'cookies.banner.more'|trans }}</a></p>
+    <p class="cookie-consent-buttons">
+        <button type="button" class="btn btn-dark btn-sm" data-cookie-consent="granted">{{ 'cookies.banner.accept'|trans }}</button>
+        <button type="button" class="btn btn-dark btn-sm" data-cookie-consent="denied">{{ 'cookies.banner.decline'|trans }}</button>
+    </p>
+</div>
