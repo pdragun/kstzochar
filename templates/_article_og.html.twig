@@ -1,0 +1,8 @@
+{# Open Graph article metadata of a blog post or chronicle (og:type is set by the og_type block) #}
+{% set published_at = article_published_at(article) %}
+{% if published_at %}
+    <meta property="article:published_time" content="{{ published_at|iso_timestamp }}">
+{% endif %}
+{% if article.modifiedAt %}
+    <meta property="article:modified_time" content="{{ article.modifiedAt|iso_timestamp }}">
+{% endif %}

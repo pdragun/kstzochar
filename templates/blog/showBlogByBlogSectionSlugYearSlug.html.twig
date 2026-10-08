@@ -3,7 +3,10 @@
 {% block title %}{{ blog.title }} - {% endblock %}
 {% block description %}{{ blog.summary }}{% endblock %}
 {% set blogUrl = url('blog_show_by_BlogSectionSlug_Year_Slug', {blogSectionSlug: blogSection.slug, year: year, slug: blog.slug}) %}
+{% block canonical_url %}{{ blogUrl }}{% endblock %}
+{% block og_type %}article{% endblock %}
 {% block head %}
+{% include '_article_og.html.twig' with {article: blog} only %}
     <script type="application/ld+json">{{ article_json_ld(blog, blogUrl) }}</script>
 {% endblock %}
 

@@ -50,6 +50,7 @@ chronicle:
 article:
   author: Autor
 homepage:
+  title: Turistický klub z Topoľčian
   plan:
     title: Plán na celý rok
     description: Zoznam (takmer) všetkých podujatí aj s dátumami
@@ -193,6 +194,13 @@ form:
   setDateType:
     startDate: Dátum konania podujatia
 templates:
+  blog:
+    index:
+      title: Blog
+      description: Články o dianí v klube, viacdňové podujatia a recepty na túry od KST Žochár Topoľčany.
+  error404:
+    title: Stránka sa nenašla
+    description: Požadovanú stránku na webe KST Žochár Topoľčany sme nenašli.
   location:
     back: « Späť na zoznam miest
     link: Miesta stretnutia

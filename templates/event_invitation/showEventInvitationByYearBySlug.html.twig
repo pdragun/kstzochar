@@ -2,6 +2,7 @@
 
 {% block title %}{{ invitation.title }} - {{ 'templates.eventInvitation.showEventInvitationByYearBySlug.title'|trans }} - {% endblock %}
 {% block description %}{{invitation.summary}}{% endblock %}
+{% block canonical_url %}{{ invitation_url(invitation) }}{% endblock %}
 {% block head %}
     <script type="application/ld+json">{{ event_json_ld(invitation) }}</script>
 {% endblock %}

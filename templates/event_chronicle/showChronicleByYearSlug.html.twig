@@ -3,7 +3,10 @@
 {% block title %}{{ chronicle.title }} - {{ 'chronicle.chronicle'|trans }}  - {% endblock %}
 {% block description %}{{ chronicle.summary }}{% endblock %}
 {% set chronicleUrl = url('chronicle_show_by_Year_Slug', {year: chronicle.startDate|date('Y'), slug: chronicle.slug}) %}
+{% block canonical_url %}{{ chronicleUrl }}{% endblock %}
+{% block og_type %}article{% endblock %}
 {% block head %}
+{% include '_article_og.html.twig' with {article: chronicle} only %}
     <script type="application/ld+json">{{ article_json_ld(chronicle, chronicleUrl) }}</script>
 {% endblock %}
 

@@ -1,6 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
     default_path: '%kernel.project_dir%/templates'
+    globals:
+        # Google Analytics 4 measurement ID (G-…); empty disables the tracking script
+        ga_measurement_id: '%env(GA_MEASUREMENT_ID)%'
     form_themes:
         - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
 
