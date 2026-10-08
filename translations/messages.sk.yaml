@@ -154,6 +154,7 @@ form:
     newLocation: Nové miesto stretnutia
     newLocationHelp: Vyplň, len ak miesto nie je v zozname.
     addNewLocation: + pridať nové miesto
+    locationHelp: '<a href="%url%">Upraviť alebo zlúčiť uložené miesta</a>'
     save: Uložiť pozvánku
   locationType:
     name: 'Názov miesta:'
@@ -165,6 +166,11 @@ form:
     latitude: 'Zemepisná šírka:'
     longitude: 'Zemepisná dĺžka:'
     coordinatesHelp: napr. 48.557700, z mapy.cz alebo Google Maps
+    save: Uložiť miesto
+  locationMergeType:
+    target: 'Presunúť pozvánky na miesto:'
+    targetNone: '— vyber miesto —'
+    save: Zlúčiť a zmazať toto miesto
   eventRouteType:
     title: 'Trasa:'
     length: 'Dĺžka (v km):'
@@ -187,6 +193,38 @@ form:
   setDateType:
     startDate: Dátum konania podujatia
 templates:
+  location:
+    back: « Späť na zoznam miest
+    link: Miesta stretnutia
+    list:
+      title: Miesta stretnutia
+      intro: Miesta, kde začínajú podujatia z pozvánok. Nové miesto sa pridáva vo formulári pozvánky.
+      empty: Zatiaľ nie je uložené žiadne miesto.
+      name: Názov
+      locality: Obec / mesto
+      invitations: Pozvánky
+      edit: Upraviť
+    edit:
+      title: Upraviť miesto stretnutia
+      invitations: 'Zmeny sa prejavia vo všetkých pozvánkach s týmto miestom (%count%):'
+      noInvitations: Toto miesto nepoužíva žiadna pozvánka.
+      merge: Zlúčiť s iným miestom
+      delete: Zmazať miesto
+      deleteUsed: Miesto, ktoré používajú pozvánky, sa nedá zmazať. Ak je to duplikát, zlúč ho s iným miestom.
+    delete:
+      title: Naozaj zmazať?
+      body: Skutočne chceš zmazať miesto „%name%“?
+      no: Nie!
+      yes: Chcem zmazať
+    merge:
+      title: Zlúčiť miesto stretnutia
+      intro: Pozvánky s miestom „%name%“ sa presunú na vybrané miesto a „%name%“ sa zmaže.
+      back: « Späť na úpravu miesta
+    flash:
+      saved: Zmeny v mieste „%name%“ boli uložené!
+      deleted: Miesto „%name%“ bolo zmazané!
+      inUse: Miesto „%name%“ používajú pozvánky, preto sa nedá zmazať.
+      merged: 'Miesto „%source%“ bolo zlúčené s miestom „%target%“ (presunuté pozvánky: %count%).'
   eventInvitation:
     showEventInvitationUpcoming:
       title: Aktuálne pozvánky na turistické podujatia

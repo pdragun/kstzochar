@@ -22,11 +22,16 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
 /** @extends AbstractType<EventInvitation> */
 class EventInvitationType extends AbstractType
 {
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -74,6 +79,9 @@ class EventInvitationType extends AbstractType
                     'choice_label' => 'name',
                     'label' => 'form.eventInvitationType.location',
                     'placeholder' => 'form.eventInvitationType.locationNone',
+                    'help' => 'form.eventInvitationType.locationHelp',
+                    'help_html' => true,
+                    'help_translation_parameters' => ['%url%' => $this->urlGenerator->generate('location_list')],
                     'required' => false,
                     'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository
                         ->createQueryBuilder('l')

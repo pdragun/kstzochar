@@ -151,7 +151,7 @@ class InvitationLocationTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(200); // the form again, not a redirect
         $this->assertCount(1, $crawler->filter('#event_invitation_newLocation_name.is-invalid'));
-        $this->assertStringContainsString('Toto miesto už existuje, vyber ho zo zoznamu.', $crawler->filter('fieldset.new-location')->text());
+        $this->assertStringContainsString('Miesto s týmto názvom už existuje.', $crawler->filter('fieldset.new-location')->text());
         $this->assertSame($locationCount, $this->locationCount());
     }
 

@@ -1,3 +1,3 @@
 location:
-  name_exists: Toto miesto už existuje, vyber ho zo zoznamu.
+  name_exists: Miesto s týmto názvom už existuje.
   coordinates_pair: Zadaj obe súradnice (šírku aj dĺžku), alebo žiadnu.

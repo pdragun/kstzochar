@@ -14,7 +14,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * A new location; an untouched form gives null instead of an empty Location
+ * A location; as a sub-form of the invitation form an untouched form gives null instead of an empty Location
  * @extends AbstractType<Location>
  */
 class LocationType extends AbstractType
@@ -22,8 +22,8 @@ class LocationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'form.locationType.name', 'required' => false])
-            ->add('addressLocality', TextType::class, ['label' => 'form.locationType.addressLocality', 'required' => false])
+            ->add('name', TextType::class, ['label' => 'form.locationType.name', 'required' => $options['standalone']])
+            ->add('addressLocality', TextType::class, ['label' => 'form.locationType.addressLocality', 'required' => $options['standalone']])
             ->add(
                 'addressCountry',
                 CountryType::class,
@@ -44,6 +44,8 @@ class LocationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            // false: an optional sub-form of the invitation form; true: the location's own edit form
+            'standalone' => false,
             'data_class' => Location::class,
             // The country always has a value, so it alone doesn't make a new location
             'empty_data' => static function (FormInterface $form): ?Location {
@@ -56,6 +58,7 @@ class LocationType extends AbstractType
                 return null;
             },
         ]);
+        $resolver->setAllowedTypes('standalone', 'bool');
     }
 
     /** @return array<string, mixed> */
