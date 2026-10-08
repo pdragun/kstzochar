@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
 #[ORM\Table(name: 'blog')]
-class Blog
+class Blog implements Article
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

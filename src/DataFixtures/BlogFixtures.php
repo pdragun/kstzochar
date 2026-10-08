@@ -43,6 +43,7 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
         <h2>S&uacute;časnosť</h2>
         <p>Stav turistiky v Topoľčianskom regi&oacute;ne koncom roka 2010: registrovan&yacute;ch je 13 klubov s 598 členmi. S&uacute; to kluby: TK Javor Bo&scaron;any, Spartak B&aacute;novce nad Bebravou, Kamar&aacute;t Partiz&aacute;nske, Alpin klub Jacovce, Kroko &ndash; Velo Tes&aacute;re, Horňan Praznovce, KST Bojn&aacute;, Ostr&aacute; Veľk&yacute; Kl&iacute;ž, Borina Nitrianska Streda, KLUT Urmince, KST Tribeč Kovarce, KST Solčany a topoľčiansky Žoch&aacute;r. Organizačne s&uacute; kluby registrovan&eacute; v region&aacute;lnej rade (RR) Topoľčany.</p>');
         $blog1->setCreatedBy($this->getReference(UserFixtures::ADMIN_USER_REFERENCE, User::class));
+        $blog1->setAuthorBy($this->getReference(UserFixtures::MEMBER_USER_REFERENCE, User::class));
         $blog1->setSection($this->getReference(BlogSectionFixtures::BLOG_SECTION_1_REFERENCE, BlogSection::class));
         $manager->persist($blog1);
 
