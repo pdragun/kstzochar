@@ -6,6 +6,7 @@ namespace App\DataFixtures;
 
 use App\Entity\EventInvitation;
 use App\Entity\EventRoute;
+use App\Entity\Location;
 use App\Entity\SportType;
 use App\Entity\User;
 use DateTimeImmutable;
@@ -51,6 +52,7 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
         $invitation1->addRoute($this->getReference(EventRouteFixtures::EVENT_ROUTE_FOR_CHRONICLE_REFERENCE, EventRoute::class));
         $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_1_REFERENCE, SportType::class));
         $invitation1->addSportType($this->getReference(SportTypeFixtures::SPORT_TYPE_3_REFERENCE, SportType::class));
+        $invitation1->setLocation($this->getReference(LocationFixtures::LOCATION_TESARE_REFERENCE, Location::class));
         $manager->persist($invitation1);
 
         // new upcoming event
@@ -101,6 +103,7 @@ class EventInvitationFixtures extends Fixture implements DependentFixtureInterfa
             EventRouteFixtures::class,
             UserFixtures::class,
             SportTypeFixtures::class,
+            LocationFixtures::class,
         ];
     }
 }

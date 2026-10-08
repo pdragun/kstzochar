@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\EventInvitation;
+use App\Entity\Location;
 use App\Entity\SportType;
 use App\Form\EventListener\RemoveEmptyRoutesSubscriber;
 use Symfony\Component\Form\AbstractType;
@@ -14,6 +15,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\Valid;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
@@ -60,6 +66,32 @@ class EventInvitationType extends AbstractType
                     'required' => false,
                 ],
             )
+            ->add(
+                'location',
+                EntityType::class,
+                [
+                    'class' => Location::class,
+                    'choice_label' => 'name',
+                    'label' => 'form.eventInvitationType.location',
+                    'placeholder' => 'form.eventInvitationType.locationNone',
+                    'required' => false,
+                    'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository
+                        ->createQueryBuilder('l')
+                        ->orderBy('l.name', 'ASC'),
+                ],
+            )
+            ->add(
+                'newLocation',
+                LocationType::class,
+                [
+                    'label' => 'form.eventInvitationType.newLocation',
+                    'help' => 'form.eventInvitationType.newLocationHelp',
+                    'mapped' => false,
+                    'required' => false,
+                    'constraints' => [new Valid()],
+                    'row_attr' => ['class' => 'mb-3 p-3 border rounded new-location'],
+                ],
+            )
             // ->add('createdAt')
             // ->add('publish')
             // ->add('modifiedAt')
@@ -97,6 +129,15 @@ class EventInvitationType extends AbstractType
         ;
 
         $builder->get('routes')->addEventSubscriber(new RemoveEmptyRoutesSubscriber());
+
+        // A filled "new location" wins over the location picked in the select
+        $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event): void {
+            $newLocation = $event->getForm()->get('newLocation')->getData();
+            $invitation = $event->getData();
+            if ($newLocation instanceof Location && $invitation instanceof EventInvitation) {
+                $invitation->setLocation($newLocation);
+            }
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

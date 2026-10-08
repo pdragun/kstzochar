@@ -50,6 +50,22 @@
 <div class="h-event">
     <h1 class="p-name">{{ invitation.title }}</h1>
     <p id="start-date">Dátum konania: <strong class="dt-start" datetime="{{ invitation.startDate|date('c') }}">{{ invitation.startDate|date('j. n. Y') }}</strong>.</p>
+    {% if invitation.location %}
+        {% set location = invitation.location %}
+        <p id="start-location">{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.location'|trans }}:
+            <span class="p-location h-card"><strong class="p-name">{{ location.name }}</strong>
+            (
+            {%- if location.streetAddress %}<span class="p-street-address">{{ location.streetAddress }}</span>, {% endif -%}
+            {%- if location.postalCode %}<span class="p-postal-code">{{ location.postalCode }}</span> {% endif -%}
+            <span class="p-locality">{{ location.addressLocality }}</span>
+            {%- if location.addressRegion %}, <span class="p-region">{{ location.addressRegion }}</span>{% endif -%}
+            , <span class="p-country-name">{{ location.addressCountry|country_name('sk') }}</span>)
+            {%- if location.latitude is not null -%}
+                <data class="p-latitude" value="{{ location.latitude }}"></data><data class="p-longitude" value="{{ location.longitude }}"></data>
+            {%- endif -%}
+            </span>.
+        </p>
+    {% endif %}
 
     {% set countRoutes = invitation.routes|length %}
     {% if countRoutes > 1 %}
