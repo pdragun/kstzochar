@@ -22,10 +22,6 @@ class SecurityControllerTest extends WebTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertSelectorTextContains('html h1', 'Prosím, prihlás sa:');
 
-        $client->request('GET', '/logout');
-
-        $this->assertEquals(302, $client->getResponse()->getStatusCode());
-
     }
 
     /**
@@ -50,7 +46,7 @@ class SecurityControllerTest extends WebTestCase
         yield ['/logouta'];
     }
 
-    /** Logged-in user sees a logout link on the login page */
+    /** Logged-in user sees a logout link with a CSRF token on the login page, and it logs out */
     public function testLoginPageWhenLoggedIn(): void
     {
         $client = static::createClient();
@@ -60,7 +56,27 @@ class SecurityControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/login');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame('/logout', $crawler->filter('a[href="/logout"]')->attr('href'));
+        $link = $crawler->selectLink('Odhlásiť sa');
+        $this->assertMatchesRegularExpression('~^/logout\?_csrf_token=.+~', (string) $link->attr('href'));
+
+        $client->click($link->link());
+        $this->assertResponseRedirects('/');
+        $client->request('GET', '/miesta-stretnutia');
+        $this->assertResponseRedirects();
+    }
+
+    /** A plain link to /logout (e.g. from another site) does not log out */
+    public function testLogoutWithoutTokenKeepsUserLoggedIn(): void
+    {
+        $client = static::createClient();
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $client->loginUser($userRepository->findOneByEmail('john.doe@example.com'));
+
+        $client->request('GET', '/logout');
+        $this->assertResponseStatusCodeSame(403);
+
+        $client->request('GET', '/miesta-stretnutia');
+        $this->assertResponseIsSuccessful();
     }
 
     /** Test admin login */
