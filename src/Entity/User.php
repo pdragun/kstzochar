@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::JSON)]
     private array $roles = [];
 
-    #[ORM\Column(type: Types::STRING)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Type('string')]
     #[Assert\NotBlank]
     private string $password;
@@ -57,7 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Event::class)]
     private Collection $eventsCreatedBy;
 
-    #[ORM\Column(type: 'string', length: 190)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private string $displayName;
 
     /** @var Collection<int, Blog> */
