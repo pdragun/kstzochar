@@ -20,9 +20,15 @@ security:
                 login_path: login
                 check_path: login
                 enable_csrf: true
+            # 5 failed attempts per email and IP (25 per IP) within 15 minutes, then the login is refused
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             logout:
                 path: logout
                 target: home_page
+                # logout_path() adds the token, so another site cannot log a user out with a plain link
+                enable_csrf: true
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
