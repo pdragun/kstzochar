@@ -26,6 +26,17 @@ class HomePageControllerTest extends WebTestCase
         $this->assertSelectorTextContains('html p.no-bottom.hp-desc', 'Text a fotky z predchádzajúcich akcií');
     }
 
+    /** The invitation picture points to the file Encore copies to public/build/images */
+    public function testInvitationImage(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/');
+
+        $src = $crawler->filter('.hp-invitation-img img')->attr('src');
+        $this->assertSame('/build/images/general.jpg', $src);
+        $this->assertFileExists(static::getContainer()->getParameter('kernel.project_dir') . '/assets/images/general.jpg');
+    }
+
     /** Home page links to the plan of the latest year with a published event */
     public function testLatestPlanYearLink(): void
     {
