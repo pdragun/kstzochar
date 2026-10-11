@@ -71,16 +71,16 @@ class EventRepository extends ServiceEntityRepository
         return $max === null ? null : (int) substr((string) $max, 0, 4);
     }
 
-    /** @return list<array{y: string}> */
+    /** @return list<array{y: string}> Years with a published event */
     public function getUniqueYearsFromDB(): array
     {
         $em = $this->getEntityManager();
-        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e ORDER BY y DESC');
+        $query = $em->createQuery('SELECT DISTINCT SUBSTRING(e.startDate, 1, 4) AS y FROM App\Entity\Event AS e WHERE e.publish = 1 ORDER BY y DESC');
 
         return $query->getArrayResult();
     }
 
-    /** @return list<string> Years with an event, newest first */
+    /** @return list<string> Years with a published event, newest first */
     public function findUniqueYears(): array
     {
         $years = $this->getUniqueYearsFromDB();
