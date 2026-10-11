@@ -26,6 +26,13 @@ function loadAnalytics() {
     window.gtag = function () {
         window.dataLayer.push(arguments);
     };
+    // The banner asks only about analytics, so tell Google that ads storage and ads use of the data are not allowed
+    window.gtag('consent', 'default', {
+        analytics_storage: 'granted',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+    });
     window.gtag('js', new Date());
     window.gtag('config', gaId);
 
