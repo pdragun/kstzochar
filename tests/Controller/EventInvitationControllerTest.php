@@ -153,6 +153,12 @@ class EventInvitationControllerTest extends WebTestCase
     {
         yield ['/pozvanky/2010/gulasove-opojenie-v-tesaroch/edit'];
         yield ['/pozvanky/2011/gulasove-opojenie-v-tesaroch1/edit'];
+        // the date must be a real calendar date
+        yield ['/pozvanky/2011/pridat-novu/abc/add'];
+        yield ['/pozvanky/2011/pridat-novu/next-monday/add'];
+        yield ['/pozvanky/2011/pridat-novu/2011-6-1/add'];
+        yield ['/pozvanky/2011/pridat-novu/2011-02-31/add'];
+        yield ['/pozvanky/2011/pridat-novu/2011-13-01/add'];
     }
 
     /**

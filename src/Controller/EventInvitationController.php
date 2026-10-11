@@ -144,7 +144,7 @@ class EventInvitationController extends AbstractController
     #[Route(
         '/pozvanky/{year}/pridat-novu/{date}/add',
         name: 'invitation_create_from_event',
-        requirements: ['year' => '\d+'],
+        requirements: ['year' => '\d+', 'date' => '\d{4}-\d{2}-\d{2}'],
         methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
@@ -155,7 +155,11 @@ class EventInvitationController extends AbstractController
         EventContentEditor $editor,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
-        $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
+        // only a real calendar date: no relative formats ("next-monday"), no overflow (2026-02-31 is not March 3)
+        $dateTime = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+        if ($dateTime === false || $dateTime->format('Y-m-d') !== $date) {
+            throw $this->createNotFoundException();
+        }
         $invitation = new EventInvitation();
         $editor->prefillFromEvent($invitation, $dateTime);
         $snapshot = EventContentSnapshot::of($invitation);

@@ -119,6 +119,12 @@ class EventChronicleControllerTest extends WebTestCase
         return [
             ['/kronika/2011/jaskyne-uhradu/edit'],
             ['/kronika/2010/jaskyne-uhradu1/edit'],
+            // the date must be a real calendar date
+            ['/kronika/2010/pridat-novu/abc/add'],
+            ['/kronika/2010/pridat-novu/next-monday/add'],
+            ['/kronika/2010/pridat-novu/2010-3-1/add'],
+            ['/kronika/2010/pridat-novu/2010-02-31/add'],
+            ['/kronika/2010/pridat-novu/2010-13-01/add'],
         ];
     }
 
