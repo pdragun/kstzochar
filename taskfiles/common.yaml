@@ -1,0 +1,273 @@
+# Shared local-development tasks, included (flattened) by Taskfile.yaml.
+#
+# This file is identical in hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server: change it in one
+# project, then copy it to the others. Project tasks (app:up, app:db:reset, test:setup, phpunit, check, ...)
+# live in Taskfile.yaml, personal ones in the git-ignored Taskfile.local.yml.
+#
+# Everything runs in Docker: the dev php image runs as your host user (USER_UID/USER_GID build args,
+# passed below), so files it writes into the bind-mounted project stay yours. Never run php, composer,
+# bin/console or npm on the host, and don't call docker compose yourself where a task exists.
+version: '3'
+
+vars:
+    UID:
+        sh: id -u
+    GID:
+        sh: id -g
+
+env:
+    # Read by compose.override.yaml: build args of the dev php image, user of the node service
+    USER_UID: '{{.UID}}'
+    USER_GID: '{{.GID}}'
+
+tasks:
+    # Docker stack
+    docker:up:
+        desc: Build and start the Docker stack and wait until it is healthy
+        cmds:
+            - docker compose up -d --build --remove-orphans --wait
+
+    docker:rebuild:
+        desc: Recreate the Docker stack and wait until it is healthy
+        aliases: [dr]
+        cmds:
+            - docker compose down --remove-orphans
+            - task: docker:up
+
+    app:down:
+        desc: Stop the Docker stack (keeps the volumes)
+        aliases: [down]
+        cmds:
+            - docker compose down --remove-orphans
+
+    app:ps:
+        desc: Show the services, their health and their published ports
+        aliases: [ps, ports]
+        cmds:
+            - docker compose ps
+
+    app:logs:
+        desc: 'Follow the logs, e.g. task logs -- php'
+        aliases: [logs]
+        interactive: true
+        cmds:
+            - docker compose logs -f {{.CLI_ARGS}}
+
+    docker:exec:
+        desc: 'Run COMMAND in the php service (default: an interactive shell), e.g. task docker:exec COMMAND="php -v"'
+        interactive: true
+        cmds:
+            # A TTY only when stdin is a terminal, so prompts work for you and pipes or agents still get -T
+            - docker compose exec $([ -t 0 ] || echo -T) php {{default "bash" .COMMAND}}
+
+    shell:
+        desc: Open a shell in the php service
+        aliases: [sh]
+        cmds:
+            - task: docker:exec
+
+    db:shell:
+        desc: Open the database client as the application user
+        aliases: [dbsh]
+        interactive: true
+        cmds:
+            - >-
+              docker compose exec $([ -t 0 ] || echo -T) database sh -c 'exec "$(command -v mariadb || command -v mysql)"
+              -u"${MARIADB_USER:-$MYSQL_USER}" -p"${MARIADB_PASSWORD:-$MYSQL_PASSWORD}" "${MARIADB_DATABASE:-$MYSQL_DATABASE}"'
+
+    db:grant-test:
+        desc: Grant the app user the <database>_test databases on an existing volume (restarts the database once)
+        cmds:
+            - sh taskfiles/db-grant-test.sh
+
+    # One-off as root in a new container, so it works while the stack is down and needs no sudo
+    fix-perms:
+        desc: Give root-owned files (project, Caddy volumes) back to the host user, e.g. after a stack that ran as root
+        cmds:
+            - docker compose run --rm --no-deps -u root --entrypoint chown php -R {{.UID}}:{{.GID}} /app /data /config
+
+    # Symfony
+    console:
+        desc: 'Run bin/console, e.g. task console -- debug:router'
+        aliases: [c]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console {{.CLI_ARGS}}
+
+    symfony:cache:clear:
+        desc: Remove var/cache/<env> and clear the cache without warmup (APP_ENV=test task ... for the test cache)
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: rm -rf var/cache/{{default "dev" .APP_ENV}}
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} cache:clear --no-warmup
+
+    symfony:cache:warmup:
+        desc: Warm the cache
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: bin/console --env={{default "dev" .APP_ENV}} cache:warmup
+
+    symfony:cache:clear-with-warmup:
+        desc: Clear and warm the cache
+        aliases: [cc]
+        cmds:
+            - task: symfony:cache:clear
+            - task: symfony:cache:warmup
+
+    app:install:
+        desc: Install the composer dependencies, rebuild the cache and install the bundle assets
+        aliases: [install]
+        cmds:
+            - task: composer:install
+            - task: symfony:cache:clear-with-warmup
+            - task: console
+              vars:
+                  CLI_ARGS: assets:install
+
+    # Composer
+    composer:
+        desc: 'Run composer, e.g. task composer -- require foo/bar'
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: composer {{.CLI_ARGS}}
+
+    composer:install:
+        desc: Install the composer dependencies
+        aliases: [ci]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: composer install --no-interaction
+
+    # Doctrine
+    doctrine:schema:validate:
+        desc: 'Validate the mapping and the database schema, e.g. task dv -- --env=test'
+        aliases: [dv]
+        cmds:
+            - task: console
+              vars:
+                  CLI_ARGS: doctrine:schema:validate {{.CLI_ARGS}}
+
+    doctrine:migrations:status:
+        desc: Show the migration status
+        aliases: [dms]
+        preconditions: &migrations
+            - sh: test -n "$(find migrations -name '*.php' -print -quit 2>/dev/null)"
+              msg: This project has no migrations; see AGENTS.md for how its schema is built.
+        cmds:
+            - task: console
+              vars:
+                  CLI_ARGS: doctrine:migrations:status {{.CLI_ARGS}}
+
+    doctrine:migrations:migrate:
+        desc: Run the pending migrations
+        aliases: [dmm]
+        preconditions: *migrations
+        cmds:
+            - task: console
+              vars:
+                  CLI_ARGS: doctrine:migrations:migrate --no-interaction {{.CLI_ARGS}}
+
+    doctrine:migrations:migrate:prev:
+        desc: Roll back the last migration
+        aliases: [dmmprev]
+        preconditions: *migrations
+        cmds:
+            - task: console
+              vars:
+                  CLI_ARGS: doctrine:migrations:migrate prev --no-interaction
+
+    doctrine:migrations:diff:
+        desc: Generate a migration from the mapping changes (review it before committing)
+        aliases: [dmd]
+        preconditions:
+            - sh: test -d vendor/doctrine/doctrine-migrations-bundle
+              msg: doctrine/doctrine-migrations-bundle is not installed; see AGENTS.md for how this project's schema is built.
+        cmds:
+            - task: console
+              vars:
+                  CLI_ARGS: doctrine:migrations:diff {{.CLI_ARGS}}
+
+    # Code quality
+    cs:check:
+        desc: Show the php-cs-fixer changes (dry run)
+        preconditions: &php-cs-fixer
+            - sh: test -x vendor/bin/php-cs-fixer
+              msg: php-cs-fixer is not installed in this project (task composer -- require --dev friendsofphp/php-cs-fixer).
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/php-cs-fixer fix --dry-run --diff {{.CLI_ARGS}}
+
+    cs:fix:
+        desc: Apply the php-cs-fixer changes
+        aliases: [cs]
+        preconditions: *php-cs-fixer
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/php-cs-fixer fix {{.CLI_ARGS}}
+
+    phpstan:
+        desc: Run phpstan
+        aliases: [stan]
+        preconditions:
+            - sh: test -x vendor/bin/phpstan
+              msg: phpstan is not installed in this project.
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/phpstan analyse --memory-limit=1G {{.CLI_ARGS}}
+
+    rector:check:
+        desc: Show the rector changes (dry run)
+        preconditions: &rector
+            - sh: test -x vendor/bin/rector
+              msg: rector is not installed in this project.
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/rector process --dry-run {{.CLI_ARGS}}
+
+    rector:fix:
+        desc: Apply the rector changes
+        aliases: [rector]
+        preconditions: *rector
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: vendor/bin/rector process {{.CLI_ARGS}}
+
+    # Node (the node service of compose.override.yaml, as your user)
+    node:exec:
+        desc: 'Run COMMAND in a one-off node container (default: a shell), e.g. task node:exec COMMAND="node -v"'
+        interactive: true
+        preconditions: &node
+            # --profile '*' also lists a node service that is only in a profile
+            - sh: docker compose --profile '*' config --services | grep -qx node
+              msg: This project has no node service.
+        cmds:
+            - docker compose run --rm --no-deps $([ -t 0 ] || echo -T) node {{default "bash" .COMMAND}}
+
+    npm:
+        desc: 'Run npm in the node service, e.g. task npm -- outdated'
+        preconditions: *node
+        cmds:
+            - task: node:exec
+              vars:
+                  COMMAND: npm {{.CLI_ARGS}}
+
+    assets:build:
+        desc: Build the production assets (the node service rebuilds dev assets on change while the stack runs)
+        aliases: [build]
+        preconditions: *node
+        cmds:
+            - task: node:exec
+              vars:
+                  COMMAND: npm run build

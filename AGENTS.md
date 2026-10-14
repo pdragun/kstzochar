@@ -1,46 +1,61 @@
 # AGENTS.md
 
-Guidance for coding agents (Claude Code, Codex, Cursor, …) working in this repository. Claude Code reads it through `CLAUDE.md`, which imports it.
+Guidance for coding agents (Claude Code, Codex, Cursor, Copilot, Gemini CLI, …) working in this repository. Claude Code reads it through `CLAUDE.md` and Gemini CLI through `GEMINI.md`, which import it; Codex, Cursor, Copilot and most other agents read `AGENTS.md` directly. Keep project knowledge in this file, not in the agent-specific ones.
 
 ## Project
 
 Symfony 8.1 (Doctrine ORM 3, DBAL 4; PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
 
-## Commands
+<!-- shared:local-development: identical in hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server; change it in all five -->
+## Local development
 
-Local stack is Docker (dunglas/symfony-docker: FrankenPHP + PHP 8.5, MySQL 8.4, Node for Encore), see README. Run everything through the `task` commands below, not plain `docker compose exec`: they run as the host user, while a bare `docker compose exec php …` runs as root and leaves root-owned files in `vendor/` and `var/`.
+The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project services), driven by [Task](https://taskfile.dev): `Taskfile.yaml` holds this project's tasks and includes `taskfiles/common.yaml`, the tasks shared by all these projects. `task --list` shows them all.
 
-`Taskfile.yaml` (go-task) wraps the common operations and runs them in the `php` service as the host user (`task --list` shows them all). You can add personal tasks in an optional `Taskfile.local.yml`, which git ignores:
-
-```bash
-task up                 # rebuild and start the stack
-task install            # composer install, cache clear/warmup, assets:install
-task dbr                # recreate the dev schema and load fixtures (asks first)
-task test [-- <args>]   # recreate the test schema, load fixtures, run phpunit
-task stan / rector      # phpstan / rector process (rector:check is the dry run)
-task check              # phpstan + rector:check + phpunit
-task console -- <args>  # bin/console; also: task composer -- <args>, task npm -- <args>, task sh
-task fix-perms          # give root-owned files (e.g. vendor/ after a root composer run) back to the host user
-```
+- **Always go through `task`** for anything that runs project code or touches the stack: Docker, PHP, Composer, `bin/console`, PHPUnit, php-cs-fixer, phpstan, rector, npm and Node. Never run `php`, `composer`, `bin/console`, `vendor/bin/*`, `npm`, `node` or `symfony` on the host: the host's PHP and Node differ from the containers' and don't see their environment. Don't call `docker compose exec` or `docker compose run` yourself either. If no task fits, use `task docker:exec COMMAND="…"` (php container) or `task node:exec COMMAND="…"` (node container), or add a task: shared ones to `taskfiles/common.yaml` (then copy that file to the other projects), project ones to `Taskfile.yaml`, personal ones to the git-ignored `Taskfile.local.yml`.
+- Commands shown bare elsewhere in this file or in the project's docs mean their task form: `bin/console about` is `task console -- about`, `composer require foo/bar` is `task composer -- require foo/bar`, `bin/phpunit --filter testFoo` is `task test -- --filter testFoo`, `npm run build` is `task npm -- run build`.
+- Reading and editing files, `git`, and `docker compose ps` / `logs` on the host are fine.
+- If Docker or the php container is unavailable, report it and stop. Don't fall back to the host's PHP, Composer or Node.
 
 ```bash
-docker compose up --wait                    # php (https://localhost:18443), database, node (encore watch)
-
-# Backend
-composer install
-bin/console doctrine:fixtures:load          # load dev/test data (src/DataFixtures)
-bin/phpunit                                 # run all tests (PHPUnit 13, symfony/phpunit-bridge extension)
-bin/phpunit tests/Controller/BlogControllerTest.php
-bin/phpunit --filter testShowInvitation
-vendor/bin/phpstan analyse                  # level 6, config in phpstan.neon (with phpstan-doctrine and phpstan-symfony; needs the dev container in var/cache/dev)
-vendor/bin/rector process --dry-run         # config in rector.php
-
-# Frontend (Webpack Encore -> public/build/)
-npm run dev      # or: npm run watch / npm run dev-server
-npm run build    # production
+task up                   # build and start the stack (task down stops it, task dr recreates it)
+task ps / task logs [-- <service>]   # services, health and ports / follow the logs
+task sh / task dbsh       # shell in the php container / database client as the app user
+task console -- <args>    # bin/console (alias: task c)
+task composer -- <args>   # composer; task install = composer install, cache clear/warmup, assets:install
+task cc                   # clear and warm the dev cache (APP_ENV=test task cc for the test cache)
+task test [-- <args>]     # prepare the test database, then phpunit, e.g. task test -- --filter testFoo
+task check                # all of this project's checks (code style, static analysis, tests)
+task cs / cs:check        # php-cs-fixer fix / dry run, where installed; also task stan, task rector
+task dms / dmm / dmd      # migrations status / migrate / diff, where the project uses migrations
+task dv [-- --env=test]   # doctrine:schema:validate
+task db:grant-test        # grant the app user its <database>_test databases on an existing volume
+task npm -- <args>        # npm in the node container; task build = production assets
+task fix-perms            # hand root-owned files and Caddy volumes back to your user (no sudo)
 ```
 
-Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`config/packages/doctrine.yaml`), and the functional tests assert against fixture data, so load fixtures into the test DB first: `bin/console --env=test doctrine:fixtures:load`. In Docker, `DATABASE_URL` comes from `compose.yaml` (real env vars win over `.env*` files); the MySQL init script `docker/mysql/01-test-database.sh` creates the `_test` database. The schema comes from Doctrine migrations (`migrations/`, namespace `DoctrineMigrations`); locally the php container's entrypoint runs `doctrine:migrations:migrate --all-or-nothing` on start, and `task dbr` / `task test` drop all tables and migrate. Production runs on shared hosting without Docker (the Docker setup is for local development only), so migrations are run there by hand on deploy (README, "Production"). `Version20000101000000` is a baseline with the schema from before migrations existed: on a database that already has the tables (production, which was created with `doctrine:schema:create`) it runs no SQL and is only recorded as executed (not `skipIf()`, because skipped migrations aren't recorded). Schema changes go into a new migration (`doctrine:migrations:diff`, then review it); keep migrations transactional (the default), because `--all-or-nothing` refuses non-transactional ones.
+- **File ownership.** The dev php image runs as a user `app` with your host user's ids (`USER_UID`/`USER_GID` build args in `compose.override.yaml`; Task passes yours, a bare `docker compose` assumes 1000:1000), and the node service runs as you too. Everything they write into the bind-mounted project (`var/`, `vendor/`, `node_modules/`, `public/build/`, generated code, migrations) stays yours. Don't use `-u root` for project commands. `task fix-perms` is only for files left by a stack that ran as root; after changing your ids, rebuild with `task up`.
+- **Logs.** `var/` lives in the project directory, so read `var/log/dev.log` and `var/log/test.log` directly; `task logs -- php` shows FrankenPHP's output, and the web profiler is at `/_profiler`. Read them before changing code when something fails.
+- **Startup.** The php container's entrypoint runs `composer install` only when `vendor/` is empty (run `task install` after a `composer.lock` change), waits for the database and runs pending migrations, if the project has any. With `--watch`, FrankenPHP restarts its PHP workers when files change.
+- **Makers.** `task console -- make:… --no-interaction` with every argument passed up front: makers prompt by default, which hangs a non-interactive shell. If one still needs input, write the code by hand.
+- **Configuration.** `.env` is committed and holds defaults only. Real secrets go in `.env.local` (git-ignored) or the secrets vault (`task console -- secrets:set`). Compose takes the host ports from the shell environment (`HTTP_PORT`, `HTTPS_PORT`, `HTTP3_PORT`, `DATABASE_PORT`); the defaults are below, project-unique so the stacks run side by side.
+<!-- /shared:local-development -->
+
+## Local environment
+
+- Services: `php` (FrankenPHP in classic, non-worker mode, container `kstzochar-php`, workdir `/app`), `database` (MySQL 8.4, `kstzochar-database`), `node` (Webpack Encore: `npm install`, then `npm run watch` into `public/build/`, `kstzochar-node`; it waits for php, because Encore copies the CKEditor files from `vendor/`).
+- URL: `https://localhost:18443/` (accept the self-signed certificate; plain HTTP `18080` on 127.0.0.1). Caddy listens on the published HTTPS port itself (`SERVER_NAME` carries it), so its HTTP->HTTPS redirect keeps the port.
+- DB: `localhost:3311` from the host (127.0.0.1 only), `database:3306` from the containers; database `kstzochar` (+ `kstzochar_test`), user `app`, password `!ChangeMe!`. In Docker, `DATABASE_URL` comes from `compose.yaml` (real env vars win over `.env*` files).
+- Fixtures (`src/DataFixtures`) provide the dev and test data, including the admin and member users the tests log in as (e.g. member `jana.novakova@example.com`).
+- `task dbr` drops every table (including `doctrine_migration_versions`), migrates and loads fixtures (asks first; `APP_ENV=test task dbr` for the test database). Recreating the schema also resets auto-increment ids, which the tests depend on.
+- Static analysis: `task stan` (phpstan level 6, `phpstan.neon`, with phpstan-doctrine and phpstan-symfony; needs the dev container in `var/cache/dev`), `task rector` / `task rector:check` (`rector.php`). `task check` = stan + rector:check + test.
+
+### Tests and the test database
+
+Tests run in `APP_ENV=test`; Doctrine appends `_test` to the database name (`config/packages/doctrine.yaml`), so they use `kstzochar_test`. The functional tests assert against fixture data and the suite mutates it, so `task test` first resets the test database (`task test:setup`, also `task ts` / `task tdbr`: drop, migrate, fixtures), then runs PHPUnit 13 (`symfony/phpunit-bridge` extension) with `memory_limit=1G`, e.g. `task test -- tests/Controller/BlogControllerTest.php` or `task test -- --filter testShowInvitation`. The MySQL init script `docker/mysql/init/10-test-database.sh` creates `kstzochar_test` and grants the `app` user the `kstzochar\_test%` databases, but only on a fresh data volume: on an older volume, `task db:grant-test` applies the grant once (data is kept).
+
+### Migrations
+
+The schema comes from Doctrine migrations (`migrations/`, namespace `DoctrineMigrations`); locally the php container's entrypoint runs `doctrine:migrations:migrate --all-or-nothing` on start. Schema changes go into a new migration (`task dmd`, then review it, then `task dmm`); keep migrations transactional (the default), because `--all-or-nothing` refuses non-transactional ones. Production runs on shared hosting without Docker (the Docker setup is for local development only), so migrations are run there by hand on deploy (README, "Production"). `Version20000101000000` is a baseline with the schema from before migrations existed: on a database that already has the tables (production, which was created with `doctrine:schema:create`) it runs no SQL and is only recorded as executed (not `skipIf()`, because skipped migrations aren't recorded).
 
 ## Architecture
 
