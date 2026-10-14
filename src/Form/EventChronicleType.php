@@ -43,7 +43,12 @@ class EventChronicleType extends AbstractType
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.eventChronicleType.content', 'empty_data' => ''],
+                [
+                    'label' => 'form.eventChronicleType.content',
+                    'empty_data' => '',
+                    'sanitize_html' => true,
+                    'sanitizer' => 'app.article_sanitizer',
+                ],
             )
             // ->add('publishedAt')
             ->add(

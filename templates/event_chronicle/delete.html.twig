@@ -37,7 +37,7 @@
         <p><b>Trasa:</b> {{chronicle.routes[0].title}} ({{chronicle.routes[0].length}} km).</p>
     {% endif %}
 
-    {{ chronicle.content|raw }}
+    {{ chronicle.content|sanitize_html('app.article_sanitizer') }}
 
 {% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}    
     <p><a href="{{chronicle.photoAlbumG}}"><strong>Fotografie z podujatia {{ chronicle.title }}.</strong></a></p>

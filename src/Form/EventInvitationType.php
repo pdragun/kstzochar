@@ -49,7 +49,12 @@ class EventInvitationType extends AbstractType
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.eventInvitationType.content', 'empty_data' => ''],
+                [
+                    'label' => 'form.eventInvitationType.content',
+                    'empty_data' => '',
+                    'sanitize_html' => true,
+                    'sanitizer' => 'app.article_sanitizer',
+                ],
             )
             // ->add('publishedAt')
             ->add(

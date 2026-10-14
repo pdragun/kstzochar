@@ -203,7 +203,8 @@ class BlogControllerTest extends WebTestCase
         // test existing values from form
         $this->assertEquals('História turistiky', $values[$formName]['title']);
         $this->assertEquals('Krátky článok o začiatkoch turistiky vo svete, na slovensku a v regióne', $values[$formName]['summary']);
-        $this->assertEquals('<h2>Začiatky turistiky v Eur&oacute;pe a svete</h2>
+        // compared with entities decoded: saving through the form (ArticleStructuredDataTest does) stores them as characters
+        $this->assertEquals(html_entity_decode('<h2>Začiatky turistiky v Eur&oacute;pe a svete</h2>
         <p>Franc&uacute;zsky spisovateľ Stendhal po prv&yacute;kr&aacute;t použil slovo turista v&nbsp;roku 1838 vo svojej povesti &bdquo;Memoires d&acute; un touriste (Spomienky turistu).</p>
         <p>Začiatky turistiky s&uacute; spojen&eacute; s&nbsp;vyhl&aacute;seniami viacer&yacute;ch mysliteľov 17. a&nbsp;18. stor. o&nbsp;potrebe n&aacute;vratu človeka k&nbsp;pr&iacute;rode, čo prispelo k&nbsp;rozvoju cestovania a&nbsp;služieb. V&nbsp;18. stor. nab&aacute;dal Jean Jacques Rousseau zv&yacute;&scaron;iť z&aacute;ujem o&nbsp;pr&iacute;rodu a&nbsp;využiť ju pri v&yacute;chove. Vzniklo niekoľko turistick&yacute;ch spoločnost&iacute;: 1857 Alpine Club, 1862 &Ouml;sterreichische Alpenverein&hellip; .</p>
         <h2>Začiatky turistiky na Slovensku</h2>
@@ -211,7 +212,7 @@ class BlogControllerTest extends WebTestCase
         <h2>Hist&oacute;ria turistiky v regi&oacute;ne Topoľčany</h2>
         <p>Toto je pole neoran&eacute;. M&aacute;m len inform&aacute;cie o niektor&yacute;ch ľuďoch, ktor&iacute; sa venovali organizovanej turistike: J&aacute;n Vizner, Jir&aacute;nkovci, Petrovičovci, Lajko &Scaron;vec, Oldo Bohata, Karol Červeňansk&yacute;, Eva Čerevkov&aacute;, Bohu&scaron; Slov&aacute;k, Janko Koln&iacute;k, Cyril Mik&aacute;t, Stano Goga, Jožko Mal&iacute;ček, Du&scaron;an Stanček, Jožo Želiska, Inka Zn&aacute;&scaron;ikov&aacute;, Jožko Urban&hellip; . A isto mnoho ďal&scaron;&iacute;ch. Ak niekto vie viac o hist&oacute;rii, pros&iacute;m, aby sa ohl&aacute;sil.</p>
         <h2>S&uacute;časnosť</h2>
-        <p>Stav turistiky v Topoľčianskom regi&oacute;ne koncom roka 2010: registrovan&yacute;ch je 13 klubov s 598 členmi. S&uacute; to kluby: TK Javor Bo&scaron;any, Spartak B&aacute;novce nad Bebravou, Kamar&aacute;t Partiz&aacute;nske, Alpin klub Jacovce, Kroko &ndash; Velo Tes&aacute;re, Horňan Praznovce, KST Bojn&aacute;, Ostr&aacute; Veľk&yacute; Kl&iacute;ž, Borina Nitrianska Streda, KLUT Urmince, KST Tribeč Kovarce, KST Solčany a topoľčiansky Žoch&aacute;r. Organizačne s&uacute; kluby registrovan&eacute; v region&aacute;lnej rade (RR) Topoľčany.</p>', $values[$formName]['content']);
+        <p>Stav turistiky v Topoľčianskom regi&oacute;ne koncom roka 2010: registrovan&yacute;ch je 13 klubov s 598 členmi. S&uacute; to kluby: TK Javor Bo&scaron;any, Spartak B&aacute;novce nad Bebravou, Kamar&aacute;t Partiz&aacute;nske, Alpin klub Jacovce, Kroko &ndash; Velo Tes&aacute;re, Horňan Praznovce, KST Bojn&aacute;, Ostr&aacute; Veľk&yacute; Kl&iacute;ž, Borina Nitrianska Streda, KLUT Urmince, KST Tribeč Kovarce, KST Solčany a topoľčiansky Žoch&aacute;r. Organizačne s&uacute; kluby registrovan&eacute; v region&aacute;lnej rade (RR) Topoľčany.</p>', ENT_HTML5), html_entity_decode($values[$formName]['content'], ENT_HTML5));
 
 
         // edit values

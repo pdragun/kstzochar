@@ -1,0 +1,17 @@
+# Cleans the CKEditor HTML of invitations, chronicles and blogs: on save (the form
+# fields' sanitize_html option) and on render (|sanitize_html in the templates).
+framework:
+    html_sanitizer:
+        sanitizers:
+            app.article_sanitizer:
+                allow_safe_elements: true
+                # CKEditor keeps alignment, colours and image sizes in style and class
+                allow_attributes:
+                    style: '*'
+                    class: '*'
+                allowed_link_schemes: ['http', 'https', 'mailto', 'tel']
+                allow_relative_links: true
+                allowed_media_schemes: ['http', 'https']
+                allow_relative_medias: true
+                # the default limit of 20 000 bytes would cut long articles
+                max_input_length: -1

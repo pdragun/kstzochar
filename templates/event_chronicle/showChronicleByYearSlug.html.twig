@@ -70,7 +70,7 @@
     {% endif %}
 
     <div class="e-content">
-    {{ chronicle.content|raw }}
+    {{ chronicle.content|sanitize_html('app.article_sanitizer') }}
     </div>
 
 {% if chronicle.photoAlbumG is not null and chronicle.photoAlbumG is not empty %}
