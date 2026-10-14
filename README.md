@@ -28,9 +28,9 @@ FrankenPHP (PHP 8.5) + MySQL 8.4 + Node (Webpack Encore watcher).
 
 ```bash
 docker compose build --pull
-docker compose up --wait     # https://localhost (accept the self-signed certificate)
+docker compose up --wait     # https://localhost:18443 (accept the self-signed certificate)
 
-# ports 80/443/3311 already taken? e.g. HTTP_PORT=8080 HTTPS_PORT=8443 HTTP3_PORT=8443 docker compose up --wait
+# ports 18080/18443/3311 already taken? e.g. HTTP_PORT=28080 HTTPS_PORT=28443 HTTP3_PORT=28443 MYSQL_HOST_PORT=3312 docker compose up --wait
 
 # first run: the php container runs the migrations on the dev DB when it starts; load fixtures,
 # and migrate and load the test DB

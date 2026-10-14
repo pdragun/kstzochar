@@ -19,6 +19,24 @@ services:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
       APP_ENV: "${APP_ENV:-dev}"
+      # The site listens on the published HTTPS port, so Caddy's HTTP->HTTPS redirect keeps it
+      SERVER_NAME: ${SERVER_NAME:-localhost}:${HTTPS_PORT:-18443}, php:80
+      DEFAULT_URI: https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-18443}
+    # Dev ports above 1024, so they don't clash with a local web server; !override replaces the
+    # 80/443 of compose.yaml (production) instead of adding to them
+    ports: !override
+      - name: http
+        target: 80
+        published: ${HTTP_PORT:-18080}
+        protocol: tcp
+      - name: https
+        target: ${HTTPS_PORT:-18443}
+        published: ${HTTPS_PORT:-18443}
+        protocol: tcp
+      - name: http3
+        target: ${HTTPS_PORT:-18443}
+        published: ${HTTP3_PORT:-18443}
+        protocol: udp
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway

@@ -23,7 +23,7 @@ task console -- <args>  # bin/console; also: task composer -- <args>, task npm -
 ```
 
 ```bash
-docker compose up --wait                    # php (https://localhost), database, node (encore watch)
+docker compose up --wait                    # php (https://localhost:18443), database, node (encore watch)
 
 # Backend
 composer install
