@@ -140,6 +140,8 @@ sportTypes:
     slug: vht
     desc: vysokohorská turistika
     shortcut: VhT
+calendar:
+  name: KST Žochár Topoľčany – pozvánky
 gpx:
   metadata:
     author: KST Žochár Topoľčany
@@ -251,9 +253,15 @@ templates:
       add: Pridať novú pozvánku
       h1: Aktuálne pozvánky na turistické podujatia
       missing: Mrzí nás to, ale nemáme žiadne aktuálne pozvánky :(
+      calendar:
+        title: Pozvánky v kalendári
+        intro: 'Pozvánky môžete odoberať do svojho kalendára, nové sa v ňom objavia samé:'
+        subscribe: Odoberať v kalendári
+        google: 'V Google Kalendári zvoľte „Ďalšie kalendáre“ → „Z webovej adresy“ a vložte túto adresu:'
     showEventInvitationByYearBySlug:
       title: Pozvánky
       add: Pridať novú pozvánku
       edit: Upraviť túto
       delete: Zmazať túto
       location: Miesto stretnutia
+      addToCalendar: Pridať do kalendára

@@ -9,6 +9,7 @@ use App\Entity\Blog;
 use App\Entity\EventInvitation;
 use App\Entity\Location;
 use App\Entity\User;
+use App\Service\EventTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -21,9 +22,6 @@ use Twig\Attribute\AsTwigFunction;
 /** schema.org structured data as JSON-LD */
 class StructuredDataExtension
 {
-    /** Event dates are stored as the wall-clock time the admin typed, in the club's timezone */
-    private const string TIMEZONE = 'Europe/Bratislava';
-
     public function __construct(
         private readonly UrlHelper $urlHelper,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -123,11 +121,11 @@ class StructuredDataExtension
     #[AsTwigFilter('event_iso_date')]
     public function isoDate(DateTimeInterface $date): string
     {
-        if ($date->format('H:i:s') === '00:00:00') {
+        if (!EventTime::hasTime($date)) {
             return $date->format('Y-m-d');
         }
 
-        return new DateTimeImmutable($date->format('Y-m-d H:i:s'), new DateTimeZone(self::TIMEZONE))->format(DATE_ATOM);
+        return EventTime::local($date)->format(DATE_ATOM);
     }
 
     /**
@@ -137,8 +135,8 @@ class StructuredDataExtension
     #[AsTwigFilter('iso_timestamp')]
     public function isoTimestamp(DateTimeInterface $timestamp): string
     {
-        return new DateTimeImmutable($timestamp->format('Y-m-d H:i:s'), new DateTimeZone('UTC'))
-            ->setTimezone(new DateTimeZone(self::TIMEZONE))
+        return EventTime::utcTimestamp($timestamp)
+            ->setTimezone(new DateTimeZone(EventTime::TIMEZONE))
             ->format(DATE_ATOM);
     }
 

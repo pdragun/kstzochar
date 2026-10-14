@@ -57,6 +57,13 @@
     <data class="p-summary" value="{{ invitation.summary }}"></data>
     <p id="start-date">Dátum konania: <strong><time class="dt-start" datetime="{{ invitation.startDate|event_iso_date }}">{{ invitation.startDate|date('j. n. Y') }}</time></strong>
         {%- if invitation.endDate %} – <strong><time class="dt-end" datetime="{{ invitation.endDate|event_iso_date }}">{{ invitation.endDate|date('j. n. Y') }}</time></strong>{% endif %}.</p>
+    <p>
+        <a
+            class="btn btn-outline-secondary btn-sm"
+            href="{{ path('invitation_ics', {year: yearInUrl, slug: invitation.slug}) }}"
+            id="add-to-calendar"
+        >{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.addToCalendar'|trans }}</a>
+    </p>
     {% if invitation.location %}
         {% set location = invitation.location %}
         <p id="start-location">{{ 'templates.eventInvitation.showEventInvitationByYearBySlug.location'|trans }}:

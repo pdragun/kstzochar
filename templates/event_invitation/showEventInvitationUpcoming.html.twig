@@ -2,6 +2,9 @@
 
 {% block title %}{{ 'templates.eventInvitation.showEventInvitationUpcoming.title'|trans }} - {% endblock %}
 {% block description %}{{ 'templates.eventInvitation.showEventInvitationUpcoming.description'|trans }}{% endblock %}
+{% block head %}
+    <link rel="alternate" type="text/calendar" title="{{ 'calendar.name'|trans }}" href="{{ url('invitation_ics_feed') }}">
+{% endblock %}
 
 {% block body %}
 {% set currentYear = 'now' | date('Y') %}
@@ -40,5 +43,14 @@
     </table>
 </div>
 {% endif %}
+
+{% set feedUrl = url('invitation_ics_feed') %}
+<section id="calendar-feed" class="mt-4">
+    <h2 class="h5">{{ 'templates.eventInvitation.showEventInvitationUpcoming.calendar.title'|trans }}</h2>
+    <p>{{ 'templates.eventInvitation.showEventInvitationUpcoming.calendar.intro'|trans }}
+        <a class="btn btn-outline-secondary btn-sm" href="{{ feedUrl|replace({'https://': 'webcal://', 'http://': 'webcal://'}) }}">{{ 'templates.eventInvitation.showEventInvitationUpcoming.calendar.subscribe'|trans }}</a>
+    </p>
+    <p>{{ 'templates.eventInvitation.showEventInvitationUpcoming.calendar.google'|trans }} <code>{{ feedUrl }}</code></p>
+</section>
 
 {% endblock %}
