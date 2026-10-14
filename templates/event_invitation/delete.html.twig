@@ -31,6 +31,6 @@
         <p><b>Trasa:</b> {{invitation.routes[0].title}} ({{invitation.routes[0].length}} km).</p>
     {% endif %}
 
-    {{ invitation.content|raw }}
+    {{ invitation.content|sanitize_html('app.article_sanitizer') }}
 
 {% endblock %}

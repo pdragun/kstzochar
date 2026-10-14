@@ -58,7 +58,7 @@
     <data class="p-summary" value="{{ blog.summary }}"></data>
     {{ include('_article_byline.html.twig', {article: blog}) }}
     <div class="e-content">
-    {{ blog.content|raw }}
+    {{ blog.content|sanitize_html('app.article_sanitizer') }}
     </div>
 </article>
 {% endblock %}

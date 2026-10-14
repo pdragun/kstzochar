@@ -40,7 +40,12 @@ class BlogType extends AbstractType
             ->add(
                 'content',
                 CKEditorType::class,
-                ['label' => 'form.blogType.content', 'empty_data' => ''],
+                [
+                    'label' => 'form.blogType.content',
+                    'empty_data' => '',
+                    'sanitize_html' => true,
+                    'sanitizer' => 'app.article_sanitizer',
+                ],
             )
             // ->add('publish')
             // ->add('createdAt')
