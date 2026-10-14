@@ -49,6 +49,22 @@ class EventInvitationRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
+    /** @return list<EventInvitation> Published invitations that start on or after $since, for the calendar feed */
+    public function findForCalendar(DateTimeImmutable $since): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.location', 'l')
+            ->addSelect('l')
+            ->leftJoin('p.sportType', 's')
+            ->addSelect('s')
+            ->where('p.startDate >= :since')
+            ->andWhere('p.publish = 1')
+            ->setParameter('since', $since)
+            ->orderBy('p.startDate', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     /** @return list<array<string, mixed>> Published invitations from the year, hydrated as arrays */
     public function findByYear(int $year): array
     {
