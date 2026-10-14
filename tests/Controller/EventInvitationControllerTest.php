@@ -127,7 +127,7 @@ class EventInvitationControllerTest extends WebTestCase
     public static function provide302Urls(): iterable
     {
         yield ['/pozvanky/2000/pridat-novu/add'];
-        yield ['/pozvanky/2000/pridat-novu/2020-10-25/add'];
+        yield ['/pozvanky/2020/pridat-novu/2020-10-25/add'];
         yield ['/pozvanky/2020/invitation-slug/edit'];
         yield ['/pozvanky/2020/invitation-slug/delete'];
     }
@@ -159,6 +159,11 @@ class EventInvitationControllerTest extends WebTestCase
         yield ['/pozvanky/2011/pridat-novu/2011-6-1/add'];
         yield ['/pozvanky/2011/pridat-novu/2011-02-31/add'];
         yield ['/pozvanky/2011/pridat-novu/2011-13-01/add'];
+        yield ['/pozvanky/2011/pridat-novu/2011-04-31/add'];
+        yield ['/pozvanky/2011/pridat-novu/2011-00-10/add'];
+        yield ['/pozvanky/0/pridat-novu/0000-01-01/add'];
+        // and in the year of the URL
+        yield ['/pozvanky/2000/pridat-novu/2011-06-01/add'];
     }
 
     /**

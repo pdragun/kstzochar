@@ -13,11 +13,11 @@ use App\Form\SetDateType;
 use App\Repository\EventInvitationRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -122,7 +122,7 @@ class EventInvitationController extends AbstractController
             $startDate = $form->getData()['startDate'];
 
             return $this->redirectToRoute('invitation_create_from_event', [
-                'year' => $year,
+                'year' => $startDate->format('Y'),
                 'date' => $startDate->format('Y-m-d'),
             ]);
         }
@@ -139,29 +139,27 @@ class EventInvitationController extends AbstractController
     /**
      * Create invitation
      * @return RedirectResponse|Response Show form or redirect to new invitation
-     * @throws Exception
      */
     #[Route(
         '/pozvanky/{year}/pridat-novu/{date}/add',
         name: 'invitation_create_from_event',
-        requirements: ['year' => '\d+', 'date' => '\d{4}-\d{2}-\d{2}'],
+        requirements: ['year' => '\d+', 'date' => '[1-9]\d{3}-\d{2}-\d{2}'],
         methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createInvitationFromEvent(
         int $year,
-        string $date,
+        #[MapDateTime(format: '!Y-m-d')] DateTimeImmutable $date,
         Request $request,
         EventContentEditor $editor,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
-        // only a real calendar date: no relative formats ("next-monday"), no overflow (2026-02-31 is not March 3)
-        $dateTime = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
-        if ($dateTime === false || $dateTime->format('Y-m-d') !== $date) {
+        // MapDateTime returns 404 for a date that doesn't exist (2026-02-31 is not March 3); the URL year must match it
+        if ((int) $date->format('Y') !== $year) {
             throw $this->createNotFoundException();
         }
         $invitation = new EventInvitation();
-        $editor->prefillFromEvent($invitation, $dateTime);
+        $editor->prefillFromEvent($invitation, $date);
         $snapshot = EventContentSnapshot::of($invitation);
 
         $form = $this->createForm(EventInvitationType::class, $invitation);
@@ -187,7 +185,7 @@ class EventInvitationController extends AbstractController
             'form' => $form->createView(),
             'yearInUrl' => $year,
             'invitationTitle' => 'Nová pozvánka',
-            'dateTime' => $dateTime->format('Y-m-d'),
+            'dateTime' => $date->format('Y-m-d'),
             'actionName' => 'Pridať',
         ]);
 
