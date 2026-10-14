@@ -92,7 +92,7 @@ class EventChronicleControllerTest extends WebTestCase
     public static function provide302Urls(): iterable
     {
         yield ['/kronika/2000/pridat-novu/add'];
-        yield ['/kronika/2000/pridat-novu/2020-10-25/add'];
+        yield ['/kronika/2020/pridat-novu/2020-10-25/add'];
         yield ['/kronika/2020/invitation-slug/edit'];
         yield ['/kronika/2020/invitation-slug/delete'];
     }
@@ -119,6 +119,17 @@ class EventChronicleControllerTest extends WebTestCase
         return [
             ['/kronika/2011/jaskyne-uhradu/edit'],
             ['/kronika/2010/jaskyne-uhradu1/edit'],
+            // the date must be a real calendar date
+            ['/kronika/2010/pridat-novu/abc/add'],
+            ['/kronika/2010/pridat-novu/next-monday/add'],
+            ['/kronika/2010/pridat-novu/2010-3-1/add'],
+            ['/kronika/2010/pridat-novu/2010-02-31/add'],
+            ['/kronika/2010/pridat-novu/2010-13-01/add'],
+            ['/kronika/2010/pridat-novu/2010-04-31/add'],
+            ['/kronika/2010/pridat-novu/2010-00-10/add'],
+            ['/kronika/0/pridat-novu/0000-01-01/add'],
+            // and in the year of the URL
+            ['/kronika/2000/pridat-novu/2010-03-01/add'],
         ];
     }
 

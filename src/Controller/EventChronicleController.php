@@ -13,11 +13,11 @@ use App\Form\EventChronicleType;
 use App\Form\SetDateType;
 use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapDateTime;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -109,7 +109,7 @@ class EventChronicleController extends AbstractController
             $startDate = $form->getData()['startDate'];
 
             return $this->redirectToRoute('chronicle_create_from_event', [
-                'year' => $year,
+                'year' => $startDate->format('Y'),
                 'date' => $startDate->format('Y-m-d'),
             ]);
         }
@@ -127,25 +127,27 @@ class EventChronicleController extends AbstractController
      * Create chronicle
      * Take start date from previous form, check if exist Event (from plan), if yes set Event data to form.
      * @return RedirectResponse|Response Show form or redirect to new chronicle
-     * @throws Exception
      */
     #[Route(
         '/kronika/{year}/pridat-novu/{date}/add',
         name: 'chronicle_create_from_event',
-        requirements: ['year' => '\d+'],
+        requirements: ['year' => '\d+', 'date' => '[1-9]\d{3}-\d{2}-\d{2}'],
         methods: ['GET', 'POST'],
     )]
     #[IsGranted('ROLE_ADMIN')]
     public function createChronicleFromEvent(
         int $year,
-        string $date,
+        #[MapDateTime(format: '!Y-m-d')] DateTimeImmutable $date,
         Request $request,
         EventContentEditor $editor,
         #[CurrentUser] User $user,
     ): RedirectResponse|Response {
-        $dateTime = new DateTimeImmutable($date)->setTime(0, 0, 0);
+        // MapDateTime returns 404 for a date that doesn't exist (2026-02-31 is not March 3); the URL year must match it
+        if ((int) $date->format('Y') !== $year) {
+            throw $this->createNotFoundException();
+        }
         $chronicle = new EventChronicle();
-        $editor->prefillFromEvent($chronicle, $dateTime);
+        $editor->prefillFromEvent($chronicle, $date);
         $snapshot = EventContentSnapshot::of($chronicle);
 
         $form = $this->createForm(EventChronicleType::class, $chronicle);
@@ -172,7 +174,7 @@ class EventChronicleController extends AbstractController
             'yearInUrl' => $year,
             'pageTitle' => 'Vytvoriť novú kroniku',
             'chronicleTitle' => 'Nová kronika',
-            'dateTime' => $dateTime->format('Y-m-d'),
+            'dateTime' => $date->format('Y-m-d'),
             'actionName' => 'Pridať',
         ]);
     }
