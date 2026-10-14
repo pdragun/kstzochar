@@ -1,11 +1,17 @@
----
+# Base stack, shared by dev (compose.override.yaml, loaded automatically) and the prod image build
+# (compose.prod.yaml). Production itself runs on shared hosting without Docker (README, "Production").
+# The project name keeps containers, networks and volumes apart from the other local stacks.
+name: kstzochar
+
 services:
   php:
+    container_name: kstzochar-php
     restart: unless-stopped
     environment:
       SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
       DEFAULT_URI: https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}
       DATABASE_URL: mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-!ChangeMe!}@database:3306/${MYSQL_DATABASE:-kstzochar}?serverVersion=${MYSQL_SERVER_VERSION:-8.4.0}&charset=${MYSQL_CHARSET:-utf8mb4}
+    # The entrypoint gives up after 60 s without a database, so start once it is healthy
     depends_on:
       database:
         condition: service_healthy
@@ -29,6 +35,7 @@ services:
 ###> doctrine/doctrine-bundle ###
   database:
     image: mysql:${MYSQL_VERSION:-8.4}
+    container_name: kstzochar-database
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-kstzochar}
@@ -37,13 +44,14 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
       MYSQL_USER: ${MYSQL_USER:-app}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # TCP, not the socket: the socket already answers while the init scripts run without networking
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
       timeout: 5s
       retries: 5
       start_period: 60s
+    # No published port here: dev publishes one on 127.0.0.1 (compose.override.yaml)
     volumes:
       - database_data:/var/lib/mysql:rw
-      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
 ###< doctrine/doctrine-bundle ###
 
 volumes:

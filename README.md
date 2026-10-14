@@ -24,33 +24,30 @@ Used:
 ## Local development (Docker)
 
 The stack is based on [dunglas/symfony-docker](https://github.com/dunglas/symfony-docker):
-FrankenPHP (PHP 8.5) + MySQL 8.4 + Node (Webpack Encore watcher).
+FrankenPHP (PHP 8.5) + MySQL 8.4 + Node (Webpack Encore watcher). It is driven by [Task](https://taskfile.dev);
+PHP, Composer and Node run in the containers, never on the host (`task --list` shows every task, AGENTS.md →
+"Local development" explains them).
 
 ```bash
-docker compose build --pull
-docker compose up --wait     # https://localhost:18443 (accept the self-signed certificate)
-
-# ports 18080/18443/3311 already taken? e.g. HTTP_PORT=28080 HTTPS_PORT=28443 HTTP3_PORT=28443 MYSQL_HOST_PORT=3312 docker compose up --wait
-
-# first run: the php container runs the migrations on the dev DB when it starts; load fixtures,
-# and migrate and load the test DB
-docker compose exec php bin/console doctrine:fixtures:load -n
-docker compose exec php bin/console --env=test doctrine:migrations:migrate -n
-docker compose exec php bin/console --env=test doctrine:fixtures:load -n
+task up      # build and start php, database, node: https://localhost:18443 (accept the self-signed certificate)
+             # the php container runs the migrations on the dev DB when it starts
+task dbr     # load the fixtures into a fresh dev schema (asks first)
+task test    # reset the test DB (migrations + fixtures), then run phpunit
+task check   # phpstan + rector dry run + tests
 
 # after changing an entity: generate a migration, review it, run it
-docker compose exec php bin/console doctrine:migrations:diff
-docker compose exec php bin/console doctrine:migrations:migrate
+task dmd
+task dmm
 
-docker compose exec php bin/phpunit
-docker compose exec php vendor/bin/phpstan analyse
-docker compose logs -f node  # Encore rebuilds public/build/ on change
+task logs -- node   # Encore rebuilds public/build/ on change
 ```
 
-MySQL is published on host port `3311` (`MYSQL_HOST_PORT`), user `app`, password `!ChangeMe!`, database `kstzochar` (+ `kstzochar_test`).
+Ports 18080/18443/3311 already taken? e.g. `HTTP_PORT=28080 HTTPS_PORT=28443 HTTP3_PORT=28443 DATABASE_PORT=3312 task up`.
 
-The php container runs as root, so files it creates on Linux (e.g. by `composer`) are owned by root:
-`docker compose exec php chown -R $(id -u):$(id -g) .`
+MySQL is published on `127.0.0.1:3311` (`DATABASE_PORT`), user `app`, password `!ChangeMe!`, database `kstzochar` (+ `kstzochar_test`).
+
+The containers run as your user, so the files they create are yours; `task fix-perms` repairs files left by an
+older stack that ran as root.
 
 Production image: `docker compose -f compose.yaml -f compose.prod.yaml build`.
 

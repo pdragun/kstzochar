@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(task --list)",
+      "Bash(task ps)",
+      "Bash(task logs:*)",
+      "Bash(task console:*)",
+      "Bash(task c:*)",
+      "Bash(task test:*)",
+      "Bash(task phpunit:*)",
+      "Bash(task check)",
+      "Bash(task cs:*)",
+      "Bash(task stan:*)",
+      "Bash(task phpstan:*)",
+      "Bash(task rector:check)",
+      "Bash(task dv:*)",
+      "Bash(task dms)"
+    ],
+    "ask": [
+      "Bash(task dbr:*)",
+      "Bash(task app:db:reset:*)",
+      "Bash(task db:reset:*)",
+      "Bash(task db:grant-test)",
+      "Bash(task down)",
+      "Bash(task app:down)"
+    ],
+    "deny": [
+      "Bash(php:*)",
+      "Bash(composer:*)",
+      "Bash(bin/console:*)",
+      "Bash(./bin/console:*)",
+      "Bash(bin/phpunit:*)",
+      "Bash(./bin/phpunit:*)",
+      "Bash(vendor/bin/*)",
+      "Bash(./vendor/bin/*)",
+      "Bash(symfony:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(docker compose run:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(docker-compose run:*)"
+    ]
+  }
+}

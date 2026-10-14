@@ -1,20 +1,20 @@
----
-# Development environment override
+# Development override, loaded automatically by `docker compose` (start the stack with `task up`).
+# The php image runs as your host user (USER_UID/USER_GID, set by Task; 1000:1000 without it), so everything
+# written into the bind-mounted project, var/ included, stays yours. Ports other than HTTPS listen on 127.0.0.1.
 services:
   php:
     image: ${IMAGES_PREFIX:-}kstzochar-php-dev
     build:
       context: .
       target: frankenphp_dev
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    # var/ (cache, logs) lives in the bind-mounted project, so it is readable from the host
     volumes:
       - ./:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
       - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
-      # Keep var/ off the bind-mount for faster I/O on Mac/Windows; comment to inspect from the host.
-      - /app/var
-      # If you develop on Mac or Windows you can remove the vendor/ directory
-      #  from the bind-mount for better performance by enabling the next line:
-      #- /app/vendor
     environment:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
@@ -27,6 +27,7 @@ services:
     ports: !override
       - name: http
         target: 80
+        host_ip: 127.0.0.1
         published: ${HTTP_PORT:-18080}
         protocol: tcp
       - name: https
@@ -42,11 +43,12 @@ services:
       - host.docker.internal:host-gateway
     tty: true
 
-  # Webpack Encore: rebuilds public/build/ on changes (npm run watch)
+  # Webpack Encore: installs the npm packages, then rebuilds public/build/ on change. `task npm -- ...` and
+  # `task build` run one-off containers of it.
   node:
     image: node:24-slim
-    # Keep node_modules/ and public/build/ owned by the host user
-    user: "${UID:-1000}:${GID:-1000}"
+    container_name: kstzochar-node
+    user: "${USER_UID:-1000}:${USER_GID:-1000}"
     working_dir: /app
     command: sh -c "npm install --no-audit --no-fund && npm run watch"
     environment:
@@ -61,5 +63,8 @@ services:
 ###> doctrine/doctrine-bundle ###
   database:
     ports:
-      - "${MYSQL_HOST_PORT:-3311}:3306"
+      - "127.0.0.1:${DATABASE_PORT:-3311}:3306"
+    volumes:
+      # Runs only when the data volume is initialized; for an existing volume run `task db:grant-test`
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
 ###< doctrine/doctrine-bundle ###

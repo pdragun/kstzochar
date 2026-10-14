@@ -56,15 +56,29 @@ FROM frankenphp_base AS frankenphp_dev
 ENV APP_ENV=dev
 ENV XDEBUG_MODE=off
 
-# dev dependencies
+# dev dependencies; /app is bind-mounted from the host and owned by the host user
 RUN <<-EOF
 	mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 	install-php-extensions xdebug
-	useradd -m -s /bin/bash nonroot
 	git config --system --add safe.directory /app
 EOF
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
+
+# Run as the host user, so everything written into the bind-mounted /app (cache, logs, vendor, generated files)
+# stays owned by you, whether it comes from the server, Task or `docker compose exec`. compose.override.yaml
+# passes your ids (Task sets them; a bare `docker compose` assumes 1000:1000). FrankenPHP needs the capability
+# to bind ports 80 and 443 without root.
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN <<-EOF
+	groupadd --non-unique --gid "$USER_GID" app
+	useradd --non-unique --uid "$USER_UID" --gid "$USER_GID" --create-home --shell /bin/bash app
+	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp
+	chown -R app:app /data /config
+EOF
+
+USER app
 
 # Builder for the prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod_builder
