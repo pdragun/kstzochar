@@ -66,6 +66,12 @@ tasks:
             - docker compose exec {{if .COMMAND}}-T {{end}}-u {{.UID}}:{{.GID}} -e HOME=/tmp php {{default "bash" .COMMAND}}
         interactive: true
 
+    # runs as root in the container, so it needs no sudo on the host
+    fix-perms:
+        desc: Give files created as root inside the container (vendor, var, ...) back to the host user
+        cmds:
+            - docker compose exec -T php chown -R {{.UID}}:{{.GID}} .
+
     shell:
         desc: Open a shell in the php service
         aliases: [sh]
