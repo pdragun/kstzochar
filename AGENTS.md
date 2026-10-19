@@ -72,3 +72,8 @@ The schema comes from Doctrine migrations (`migrations/`, namespace `DoctrineMig
 - **Tests** (`tests/Controller/`) are functional `WebTestCase`s. Data providers are static methods wired with `#[DataProvider]` attributes; `phpunit.xml.dist` fails the run on deprecations, notices and warnings from `src/`. They check status codes (200, 404 via data providers, 302 redirects to login for admin routes) and assert Slovak text from the fixtures using CSS and XPath selectors.
 - **Docker**: `Dockerfile` (stages `frankenphp_dev`, `frankenphp_prod`, `assets_builder`), `compose*.yaml`, `frankenphp/` (Caddyfile, php.ini, entrypoint). FrankenPHP runs in classic mode; worker mode has not been tested.
 - **Frontend**: Encore entries `app`, `a2lixSfCollection`, `newLocation` (hides the invitation form's "new location" fieldset behind a button), `cookieConsent` (the cookie banner) and `css/app` (SCSS, Bootstrap 5). Encore also copies images, downloads and the CKEditor assets from `vendor/friendsofsymfony/ckeditor-bundle` into `public/build/`.
+
+
+## Shipping changes
+
+To ship a change (branch, commit, plan update, pull request, merge when asked), follow [.claude/skills/ship/SKILL.md](.claude/skills/ship/SKILL.md). Claude Code runs it as `/ship`.
