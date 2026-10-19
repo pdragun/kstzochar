@@ -55,6 +55,7 @@ Merge only when the user asks for it, now or in the arguments. A request to ship
 
 - Merge method: the one `AGENTS.md` names. Otherwise check `gh repo view --json squashMergeAllowed,mergeCommitAllowed,rebaseMergeAllowed` and use the only allowed method. When several are allowed, match the history of the default branch: merge commits (`git log --merges`) mean `--merge`, subjects ending in `(#<number>)` without merge commits mean `--squash`. If the history shows neither, ask.
 - If the pull request has failing or pending checks or requested changes, say so and ask before merging.
+- Stacked pull requests (one whose base is another pull request's branch): GitHub closes them, without retargeting, when their base branch is deleted, and a closed pull request can't be retargeted. Before merging the lower one, retarget every pull request based on its branch to the default branch (`gh pr list --base <branch>`, then `gh pr edit <number> --base <default-branch>`), then merge the lower one, then the next. Avoid stacking when the changes can go in one pull request.
 - `gh pr merge <number> --<method> --delete-branch`
 - Then update the local repository: `git switch <default-branch>`, `git pull --ff-only`, `git fetch --prune`.
 
