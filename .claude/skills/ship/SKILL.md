@@ -31,6 +31,7 @@ If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plan
 - Mark items done, in progress or open, with a short status, such as "Done in PR #12" (fill in the number after step 6 with a follow-up commit on the same branch).
 - Record decisions, deviations and follow-up work in the matching item.
 - Keep index plans consistent with the detailed ones.
+- If the plan lives in another repository (`AGENTS.md` says where), it gets its own pull request there. Open the code pull request first (steps 5 and 6), then the plan pull request, which names the code pull request by repository and number as "In progress" while it is open. When the code pull request is merged, change that to "Done" with a commit on the plan branch before the plan pull request is merged.
 
 ## 5. Branch and commit
 
