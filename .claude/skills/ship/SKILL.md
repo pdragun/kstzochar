@@ -26,8 +26,9 @@ Run the lint, static analysis and tests that `AGENTS.md` names for the files tha
 
 ## 4. Update the plan
 
-If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plans/`, `doc/plans/`, `PLAN.md`, `TODO.md`), update it in the same change:
+If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plans/`, `doc/plans/`, `PLAN.md`, `TODO.md`), or does work a plan describes, update the plan in the same change:
 
+- Find every plan item the change touches, not only the one you started from: grep the plan files for the files, classes, tests and features the change adds or edits. An item can live in a detailed plan that the index only links. Planned work done without marking its item leaves the plan looking open.
 - Mark items done, in progress or open, with a short status, such as "Done in PR #12" (fill in the number after step 6 with a follow-up commit on the same branch).
 - Record decisions, deviations and follow-up work in the matching item.
 - Keep index plans consistent with the detailed ones.
