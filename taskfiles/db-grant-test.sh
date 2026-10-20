@@ -4,7 +4,7 @@
 # only when it creates the volume. The root password is random, so this restarts the server once with an
 # --init-file holding the GRANT; the data is kept. Works with the mysql and mariadb images.
 #
-# Shared by hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server (task db:grant-test). Run from the host.
+# Shared by all projects that share this local stack (task db:grant-test). Run from the host.
 set -eu
 
 cd "$(dirname "$0")/.."

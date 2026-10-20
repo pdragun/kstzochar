@@ -1,7 +1,7 @@
 # Shared local-development tasks, included (flattened) by Taskfile.yaml.
 #
-# This file is identical in hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server: change it in one
-# project, then copy it to the others. Project tasks (app:up, app:db:reset, test:setup, phpunit, check, ...)
+# This file is identical in all projects that share this local stack: change it in one project, then copy it
+# to the others; task shared:check compares it, and the other shared files, with them. Project tasks (app:up, app:db:reset, test:setup, phpunit, check, ...)
 # live in Taskfile.yaml, personal ones in the git-ignored Taskfile.local.yml.
 #
 # Everything runs in Docker: the dev php image runs as your host user (USER_UID/USER_GID build args,
@@ -23,9 +23,20 @@ env:
 tasks:
     # Docker stack
     docker:up:
-        desc: Build and start the Docker stack and wait until it is healthy
+        desc: Build and start the Docker stack, wait until it is healthy, and install composer.lock if vendor/ is older
         cmds:
             - docker compose up -d --build --remove-orphans --wait
+            - task: composer:install:stale
+
+    # The entrypoint only installs into an empty vendor/, so a changed composer.lock (pull, checkout, merge)
+    # would otherwise leave vendor/ out of date. The touch also covers an install that changed nothing.
+    composer:install:stale:
+        desc: Install the composer dependencies if composer.lock is newer than vendor/
+        status:
+            - test vendor/composer/installed.json -nt composer.lock
+        cmds:
+            - task: composer:install
+            - touch vendor/composer/installed.json
 
     docker:rebuild:
         desc: Recreate the Docker stack and wait until it is healthy
@@ -271,3 +282,45 @@ tasks:
             - task: node:exec
               vars:
                   COMMAND: npm run build
+
+    # Shared files: the ones listed here, and the <!-- shared:<name> --> sections of AGENTS.md, must be identical
+    # in all projects that share this stack. Compares this checkout's working tree with the sibling checkouts
+    # next to it (SHARED_ROOT/<project>, default ../<project>); a missing checkout is skipped. The projects are
+    # listed in SHARED_ROOT/.shared-projects, one checkout directory per line, a file outside every repository:
+    # some of these repositories are public, so no project names may be committed.
+    shared:check:
+        desc: Check that the shared files and AGENTS.md sections match the sibling projects' checkouts
+        silent: true
+        vars:
+            SHARED_FILES: taskfiles/common.yaml taskfiles/db-grant-test.sh GEMINI.md .claude/settings.json .claude/skills/ship/SKILL.md
+            SHARED_SECTIONS: local-development
+            SHARED_ROOT: '{{default ".." .SHARED_ROOT}}'
+        cmds:
+            - |
+              list="{{.SHARED_ROOT}}/.shared-projects"
+              [ -r "$list" ] || { echo "no project list at $list (one checkout directory per line)"; exit 1; }
+              section() { awk -v s="$2" 'index($0, "<!-- shared:" s ":") == 1 || $0 == "<!-- shared:" s " -->" { on = 1 } on { print } $0 == "<!-- /shared:" s " -->" { on = 0 }' "$1"; }
+              tmp=$(mktemp -d)
+              status=0
+              checked=0
+              for s in {{.SHARED_SECTIONS}}; do
+                  section AGENTS.md "$s" > "$tmp/$s"
+                  [ -s "$tmp/$s" ] || { echo "AGENTS.md has no shared:$s section"; status=1; }
+              done
+              for p in $(grep -v '^#' "$list"); do
+                  dir="{{.SHARED_ROOT}}/$p"
+                  [ -d "$dir" ] || { echo "skip $p: no checkout at $dir"; continue; }
+                  [ "$(cd "$dir" && pwd -P)" = "$(pwd -P)" ] && continue
+                  checked=$((checked + 1))
+                  for f in {{.SHARED_FILES}}; do
+                      diff -u --label "$f" --label "$p/$f" "$f" "$dir/$f" || status=1
+                  done
+                  for s in {{.SHARED_SECTIONS}}; do
+                      section "$dir/AGENTS.md" "$s" > "$tmp/$p"
+                      diff -u --label "AGENTS.md shared:$s" --label "$p/AGENTS.md shared:$s" "$tmp/$s" "$tmp/$p" || status=1
+                  done
+              done
+              rm -rf "$tmp"
+              [ "$checked" -gt 0 ] || { echo "no sibling checkouts under {{.SHARED_ROOT}}"; exit 1; }
+              [ "$status" -ne 0 ] || echo "shared files match in $checked sibling checkouts"
+              exit "$status"
