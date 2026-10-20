@@ -6,15 +6,14 @@ Guidance for coding agents (Claude Code, Codex, Cursor, Copilot, Gemini CLI, …
 
 Symfony 8.1 (Doctrine ORM 3, DBAL 4; PHP >= 8.5) website for the Slovak hiking club "KST Žochár Topoľčany" (live: https://kst.zochar.sk). All user-facing content, URLs and route paths are in Slovak (e.g. `/pozvanky`, `/kronika`, `pridat-novu`).
 
-<!-- shared:local-development: identical in hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server; change it in all five -->
 ## Local development
 
-The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project services), driven by [Task](https://taskfile.dev): `Taskfile.yaml` holds this project's tasks and includes `taskfiles/common.yaml`, the tasks shared by all these projects. `task --list` shows them all.
+The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project services), driven by [Task](https://taskfile.dev): `Taskfile.yaml` holds this project's tasks and includes `taskfiles/common.yaml`, the general stack tasks. `task --list` shows them all.
 
-- **Always go through `task`** for anything that runs project code or touches the stack: Docker, PHP, Composer, `bin/console`, PHPUnit, php-cs-fixer, phpstan, rector, npm and Node. Never run `php`, `composer`, `bin/console`, `vendor/bin/*`, `npm`, `node` or `symfony` on the host: the host's PHP and Node differ from the containers' and don't see their environment. Don't call `docker compose exec` or `docker compose run` yourself either. If no task fits, use `task docker:exec COMMAND="…"` (php container) or `task node:exec COMMAND="…"` (node container), or add a task: shared ones to `taskfiles/common.yaml` (then copy that file to the other projects), project ones to `Taskfile.yaml`, personal ones to the git-ignored `Taskfile.local.yml`.
+- **Always go through `task`** for anything that runs project code or touches the stack: Docker, PHP, Composer, `bin/console`, PHPUnit, php-cs-fixer, phpstan, rector, npm and Node. Never run `php`, `composer`, `bin/console`, `vendor/bin/*`, `npm`, `node` or `symfony` on the host: the host's PHP and Node differ from the containers' and don't see their environment. Don't call `docker compose exec` or `docker compose run` yourself either. If no task fits, use `task docker:exec COMMAND="…"` (php container) or `task node:exec COMMAND="…"` (node container), or add a task: general ones to `taskfiles/common.yaml`, project ones to `Taskfile.yaml`, personal ones to the git-ignored `Taskfile.local.yml`.
 - Commands shown bare elsewhere in this file or in the project's docs mean their task form: `bin/console about` is `task console -- about`, `composer require foo/bar` is `task composer -- require foo/bar`, `bin/phpunit --filter testFoo` is `task test -- --filter testFoo`, `npm run build` is `task npm -- run build`.
 - Reading and editing files, `git`, and `docker compose ps` / `logs` on the host are fine.
-- If Docker or the php container is unavailable, report it and stop. Don't fall back to the host's PHP, Composer or Node.
+- If the php container isn't running (`service "php" is not running`), start the stack with `task up` before running `task` commands. If Docker itself is unavailable or `task up` fails, report it and stop. Don't fall back to the host's PHP, Composer or Node.
 
 ```bash
 task up                   # build and start the stack (task down stops it, task dr recreates it)
@@ -35,10 +34,9 @@ task fix-perms            # hand root-owned files and Caddy volumes back to your
 
 - **File ownership.** The dev php image runs as a user `app` with your host user's ids (`USER_UID`/`USER_GID` build args in `compose.override.yaml`; Task passes yours, a bare `docker compose` assumes 1000:1000), and the node service runs as you too. Everything they write into the bind-mounted project (`var/`, `vendor/`, `node_modules/`, `public/build/`, generated code, migrations) stays yours. Don't use `-u root` for project commands. `task fix-perms` is only for files left by a stack that ran as root; after changing your ids, rebuild with `task up`.
 - **Logs.** `var/` lives in the project directory, so read `var/log/dev.log` and `var/log/test.log` directly; `task logs -- php` shows FrankenPHP's output, and the web profiler is at `/_profiler`. Read them before changing code when something fails.
-- **Startup.** The php container's entrypoint runs `composer install` only when `vendor/` is empty (run `task install` after a `composer.lock` change), waits for the database and runs pending migrations, if the project has any. With `--watch`, FrankenPHP restarts its PHP workers when files change.
+- **Startup.** The php container's entrypoint runs `composer install` only when `vendor/` is empty, waits for the database and runs pending migrations, if the project has any. `task up` then runs `composer install` when `composer.lock` is newer than `vendor/composer/installed.json` (after a pull, checkout or merge); after changing the lock with the stack already running, run `task install` yourself. With `--watch`, FrankenPHP restarts its PHP workers when files change.
 - **Makers.** `task console -- make:… --no-interaction` with every argument passed up front: makers prompt by default, which hangs a non-interactive shell. If one still needs input, write the code by hand.
-- **Configuration.** `.env` is committed and holds defaults only. Real secrets go in `.env.local` (git-ignored) or the secrets vault (`task console -- secrets:set`). Compose takes the host ports from the shell environment (`HTTP_PORT`, `HTTPS_PORT`, `HTTP3_PORT`, `DATABASE_PORT`); the defaults are below, project-unique so the stacks run side by side.
-<!-- /shared:local-development -->
+- **Configuration.** `.env` is committed and holds defaults only. Real secrets go in `.env.local` (git-ignored) or the secrets vault (`task console -- secrets:set`). Compose takes the host ports from the shell environment (`HTTP_PORT`, `HTTPS_PORT`, `HTTP3_PORT`, `DATABASE_PORT`); the defaults are below.
 
 ## Local environment
 

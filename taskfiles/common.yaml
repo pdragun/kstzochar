@@ -1,8 +1,5 @@
-# Shared local-development tasks, included (flattened) by Taskfile.yaml.
-#
-# This file is identical in hsub, kstzochar, pkxc4c, webwerba and wisdom-tower-server: change it in one
-# project, then copy it to the others. Project tasks (app:up, app:db:reset, test:setup, phpunit, check, ...)
-# live in Taskfile.yaml, personal ones in the git-ignored Taskfile.local.yml.
+# Local-development tasks, included (flattened) by Taskfile.yaml. Project tasks (app:up, app:db:reset,
+# test:setup, phpunit, check, ...) live in Taskfile.yaml, personal ones in the git-ignored Taskfile.local.yml.
 #
 # Everything runs in Docker: the dev php image runs as your host user (USER_UID/USER_GID build args,
 # passed below), so files it writes into the bind-mounted project stay yours. Never run php, composer,
@@ -23,9 +20,20 @@ env:
 tasks:
     # Docker stack
     docker:up:
-        desc: Build and start the Docker stack and wait until it is healthy
+        desc: Build and start the Docker stack, wait until it is healthy, and install composer.lock if vendor/ is older
         cmds:
             - docker compose up -d --build --remove-orphans --wait
+            - task: composer:install:stale
+
+    # The entrypoint only installs into an empty vendor/, so a changed composer.lock (pull, checkout, merge)
+    # would otherwise leave vendor/ out of date. The touch also covers an install that changed nothing.
+    composer:install:stale:
+        desc: Install the composer dependencies if composer.lock is newer than vendor/
+        status:
+            - test vendor/composer/installed.json -nt composer.lock
+        cmds:
+            - task: composer:install
+            - touch vendor/composer/installed.json
 
     docker:rebuild:
         desc: Recreate the Docker stack and wait until it is healthy
