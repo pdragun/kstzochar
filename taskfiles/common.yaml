@@ -243,6 +243,12 @@ tasks:
             - sh: test -x vendor/bin/phpstan
               msg: phpstan is not installed in this project.
         cmds:
+            # The Symfony extension reads the container's XML dump, which only a kernel boot keeps current: booting
+            # the dev kernel (debug) rebuilds it when a service or its configuration changed; a missing one needs cc.
+            - |
+              xml=$(sed -n 's/^ *containerXmlPath: *//p' phpstan.dist.neon phpstan.neon 2>/dev/null | head -n 1)
+              if [ -z "$xml" ]; then exit 0; fi
+              if [ -f "$xml" ]; then task docker:exec COMMAND="bin/console --env=dev about" > /dev/null; else task cc; fi
             - task: docker:exec
               vars:
                   COMMAND: vendor/bin/phpstan analyse --memory-limit=1G {{.CLI_ARGS}}
