@@ -13,6 +13,7 @@ Arguments: optional `merge` (also merge once the pull request is open, see step 
 
 - Read the workflow rules in `AGENTS.md` (or `CLAUDE.md`). They win over this skill where they differ: branch names, commit message style, required checks, merge method.
 - Find the default branch: `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`. Never commit to it directly.
+- Find out where the plans live. If `AGENTS.md` says plans are GitHub issues (a `## Planning` section), the issue is the plan: steps 4 to 7 say what changes. Find the issue the change belongs to: the branch name (`feat/42-…`), the conversation, or `gh issue list --search "<keywords>"`. Without one, stop and offer to write it first (`/issues`), unless the branch is `docs/*`.
 
 ## 2. Check the working tree
 
@@ -26,7 +27,13 @@ Run the lint, static analysis and tests that `AGENTS.md` names for the files tha
 
 ## 4. Update the plan
 
-If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plans/`, `doc/plans/`, `PLAN.md`, `TODO.md`), or does work a plan describes, update the plan in the same change:
+**Plans as issues.** Update the issue instead of a plan file, and commit no status to the repository:
+
+- Tick the steps the change finishes: `gh issue view <N> --json body -q .body > <file>`, edit the checkboxes, `gh issue edit <N> --body-file <file>`.
+- Add decisions, deviations and follow-up work as a comment: `gh issue comment <N> --body-file <file>`. Open new issues for follow-ups that don't belong in this one (`/issues`), and name them in the comment.
+- Move knowledge that has to outlive the issue into the repository in this change: architecture facts and gotchas into `AGENTS.md`, lasting decisions into `docs/decisions/<topic>.md`, designs into `docs/design/<topic>.md`.
+
+**Plans as files.** If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plans/`, `doc/plans/`, `PLAN.md`, `TODO.md`), or does work a plan describes, update the plan in the same change:
 
 - Find every plan item the change touches, not only the one you started from: grep the plan files for the files, classes, tests and features the change adds or edits. An item can live in a detailed plan that the index only links. Planned work done without marking its item leaves the plan looking open.
 - Mark items done, in progress or open, with a short status, such as "Done in PR #12" (fill in the number after step 6 with a follow-up commit on the same branch).
@@ -36,7 +43,7 @@ If the work comes from a plan document (the one `AGENTS.md` names, or `docs/plan
 
 ## 5. Branch and commit
 
-- If you are on the default branch, create a branch first: `git switch -c <type>/<short-topic>`, such as `feat/session-logging`, `fix/csv-decimal`, `docs/plans-status`. If you are already on a feature branch for this change, stay on it.
+- If you are on the default branch, create a branch first: `git switch -c <type>/<short-topic>`, such as `feat/session-logging`, `fix/csv-decimal`, `docs/plans-status`. With plans as issues, put the issue number in it: `<type>/<N>-<short-topic>`, such as `feat/42-ics-export`. If you are already on a feature branch for this change, stay on it.
 - Stage files by name, not with `git add -A`.
 - Commit message: an imperative subject of at most about 70 characters, a blank line, then a body that says why. Add the attribution lines your harness requires.
 
@@ -49,6 +56,8 @@ gh pr create --base <default-branch> --title "<subject>" --body "<body>"
 
 The body says what changed and why, how it was checked, and anything left out or still open. If a pull request for the branch already exists, push to it and update its title and body with `gh pr edit` instead of opening another.
 
+With plans as issues, the body starts with `Closes #<N>`, so merging closes the issue. One issue gets one pull request: if `gh pr list --search "<N> in:body" --state open` shows another open pull request for the issue on a different branch, don't open a second one. Suggest splitting the issue into sub-issues instead.
+
 Give the user the pull request URL.
 
 ## 7. Merge (only when asked)
@@ -60,7 +69,8 @@ Merge only when the user asks for it, now or in the arguments. A request to ship
 - Stacked pull requests (one whose base is another pull request's branch): GitHub closes them, without retargeting, when their base branch is deleted, and a closed pull request can't be retargeted. Before merging the lower one, retarget every pull request based on its branch to the default branch (`gh pr list --base <branch>`, then `gh pr edit <number> --base <default-branch>`), then merge the lower one, then the next. Avoid stacking when the changes can go in one pull request.
 - `gh pr merge <number> --<method> --delete-branch`
 - Then update the local repository: `git switch <default-branch>`, `git pull --ff-only`, `git fetch --prune`.
+- With plans as issues, check that the issue closed (`gh issue view <N> --json state -q .state`). If it is a sub-issue, look at its parent (`gh api repos/{owner}/{repo}/issues/<N>/parent --jq .number`): when none of the parent's sub-issues is open any more (`gh api repos/{owner}/{repo}/issues/<parent>/sub_issues --jq '[.[] | select(.state == "open")] | length'` is 0), close the parent with `gh issue close <parent> --comment "All sub-issues done."`.
 
 ## 8. Report
 
-A short summary: branch, commit, pull request URL, merge state, the checks that ran and their result, and any files left out of the commit.
+A short summary: branch, commit, pull request URL, the issue and its state, merge state, the checks that ran and their result, and any files left out of the commit.

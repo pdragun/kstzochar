@@ -13,10 +13,12 @@ The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project ser
 - **Always go through `task`** for anything that runs project code or touches the stack: Docker, PHP, Composer, `bin/console`, PHPUnit, php-cs-fixer, phpstan, rector, npm and Node. Never run `php`, `composer`, `bin/console`, `vendor/bin/*`, `npm`, `node` or `symfony` on the host: the host's PHP and Node differ from the containers' and don't see their environment. Don't call `docker compose exec` or `docker compose run` yourself either. If no task fits, use `task docker:exec COMMAND="…"` (php container) or `task node:exec COMMAND="…"` (node container), or add a task: general ones to `taskfiles/common.yaml`, project ones to `Taskfile.yaml`, personal ones to the git-ignored `Taskfile.local.yml`.
 - Commands shown bare elsewhere in this file or in the project's docs mean their task form: `bin/console about` is `task console -- about`, `composer require foo/bar` is `task composer -- require foo/bar`, `bin/phpunit --filter testFoo` is `task test -- --filter testFoo`, `npm run build` is `task npm -- run build`.
 - Reading and editing files, `git`, and `docker compose ps` / `logs` on the host are fine.
-- If the php container isn't running (`service "php" is not running`), start the stack with `task up` before running `task` commands. If Docker itself is unavailable or `task up` fails, report it and stop. Don't fall back to the host's PHP, Composer or Node.
+- **Start the stack early.** When the task will run project code (tests, checks, `bin/console`, Composer, npm), check `task ps` at the start and, if the php container isn't running, start `task up` in the background while you read the code, so it's ready when you need it. Don't start it for work that only reads or edits files. If a `task` command still reports `service "php" is not running`, run `task up` first. If Docker itself is unavailable or `task up` fails, report it and stop. Don't fall back to the host's PHP, Composer or Node.
+- **Run the tests before changing code.** When the task changes code, run `task test` once before your first edit (in the background once the stack is up), so you know which tests already fail. A failure that was there before your change isn't yours to fix; mention it in your report.
 
 ```bash
 task up                   # build and start the stack (task down stops it, task dr recreates it)
+task update               # pull the newest images for the pinned tags (PHP patch releases), rebuild without cache
 task ps / task logs [-- <service>]   # services, health and ports / follow the logs
 task sh / task dbsh       # shell in the php container / database client as the app user
 task console -- <args>    # bin/console (alias: task c)

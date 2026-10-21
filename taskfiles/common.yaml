@@ -42,6 +42,20 @@ tasks:
             - docker compose down --remove-orphans
             - task: docker:up
 
+    # The tags stay the same (dunglas/frankenphp:1.12-php8.5, mysql:8.4, node:24-slim), but a plain build keeps
+    # the image pulled the first time. --pull fetches the newest image for each tag, and --no-cache reruns the
+    # apt and extension layers too. Changing a tag itself (PHP 8.5 -> 8.6) is a Dockerfile/compose edit.
+    docker:update:
+        desc: Pull the newest base and service images for the pinned tags, rebuild without cache and recreate the stack
+        aliases: [update]
+        cmds:
+            - docker compose --profile '*' pull --ignore-buildable
+            - docker compose build --pull --no-cache
+            - task: docker:up
+            - task: docker:exec
+              vars:
+                  COMMAND: php -v
+
     app:down:
         desc: Stop the Docker stack (keeps the volumes)
         aliases: [down]
