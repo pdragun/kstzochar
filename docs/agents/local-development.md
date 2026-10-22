@@ -1,0 +1,8 @@
+# Local development: details
+
+The rules every task needs are in `AGENTS.md` → Local development. This file has the details for when you work on the stack itself or something about it goes wrong.
+
+- **File ownership.** The dev php image runs as a user `app` with your host user's ids (`USER_UID`/`USER_GID` build args in `compose.override.yaml`; Task passes yours, a bare `docker compose` assumes 1000:1000), and the node service runs as you too. Everything they write into the bind-mounted project (`var/`, `vendor/`, `node_modules/`, `public/build/`, generated code, migrations) stays yours. Don't use `-u root` for project commands. `task fix-perms` is only for files left by a stack that ran as root; after changing your ids, rebuild with `task up`.
+- **Logs.** `var/` lives in the project directory, so read `var/log/dev.log` and `var/log/test.log` directly; `task logs -- php` shows FrankenPHP's output, and the web profiler is at `/_profiler`.
+- **Startup.** The php container's entrypoint runs `composer install` only when `vendor/` is empty, waits for the database and runs pending migrations, if the project has any. `task up` then runs `composer install` when `composer.lock` is newer than `vendor/composer/installed.json` (after a pull, checkout or merge); after changing the lock with the stack already running, run `task install` yourself. With `--watch`, FrankenPHP restarts its PHP workers when files change.
+- **Configuration.** `.env` is committed and holds defaults only. Real secrets go in `.env.local` (git-ignored) or the secrets vault (`task console -- secrets:set`). Compose takes the host ports from the shell environment (`HTTP_PORT`, `HTTPS_PORT`, `HTTP3_PORT`, `DATABASE_PORT`); `AGENTS.md` lists the project's defaults.
