@@ -1,6 +1,7 @@
 ---
 name: ship
 description: Ship the current change through the repository's pull request workflow - branch, commit, update the plan, push, open a pull request, and merge only when asked. Use when the user says "ship it", "open a PR", "commit and PR this", or asks to merge a pull request.
+model: sonnet
 ---
 
 # Ship a change
