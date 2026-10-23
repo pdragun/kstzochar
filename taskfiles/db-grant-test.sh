@@ -9,6 +9,13 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
+# A missing or empty volume would be initialized first, and the image's temporary init server also logs 'ready for
+# connections', so the wait below would stop it halfway. Such a volume gets the grant from docker/<engine>/init.
+if ! docker compose run --rm --no-deps -T --entrypoint test database -d /var/lib/mysql/mysql; then
+	echo 'db-grant-test: the database volume is not initialized; task up creates it, with the grant' >&2
+	exit 1
+fi
+
 docker compose stop database
 
 # `_` is a wildcard in database-level grants, so it is escaped: the pattern matches <database>_test% only.
