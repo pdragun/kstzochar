@@ -78,6 +78,11 @@ Read the matching file in `docs/agents/` before working on that area:
 - `security.md`: sign-in and throttling, admin access, HTML sanitizing, security headers, GPX downloads
 - `testing.md`: how the functional tests are written
 
+## Plans and deploy steps
+
+- Plans for larger changes live in `docs/plans/`, one file per plan, with an index in `docs/plans/README.md`. Update the plan and the index in the same pull request as the work (status per item, decisions, follow-ups). Decisions get a file in `docs/decisions/`, review reports go in `docs/reviews/`.
+- A change that needs a manual step on production (a migration, an env var, a cache pool to clear, a check after deploy) adds it to `docs/deploy-checklist.md` in the same pull request.
+
 ## Shipping changes
 
 To ship a change (branch, commit, plan update, pull request, merge when asked), follow [.claude/skills/ship/SKILL.md](.claude/skills/ship/SKILL.md). Claude Code runs it as `/ship`.
