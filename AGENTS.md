@@ -8,7 +8,7 @@ Symfony 8.1 (Doctrine ORM 3, DBAL 4; PHP >= 8.5) website for the Slovak hiking c
 
 ## Local development
 
-The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project services), driven by [Task](https://taskfile.dev): `Taskfile.yaml` holds this project's tasks and includes `taskfiles/common.yaml`, the general stack tasks. `task --list` shows them all. File ownership, startup, logs and configuration: `docs/agents/local-development.md`.
+The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project services), driven by [Task](https://taskfile.dev): `Taskfile.yaml` holds this project's tasks and includes `taskfiles/common.yaml`, the general stack tasks. `task --list` shows them all. File ownership, startup, logs, configuration and permissions: `docs/agents/local-development.md`.
 
 - **Always go through `task`** for anything that runs project code or touches the stack: Docker, PHP, Composer, `bin/console`, PHPUnit, php-cs-fixer, phpstan, rector, npm and Node. Never run `php`, `composer`, `bin/console`, `vendor/bin/*`, `npm`, `node` or `symfony` on the host: the host's PHP and Node differ from the containers' and don't see their environment. Don't call `docker compose exec` or `docker compose run` yourself either. If no task fits, use `task docker:exec COMMAND="…"` (php container) or `task node:exec COMMAND="…"` (node container), or add a task: general ones to `taskfiles/common.yaml`, project ones to `Taskfile.yaml`, personal ones to the git-ignored `Taskfile.local.yml`.
 - Commands shown bare elsewhere in this file or in the project's docs mean their task form: `bin/console about` is `task console -- about`, `composer require foo/bar` is `task composer -- require foo/bar`, `bin/phpunit --filter testFoo` is `task test -- --filter testFoo`, `npm run build` is `task npm -- run build`.
@@ -22,7 +22,7 @@ The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project ser
 ```bash
 task up                   # build and start the stack (task down stops it, task dr recreates it)
 task update               # pull the newest images for the pinned tags (PHP patch releases), rebuild without cache
-task ps / task logs [-- <service>]   # services, health and ports / follow the logs
+task ps / task logs [-- <service>]   # services, health and ports / the last 200 log lines (task follow streams them)
 task sh / task dbsh       # shell in the php container / database client as the app user
 task console -- <args>    # bin/console (alias: task c)
 task composer -- <args>   # composer; task install = composer install, cache clear/warmup, assets:install

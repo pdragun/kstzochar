@@ -3,18 +3,32 @@
   "permissions": {
     "allow": [
       "Bash(task --list)",
+      "Bash(task check:permissions)",
       "Bash(task ps)",
-      "Bash(task logs:*)",
-      "Bash(task console:*)",
-      "Bash(task c:*)",
-      "Bash(task test:*)",
-      "Bash(task phpunit:*)",
+      "Bash(task logs)",
+      "Bash(task logs -- *)",
+      "Bash(task console -- about)",
+      "Bash(task console -- debug*)",
+      "Bash(task console -- lint*)",
+      "Bash(task c -- about)",
+      "Bash(task c -- debug*)",
+      "Bash(task c -- lint*)",
+      "Bash(task test)",
+      "Bash(task test -- *)",
+      "Bash(task phpunit)",
+      "Bash(task phpunit -- *)",
       "Bash(task check)",
-      "Bash(task cs:*)",
-      "Bash(task stan:*)",
-      "Bash(task phpstan:*)",
+      "Bash(task cs)",
+      "Bash(task cs -- *)",
+      "Bash(task cs:check)",
+      "Bash(task cs:check -- *)",
+      "Bash(task stan)",
+      "Bash(task stan -- *)",
+      "Bash(task phpstan)",
+      "Bash(task phpstan -- *)",
       "Bash(task rector:check)",
-      "Bash(task dv:*)",
+      "Bash(task dv)",
+      "Bash(task dv -- *)",
       "Bash(task dms)"
     ],
     "ask": [
@@ -43,6 +57,30 @@
       "Bash(docker exec:*)",
       "Bash(docker-compose exec:*)",
       "Bash(docker-compose run:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(/Taskfile\\.yaml|/Taskfile\\.local\\.yml|/taskfiles/(common\\.yaml|check-permissions\\.sh)|/\\.claude/settings(\\.local)?\\.json)$' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && task check:permissions 1>&2 || exit 2"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -f taskfiles/check-permissions.sh ] || { echo \"taskfiles/check-permissions.sh is missing, so risky allow rules are not caught\" >&2; exit 1; }; sh taskfiles/check-permissions.sh 1>&2; case $? in 0) exit 0;; 1) exit 2;; *) echo \"The permission check could not run, so risky allow rules are not caught\" >&2; exit 1;; esac"
+          }
+        ]
+      }
     ]
   }
 }
