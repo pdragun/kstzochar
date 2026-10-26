@@ -20,19 +20,21 @@ env:
 tasks:
     # Docker stack
     docker:up:
-        desc: Build and start the Docker stack, wait until it is healthy, and install composer.lock if vendor/ is older
+        desc: Build the Docker stack, install composer.lock if vendor/ is older, start it and wait until it is healthy
         cmds:
-            - docker compose up -d --build --remove-orphans --wait
+            - docker compose build
             - task: composer:install:stale
+            - docker compose up -d --remove-orphans --wait
 
-    # The entrypoint only installs into an empty vendor/, so a changed composer.lock (pull, checkout, merge)
-    # would otherwise leave vendor/ out of date. The touch also covers an install that changed nothing.
+    # The entrypoint only installs into an empty vendor/, and it boots bin/console first, which fails on a
+    # vendor/ older than composer.lock (a pull that adds a bundle). So the install runs before the stack
+    # starts, in a one-off container without the entrypoint. The touch also covers an install that changed nothing.
     composer:install:stale:
-        desc: Install the composer dependencies if composer.lock is newer than vendor/
+        desc: Install the composer dependencies if composer.lock is newer than vendor/ (works while the stack is down)
         status:
-            - test vendor/composer/installed.json -nt composer.lock
+            - test ! -f composer.lock || test vendor/composer/installed.json -nt composer.lock
         cmds:
-            - task: composer:install
+            - docker compose run --rm --no-deps -T --entrypoint composer php install --no-interaction
             - touch vendor/composer/installed.json
 
     docker:rebuild:
@@ -52,10 +54,16 @@ tasks:
         aliases: [update]
         cmds:
             - docker compose --profile '*' pull --ignore-buildable
-            # FROM lines that name an image (with a tag or registry path), not an earlier stage
-            - awk 'toupper($1) == "FROM" { print $2 }' Dockerfile | grep -E '[:/]' | sort -u | xargs -rn1 docker pull
+            # FROM lines that name an image (with a tag or registry path), not an earlier stage, skipping
+            # --platform and other flags; COPY --from=<image> pulls an image too
+            - >-
+              awk 'toupper($1) == "FROM" { for (i = 2; i <= NF; i++) if ($i !~ /^--/) { print $i; break } }
+              toupper($1) == "COPY" { for (i = 2; i <= NF; i++) if ($i ~ /^--from=/) print substr($i, 8) }' Dockerfile
+              | grep -E '[:/]' | sort -u | xargs -rn1 docker pull
             - docker compose build --pull --no-cache
-            - task: docker:up
+            # docker:up without its build, which the one above makes redundant
+            - task: composer:install:stale
+            - docker compose up -d --remove-orphans --wait
             - task: docker:exec
               vars:
                   COMMAND: php -v
@@ -72,9 +80,17 @@ tasks:
         cmds:
             - docker compose ps
 
+    # Returns, so agents can run it: the allow rules cover task logs -- *, so the last --follow=false wins over a
+    # -f among the arguments. app:follow-logs keeps streaming, and is named so those rules don't cover it.
     app:logs:
-        desc: 'Follow the logs, e.g. task logs -- php'
+        desc: 'Show the last 200 log lines (-n for more), e.g. task logs -- php or task logs -- -n 1000 php'
         aliases: [logs]
+        cmds:
+            - docker compose logs --tail=200 {{.CLI_ARGS}} --follow=false
+
+    app:follow-logs:
+        desc: 'Follow the logs until Ctrl+C, e.g. task follow -- php'
+        aliases: [follow]
         interactive: true
         cmds:
             - docker compose logs -f {{.CLI_ARGS}}
@@ -105,6 +121,26 @@ tasks:
         desc: Grant the app user the <database>_test databases on an existing volume (restarts the database once)
         cmds:
             - sh taskfiles/db-grant-test.sh
+
+    # Checks
+    # .claude/settings.local.json too: "don't ask again" adds its rules there. The risky commands are in the script.
+    check:permissions:
+        desc: Check the allow lists of .claude/settings.json and settings.local.json (tasks exist, risky commands still prompt)
+        silent: true
+        cmds:
+            - |
+              allow=$(jq -s '[.[].permissions.allow[]?]' $(ls .claude/settings.json .claude/settings.local.json 2>/dev/null) /dev/null) || exit 1
+              missing=$(task --list-all --json | jq -r --argjson allow "$allow" '
+                  [.tasks[] | .name, .aliases[]] as $known
+                  | $allow[]
+                  | capture("^Bash\\(task (?<t>[^ :)]+(:[^ :)*]+)*)").t
+                  | select((IN("--list", "--list-all", "-l", "-a", "--version") | not) and (IN($known[]) | not))')
+              if [ -n "$missing" ]; then
+                  echo "Tasks in the .claude/settings*.json allow lists that no Taskfile defines:" >&2
+                  echo "$missing" >&2
+                  exit 1
+              fi
+            - sh taskfiles/check-permissions.sh
 
     # One-off as root in a new container, so it works while the stack is down and needs no sudo
     fix-perms:
@@ -249,10 +285,23 @@ tasks:
         cmds:
             # The Symfony extension reads the container's XML dump, which only a kernel boot keeps current: booting
             # the dev kernel (debug) rebuilds it when a service or its configuration changed; a missing one needs cc.
+            # The path as phpstan resolves it (the config file it picks or -c names, includes,
+            # %currentWorkingDirectory%), which is absolute in the container's /app.
             - |
-              xml=$(sed -n 's/^ *containerXmlPath: *//p' phpstan.dist.neon phpstan.neon 2>/dev/null | head -n 1)
+              config=; next=
+              for arg in {{.CLI_ARGS}}; do
+                  if [ -n "$next" ]; then config="-c $arg"; next=; continue; fi
+                  case "$arg" in -c|--configuration) next=1;; -c*) config="-c ${arg#-c}";; --configuration=*) config="-c ${arg#*=}";; esac
+              done
+              # No terminal on stdin, so no TTY, and PHP's notices on stderr: only the JSON on stdout
+              params=$(task docker:exec COMMAND="php -d display_errors=stderr vendor/bin/phpstan dump-parameters --json $config" < /dev/null) \
+                  && xml=$(printf '%s' "$params" | jq -r '.symfony.containerXmlPath // empty') \
+                  || { echo "phpstan: can't read its parameters, so the container XML dump is left as it is" >&2; exit 0; }
               if [ -z "$xml" ]; then exit 0; fi
-              if [ -f "$xml" ]; then task docker:exec COMMAND="bin/console --env=dev about" > /dev/null; else task cc; fi
+              xml=${xml#/app/}
+              # The environment the path names (var/cache/<env>/...), dev unless it says otherwise
+              env=$(printf '%s\n' "$xml" | sed -n 's|.*var/cache/\([^/]*\)/.*|\1|p'); env=${env:-dev}
+              if [ -f "$xml" ]; then task docker:exec COMMAND="bin/console --env=$env about" > /dev/null; else APP_ENV=$env task cc; fi
             - task: docker:exec
               vars:
                   COMMAND: vendor/bin/phpstan analyse --memory-limit=1G {{.CLI_ARGS}}
