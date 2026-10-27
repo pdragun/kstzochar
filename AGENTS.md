@@ -83,6 +83,72 @@ Read the matching file in `docs/agents/` before working on that area:
 - Plans for larger changes live in `docs/plans/`, one file per plan, with an index in `docs/plans/README.md`. Update the plan and the index in the same pull request as the work (status per item, decisions, follow-ups). Decisions get a file in `docs/decisions/`, review reports go in `docs/reviews/`.
 - A change that needs a manual step on production (a migration, an env var, a cache pool to clear, a check after deploy) adds it to `docs/deploy-checklist.md` in the same pull request.
 
+## Adding features: Flex, not hand-wiring
+
+Install new capabilities with `composer require <package>` (e.g. `symfony/lock`,
+`symfony/messenger`, `orm-pack`) and let the Flex recipe register the bundle and
+generate its config. Don't hand-edit `config/bundles.php` or hand-write a bundle's
+base config; that's what the recipe is for. Don't skip a good-fit component just
+because it isn't installed yet; installing it is one command.
+
+## Conventions
+
+Follow https://symfony.com/doc/current/best_practices.html to write idiomatic
+Symfony. These are the defaults for new code: where this file's project
+sections or `docs/agents/` describe how this project does it (its controllers,
+access checks, locking, services, what production can run), follow those. Don't
+change existing code just to match the defaults below.
+
+- Use PHP attributes for framework metadata, and not only on controllers:
+  `#[Route]`, `#[MapRequestPayload]`, `#[IsGranted]` on actions, `#[Assert\...]`
+  on properties, `#[AsCommand]`, `#[AsEventListener]`, `#[AsMessageHandler]`, and
+  `#[AsAlias]` / `#[AsTaggedItem]` / `#[Autoconfigure]` on services. No YAML or
+  XML routes for your own controllers; `config/routes.yaml` (the import of the
+  attribute routes) and recipe-generated route files under `config/routes/` stay.
+- Rely on autowiring and autoconfiguration. Type-hint constructor arguments and
+  let the container resolve them. Where a type-hint can't express it, stay in the
+  class with `#[Autowire]` (parameters, env vars, expressions) or `#[Target]` (one
+  of several implementations of an interface). A YAML service definition is the
+  last resort, not the first.
+- Controllers stay thin and delegate to services: extend `AbstractController`, or
+  write invokable `#[AsController]` services where the project does.
+- Use the framework for what it already does: Form for server-rendered forms,
+  Validator for validation, Serializer for JSON, Messenger for async work (where
+  production runs a worker), Security (voters, authenticators) for access control,
+  Twig `path()`/`url()` instead of hardcoded URLs.
+- Before hand-writing infrastructure (locks, queues, caches, HTTP clients,
+  mailers, schedulers) or reaching for a third-party library, check whether a
+  Symfony component covers it. It usually does.
+
+Three specifics worth spelling out, because they are easy to get wrong:
+
+- Bind request data with `#[MapRequestPayload]` / `#[MapQueryString]` on action
+  arguments, which wires up Serializer and Validator for you, instead of calling
+  `json_decode()` or `SerializerInterface` by hand. If neither package is
+  installed yet, `composer require` them rather than falling back to manual
+  parsing.
+- Use constructor property promotion, and `readonly` for DTOs, value objects and
+  stateless services.
+- Use `symfony/lock` (`LockFactory`) for mutual exclusion instead of a hand-built
+  flag or lock file, which looks fine in review and is usually wrong under
+  concurrency. To serialize writes to a database row, a row lock (`SELECT … FOR
+  UPDATE`, Doctrine's `PESSIMISTIC_WRITE`) inside the transaction is right.
+
+## Discover, don't guess
+
+Framework APIs change between versions and your training data may be stale. Look
+things up in the project instead of relying on memory:
+
+- `task console -- about`: versions, environment, paths.
+- `task console -- debug:router`, `debug:container`, `debug:autowiring <name>`,
+  `debug:config <bundle>`, `config:dump-reference <bundle>`: what exists and how
+  it is configured.
+- `task console -- lint:container`, plus `lint:twig templates/` and
+  `lint:yaml config/` where those packages are installed: validate before running.
+- Read the installed source and docblocks under `vendor/`.
+- Docs: https://symfony.com/doc/current/ (switch to the version matching
+  `composer.json` if it differs).
+
 ## Shipping changes
 
 To ship a change (branch, commit, plan update, pull request, merge when asked), follow [.claude/skills/ship/SKILL.md](.claude/skills/ship/SKILL.md). Claude Code runs it as `/ship`.
