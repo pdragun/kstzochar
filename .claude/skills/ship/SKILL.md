@@ -49,6 +49,8 @@ Run the lint, static analysis and tests that `AGENTS.md` names for the files tha
 
 ## 6. Push and open the pull request
 
+With plans as issues, check first that no other pull request is on the issue: run `.claude/skills/issues/next-issues.sh prs <N>` (from the issues skill, which such repositories have) from the repository root. If it lists an open pull request on a different branch that closes it (`closes`), don't open a second one: suggest splitting the issue into sub-issues instead. A `no-closes` one on a different branch has no `Closes` line; if its branch or title shows it is on this issue, ask the user before opening another. On your own branch it is this pull request: add `Closes #<N>` to its body (below).
+
 ```bash
 git push -u origin <branch>
 gh pr create --base <default-branch> --title "<subject>" --body "<body>"
@@ -56,7 +58,7 @@ gh pr create --base <default-branch> --title "<subject>" --body "<body>"
 
 The body says what changed and why, how it was checked, and anything left out or still open. If a pull request for the branch already exists, push to it and update its title and body with `gh pr edit` instead of opening another.
 
-With plans as issues, the body starts with `Closes #<N>`, so merging closes the issue. One issue gets one pull request: if `.claude/skills/issues/next-issues.sh prs <N>` (from the issues skill, which such repositories have) lists an open pull request on a different branch, don't open a second one. Suggest splitting the issue into sub-issues instead.
+With plans as issues, the body starts with `Closes #<N>`, so merging closes the issue. One issue gets one pull request (checked above).
 
 Give the user the pull request URL.
 
