@@ -1,0 +1,40 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+permissions:
+    contents: read
+
+# A new push to a pull request replaces its running check; every commit on main is checked to the end
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+    check:
+        name: task check
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: arduino/setup-task@v2
+              with:
+                  version: 3.x
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+            # The same Docker stack as local development: FrankenPHP with PHP 8.5 and MySQL 8.4
+            - name: Start the stack
+              run: task up
+
+            - name: Run the checks
+              run: task check
+
+            - name: Show the logs on failure
+              if: failure()
+              run: |
+                  docker compose logs
+                  cat var/log/test.log 2>/dev/null | tail -200 || true
