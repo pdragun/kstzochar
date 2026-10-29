@@ -66,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(/Taskfile\\.yaml|/Taskfile\\.local\\.yml|/taskfiles/(common\\.yaml|check-permissions\\.sh)|/\\.claude/settings(\\.local)?\\.json)$' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && task check:permissions 1>&2 || exit 2"
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(/Taskfile\\.yaml|/Taskfile\\.local\\.yml|/taskfiles/(common\\.yaml|check-permissions\\.sh|permission-probes)|/\\.claude/settings(\\.local)?\\.json)$' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && task check:permissions 1>&2 || exit 2"
           }
         ]
       }
