@@ -17,7 +17,7 @@ The local stack is Docker Compose (FrankenPHP + PHP 8.5, a database, project ser
 - **Run the tests before changing code.** When the task changes code, run `task test` once before your first edit (in the background once the stack is up), so you know which tests already fail. A failure that was there before your change isn't yours to fix; mention it in your report.
 - **When something fails**, read `var/log/dev.log` / `var/log/test.log` (or `task logs -- php`) before changing code.
 - **Makers** prompt by default and hang a non-interactive shell: pass `--no-interaction` and every argument up front.
-- **Secrets** never go in a committed `.env*` file. Which file they go in, the env-file order and its traps: `docs/agents/local-development.md` → Configuration.
+- **Secrets** never go in a committed `.env*` file. A variable a compose service sets under `environment:` (such as `DATABASE_URL`) beats every `.env*` file inside the container, so `.env.local` can't change it, and its real secret parts don't go in the committed compose files either (throwaway defaults such as `!ChangeMe!` may stay in the dev files, `compose.yaml` and `compose.override.yaml`; a prod file fails without the variable, `${VAR:?}`). Which file secrets go in, the env-file order and its traps: `docs/agents/local-development.md` → Configuration.
 
 ```bash
 task up                   # build and start the stack (task down stops it, task dr recreates it)
