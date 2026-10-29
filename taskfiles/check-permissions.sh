@@ -3,10 +3,12 @@
 # .claude/settings.json, .claude/settings.local.json (where "don't ask again" adds rules) or the user's settings,
 # or a bypassPermissions default mode. Run by task check:permissions and, before every Bash command, by a Claude
 # Code hook, so a rule added with "don't ask again" is caught before it is used. Exit 1: such a rule (in any file that can be read);
-# exit 2: none, but the check can't run (no jq, a settings file that isn't JSON).
+# exit 2: none, but the check can't run (no jq, a settings file that isn't JSON, an unreadable
+# taskfiles/permission-probes).
 #
 # The probes are commands that must always ask for permission: they run arbitrary code (installing a package runs
-# its scripts), change, publish or delete data, or never return. Add new tasks of that kind here. Rules match like
+# its scripts), change, publish or delete data, or never return. Add new shared tasks of that kind here, and a
+# project's own ones to its taskfiles/permission-probes. Rules match like
 # Claude Code's: a trailing :* or " *" is the prefix, then nothing or a space and anything; any other * is a plain
 # glob. Task runs every task named on its command line, so a wildcard before " -- " also lets any other task run.
 # The runners' arguments run code (any npm or composer command), so every rule for them is risky but the safe ones
@@ -30,9 +32,22 @@ safe='["task composer -- outdated", "task composer -- validate", "task composer 
     "task c -- debug", "task c -- lint"]'
 
 command -v jq >/dev/null || { echo "check-permissions: needs jq, so the allow rules aren't checked" >&2; exit 2; }
+unreadable=
+probes_unreadable=
+# A project's own risky tasks: taskfiles/permission-probes, one command per line; a "#" at the start of a line, or
+# after a space and not before a digit, starts a comment ("task issue -- #12" stays). Unreadable, it leaves the
+# shared probes and says so.
+if [ -e taskfiles/permission-probes ] || [ -L taskfiles/permission-probes ]; then
+    if all=$(jq -cn --argjson probes "$probes" --rawfile own taskfiles/permission-probes \
+        '$probes + [$own | split("\n")[] | sub("(^\\s*#|\\s#(\\D|$)).*"; "") | gsub("^\\s+|\\s+$"; "") | select(length > 0)]'); then
+        probes=$all
+    else
+        echo "check-permissions: can't read taskfiles/permission-probes, so only the shared probes count" >&2
+        probes_unreadable=1
+    fi
+fi
 user=${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/settings.json
 allowed=
-unreadable=
 for file in .claude/settings.json .claude/settings.local.json "$user"; do
     [ -f "$file" ] || continue
     # One file at a time, so a broken one doesn't hide the rules of the others
@@ -74,3 +89,4 @@ if [ -n "$unreadable" ]; then
     echo "check-permissions: can't read the allow rules of$unreadable" >&2
     exit 2
 fi
+[ -z "$probes_unreadable" ] || exit 2
