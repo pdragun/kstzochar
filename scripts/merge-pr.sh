@@ -142,6 +142,12 @@ EOF
 back_to_start() {
     [ -n "$switched" ] || return 0
     switched=
+    # A switch would carry a check's edits onto the default branch. A status that fails counts as changed
+    changes=$(git status --porcelain --untracked-files=no) || changes=unknown
+    [ -z "$changes" ] || {
+        echo "merge-pr: tracked files changed, so this checkout stays on the head (see git status, restore or stash them, then git switch $start, which would otherwise carry them over)" >&2
+        return 1
+    }
     # shellcheck disable=SC2086 # start can be "--detach <sha>"
     git switch --quiet --no-overwrite-ignore $start || {
         echo "merge-pr: couldn't switch back; run: git switch $start" >&2
@@ -171,6 +177,7 @@ run_checks() {
     trap 'back_to_start || true' EXIT
     trap 'exit 130' INT TERM
     trap 'exit 129' HUP
+    trap 'exit 141' PIPE
     # A tracked file of the head would otherwise replace an ignored one here, such as .env.local, and go on the way back
     git switch --quiet --detach --no-overwrite-ignore "$head" ||
         refuse "can't switch to $head, which may track a file this checkout ignores; move that file first, as a pull would replace it too"
@@ -193,19 +200,19 @@ run_checks() {
             esac
             [ -z "$(git status --porcelain --untracked-files=no)" ] || {
                 switched=
-                refuse "\`$command\` failed and changed tracked files, so this checkout stays on $head (see git status, then git switch $start; output in $log)"
+                refuse "\`$command\` failed and changed tracked files, so this checkout stays on $head (see git status, restore or stash them, then git switch $start, which would otherwise carry them over; output in $log)"
             }
             refuse "\`$command\` failed with $code (output in $log)"
         fi
         [ -z "$(git status --porcelain --untracked-files=no)" ] || {
             switched=
-            refuse "\`$command\` changed tracked files, so this checkout stays on $head (see git status, then git switch $start)"
+            refuse "\`$command\` changed tracked files, so this checkout stays on $head (see git status, restore or stash them, then git switch $start, which would otherwise carry them over)"
         }
     done <<EOF
 $commands
 EOF
     back_to_start || refuse "this checkout couldn't switch back after the checks"
-    trap - EXIT INT TERM HUP
+    trap - EXIT INT TERM HUP PIPE
     exec 9>&-
 }
 
@@ -263,12 +270,23 @@ main() {
 
     # Exactly the head commit checked above. Not --delete-branch: gh would also delete a local branch of that name, or
     # switch away from it, and can fail after the merge when a worktree has it checked out.
+    # A signal now mustn't stop this script, so it can report and tidy. A handler, not ignoring it: children get the default
+    # back, so Ctrl-C or a signal to the process group still ends a hung gh or git. One sent to this script alone waits
+    # for the running command. A closed pipe mustn't end this script either.
+    trap '' PIPE
+    trap : HUP INT TERM
     gh pr merge "$number" "$method" --match-head-commit "$head" || refuse "gh pr merge failed"
-    echo "merge-pr: merged pull request $number with $method in $(($(date +%s) - started))s"
+    echo "merge-pr: merged pull request $number with $method in $(($(date +%s) - started))s" || true
     # Only tidying from here on: a failure leaves the merge as it is
     # A fork's branch isn't here: a branch of the same name here is another one
     if [ "$fork" != true ]; then
-        git push --quiet origin --delete "$branch" 2>/dev/null || true
+        # Only if it is still the merged commit: a push since then isn't lost. Full names, so a tag of that name is safe
+        if ! git push --quiet --force-with-lease="refs/heads/$branch:$head" origin --delete "refs/heads/$branch" 2>/dev/null; then
+            code=0
+            git ls-remote --exit-code origin "refs/heads/$branch" >/dev/null 2>&1 || code=$?
+            # 2 is no such branch: already gone, so nothing to say
+            [ "$code" = 2 ] || echo "merge-pr: the branch $branch stays on GitHub: it has moved since the merged commit, or couldn't be deleted" >&2 || true
+        fi
     fi
     if [ "$fork" != true ] && [ "$(git rev-parse --verify --quiet "refs/heads/$branch" || true)" = "$head" ]; then
         git branch --quiet -D "$branch" 2>/dev/null || true
