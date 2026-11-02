@@ -58,10 +58,8 @@
       "Bash(docker-compose exec:*)",
       "Bash(docker-compose run:*)",
       "Bash(gh pr merge:*)",
-      "Bash(gh pr -R * merge)",
-      "Bash(gh pr -R * merge *)",
-      "Bash(gh pr --repo * merge)",
-      "Bash(gh pr --repo * merge *)",
+      "Bash(gh pr -* merge)",
+      "Bash(gh pr -* merge *)",
       "Bash(gh api *pulls/*/merge)",
       "Bash(gh api *pulls/*/merge *)",
       "Bash(gh api *mergePullRequest*)",
@@ -111,7 +109,7 @@
           },
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -x scripts/merge-pr-hook.sh ] && exec scripts/merge-pr-hook.sh || exit 0"
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -f scripts/merge-pr-hook.sh ] && exec sh scripts/merge-pr-hook.sh || exit 0"
           }
         ]
       }
