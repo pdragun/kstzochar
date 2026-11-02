@@ -56,7 +56,37 @@
       "Bash(docker compose run:*)",
       "Bash(docker exec:*)",
       "Bash(docker-compose exec:*)",
-      "Bash(docker-compose run:*)"
+      "Bash(docker-compose run:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr -R * merge)",
+      "Bash(gh pr -R * merge *)",
+      "Bash(gh pr --repo * merge)",
+      "Bash(gh pr --repo * merge *)",
+      "Bash(gh api *pulls/*/merge)",
+      "Bash(gh api *pulls/*/merge *)",
+      "Bash(gh api *mergePullRequest*)",
+      "Bash(gh api *mergeBranch*)",
+      "Bash(gh api *repos/*/merges*)",
+      "Bash(gh api *git/refs/heads/master)",
+      "Bash(gh api *git/refs/heads/master *)",
+      "Bash(git push *:master)",
+      "Bash(git push *:master *)",
+      "Bash(git push * master)",
+      "Bash(git push * master *)",
+      "Bash(git push * +master)",
+      "Bash(git push * +master *)",
+      "Bash(git push *refs/heads/master)",
+      "Bash(git push *refs/heads/master *)",
+      "Bash(gh api *git/refs/heads/main)",
+      "Bash(gh api *git/refs/heads/main *)",
+      "Bash(git push *:main)",
+      "Bash(git push *:main *)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push * +main)",
+      "Bash(git push * +main *)",
+      "Bash(git push *refs/heads/main)",
+      "Bash(git push *refs/heads/main *)"
     ]
   },
   "hooks": {
@@ -78,6 +108,10 @@
           {
             "type": "command",
             "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -f taskfiles/check-permissions.sh ] || { echo \"taskfiles/check-permissions.sh is missing, so risky allow rules are not caught\" >&2; exit 1; }; sh taskfiles/check-permissions.sh 1>&2; case $? in 0) exit 0;; 1) exit 2;; *) echo \"The permission check could not run, so risky allow rules are not caught\" >&2; exit 1;; esac"
+          },
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -x scripts/merge-pr-hook.sh ] && exec scripts/merge-pr-hook.sh || exit 0"
           }
         ]
       }

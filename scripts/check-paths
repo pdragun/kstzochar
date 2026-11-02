@@ -1,0 +1,11 @@
+no-worktree
+skip README.md
+skip AGENTS.md
+skip CLAUDE.md
+skip GEMINI.md
+skip docs/agents/*.md
+skip docs/decisions/*.md
+skip docs/design/*.md
+skip docs/plans/*.md
+skip docs/reviews/*.md
+skip .claude/skills/*
