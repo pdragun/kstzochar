@@ -1,0 +1,4 @@
+# Run on the pull request's head before merging it.
+# One command per line, in order; the first that fails stops the merge.
+task up
+task check
