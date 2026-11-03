@@ -19,7 +19,9 @@
 #   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it.
 #
 # Never give it an allow rule: it runs what must always ask, and a pull request's code. Inside a Claude Code session it
-# refuses settings that would skip the prompt, and scripts/merge-pr-hook.sh refuses sessions in a mode that does.
+# refuses settings that would skip the prompt (an allow rule for it, or a default mode `auto`, `bypassPermissions` or
+# `dontAsk`), and scripts/merge-pr-hook.sh stops sessions in a mode that does: in `auto` switched on for the session it
+# asks for the prompt, in the others it refuses.
 # MERGE_PR_TIMEOUT limits each command, in seconds (default 3600). Output of the checks: .git/merge-pr.log.
 set -eu
 
