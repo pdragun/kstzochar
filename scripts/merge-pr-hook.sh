@@ -3,8 +3,8 @@
 # session's settings don't show its mode, the hook's input does. Other commands pass, also without jq, so this can't lock
 # anyone out. It reads the command as written and refuses when in doubt: a part naming the script counts as running it
 # unless it starts with a command on the list below, or the command pipes into a shell. So a name built from a variable, a
-# command substitution or alias inside such a command, or a session started in another directory gets past it. A message
-# naming the script after a newline, `;`, `&` or `|` is refused: write it to a file first.
+# command or process substitution or alias inside such a command, or a session started in another directory gets past it.
+# A message naming the script after a newline, `;`, `&` or `|` is refused: write it to a file first.
 input=$(cat)
 case "$input" in
     *merge-pr.sh*) ;;
@@ -17,7 +17,7 @@ command -v jq >/dev/null || {
 runs=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' | tr ';&|\n' '\n\n\n\n' | grep -F merge-pr.sh | while read -r first _; do
     first=${first#\(}
     case "$first" in
-        ls | test | \[ | cat | less | head | tail | grep | rg | wc | file | stat | git | gh | echo | printf | chmod | diff) ;;
+        ls | test | \[ | cat | less | head | tail | grep | rg | wc | file | stat | git | gh | echo | printf | chmod | diff | cmp) ;;
         *) echo yes ;;
     esac
 done)

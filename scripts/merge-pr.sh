@@ -6,6 +6,17 @@
 #
 # Starting from the default branch means this script and its commands are the reviewed ones, not the pull request's.
 # What the commands call, such as a task, still comes from the head, so a change to those is for the review to catch.
+# The commands are scripts/check-commands, then this project's own in scripts/check-commands-own, if it has that file:
+# one per line, kept by the project. Both are read from the default branch but run on the head, so:
+# - a change to the own list counts from the merge after the one that brings it;
+# - land a task before the line that calls it: a head from before the task fails until it is rebased;
+# - a line that fails on every head, such as a renamed task's, also blocks the pull request that fixes it, which the user
+#   then merges with `gh pr merge` from a plain terminal, as this script has no override;
+# - a merge that changes only `skip` paths (scripts/check-paths) runs none, so don't list a command that reads them;
+# - a line can't ask for the main checkout: where scripts/check-paths has `no-worktree`, every line runs there, and
+#   elsewhere a run from a worktree runs them all in it;
+# - a list that exists must be a committed regular file without a NUL byte, or the merge is refused, and so is a line of
+#   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it.
 #
 # Never give it an allow rule: it runs what must always ask, and a pull request's code. Inside a Claude Code session it
 # refuses settings that would skip the prompt, and scripts/merge-pr-hook.sh refuses sessions in a mode that does.
@@ -13,11 +24,32 @@
 set -eu
 
 refuse() {
-    echo "merge-pr: not merged: $*" >&2
+    printf 'merge-pr: not merged: %s\n' "$*" >&2
     if [ -n "${ran:-}" ]; then
         echo "merge-pr: this checkout and anything it runs may still have what the head left, such as installed packages, images and migrations" >&2
     fi
     exit 1
+}
+
+# The lines of a list in the commit $tip, without comments and blank lines. Only a missing file means none: a failed read
+# mustn't drop a check, nor may an uncommitted file look like a list that is used. A shell's $(...) drops a NUL byte, which
+# would change a command, so that is refused. One sed, so its status counts, in the C locale, so no byte stops it.
+list_lines() {
+    entry=$(git ls-tree "$tip" -- "$1") || refuse "can't read $1"
+    case "$entry" in
+        "")
+            [ ! -e "$1" ] && [ ! -L "$1" ] ||
+                refuse "$1 isn't committed, so it wouldn't be used; move it, or bring it in with a pull request"
+            return 0
+            ;;
+        "100644 blob "* | "100755 blob "*) ;;
+        *) refuse "$1 isn't a regular file, so it can't be read as a list" ;;
+    esac
+    size=$(git cat-file -s "$tip:$1") || refuse "can't read $1"
+    [ "$(git cat-file blob "$tip:$1" | LC_ALL=C tr -d '\000' | wc -c)" -eq "$size" ] || refuse "$1 holds a NUL byte, or can't be read"
+    text=$(git cat-file blob "$tip:$1") || refuse "can't read $1"
+    cr=$(printf '\r')
+    printf '%s\n' "$text" | LC_ALL=C sed -E -e "s/$cr\$//" -e '/^[[:space:]]*(#|$)/d' || refuse "can't read $1"
 }
 
 settings_check() {
@@ -123,7 +155,7 @@ only_skipped_paths() {
     git fetch --quiet origin "$base" "refs/pull/$number/head" || refuse "can't fetch the pull request"
     git cat-file -e "$head^{commit}" 2>/dev/null ||
         refuse "its head $head can't be fetched"
-    changed=$(git diff --name-only --no-renames "$(git merge-base "origin/$base" "$head")" "$head")
+    changed=$(git diff --name-only --no-renames "$(git merge-base "refs/remotes/origin/$base" "$head")" "$head")
     [ -n "$changed" ] || return 1
     while IFS= read -r file; do
         matched=
@@ -137,6 +169,22 @@ only_skipped_paths() {
     done <<EOF
 $changed
 EOF
+}
+
+# The lists, and what changed on the default branch since the head branched (a new line, a changed task), come from
+# $tip, so a head without $tip may lack what a command calls. Only a may: a real failure gets this too, and stays after
+# the rebase. A head that has $tip gets nothing, as a rebase can't change it, and so does one git can't tell (status
+# other than 1, such as a missing object), as the advice would be a guess.
+advise_rebase() {
+    # Not $code, which the caller reports after this
+    behind=0
+    git merge-base --is-ancestor "$tip" "$head" || behind=$?
+    [ "$behind" = 1 ] || return 0
+    if [ "$base" = "$default" ] || git merge-base --is-ancestor "$tip" "refs/remotes/origin/$base" 2>/dev/null; then
+        printf 'merge-pr: this head lacks the latest %s, whose lists ran; if `%s` failed on what it lacks, rebase it onto %s and try again\n' "$default" "$1" "$base" >&2
+    else
+        printf 'merge-pr: this head lacks the latest %s, whose lists ran, and so does %s; if `%s` failed on what it lacks, this waits until %s has it\n' "$default" "$base" "$1" "$base" >&2
+    fi
 }
 
 back_to_start() {
@@ -183,8 +231,8 @@ run_checks() {
         refuse "can't switch to $head, which may track a file this checkout ignores; move that file first, as a pull would replace it too"
     ran=1
     while IFS= read -r command; do
-        echo "merge-pr: checking ${head%"${head#???????}"} with $command"
-        echo "\$ $command" >>"$log"
+        printf 'merge-pr: checking %s with %s\n' "${head%"${head#???????}"}" "$command"
+        printf '$ %s\n' "$command" >>"$log"
         code=0
         # No terminal: a command that asks would wait for ever
         timeout --foreground -k 30 "${MERGE_PR_TIMEOUT:-3600}" sh -c "$command" </dev/null >>"$log" 2>&1 9>&- || code=$?
@@ -195,8 +243,10 @@ run_checks() {
         if [ "$code" != 0 ]; then
             tail -n 15 "$log" >&2
             case "$code" in
-                124) echo "merge-pr: \`$command\` still ran after ${MERGE_PR_TIMEOUT:-3600}s; what it started may still run" >&2 ;;
-                137) echo "merge-pr: \`$command\` was killed, by the limit of ${MERGE_PR_TIMEOUT:-3600}s or for lack of memory; what it started may still run" >&2 ;;
+                124) printf 'merge-pr: `%s` still ran after %ss; what it started may still run\n' "$command" "${MERGE_PR_TIMEOUT:-3600}" >&2 ;;
+                137) printf 'merge-pr: `%s` was killed, by the limit of %ss or for lack of memory; what it started may still run\n' "$command" "${MERGE_PR_TIMEOUT:-3600}" >&2 ;;
+                # A missing task fails at once: not what a limit or a kill means
+                *) advise_rebase "$command" ;;
             esac
             [ -z "$(git status --porcelain --untracked-files=no)" ] || {
                 switched=
@@ -221,7 +271,9 @@ main() {
     number=$1
     method=$2
     case "$method" in
-        --merge | --squash | --rebase) ;;
+        --merge) allowed=mergeCommitAllowed ;;
+        --squash) allowed=squashMergeAllowed ;;
+        --rebase) allowed=rebaseMergeAllowed ;;
         *) refuse "unknown merge method $method" ;;
     esac
     cd "$(git rev-parse --show-toplevel)"
@@ -236,23 +288,54 @@ main() {
     lock="$(git rev-parse --git-common-dir)/merge-pr.lock"
     git fetch --quiet origin
     default=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name) || refuse "can't read the default branch"
+    # Now, not after minutes of checks. A failed read, or a ruleset that narrows it, leaves it to the merge itself
+    allowance=$(gh repo view --json "$allowed" -q ".$allowed") ||
+        echo "merge-pr: can't read whether $method is allowed; the merge itself will say" >&2
+    [ "${allowance:-}" != false ] || refuse "this repository doesn't allow $method"
+    # One commit for every list read below: another run's switch can move HEAD, and a head can empty a list. The full name,
+    # as a local branch or tag called origin/<default> would otherwise win, and its lists pass for the reviewed ones
+    tip=$(git rev-parse --verify --quiet "refs/remotes/origin/$default^{commit}") ||
+        refuse "the fetch brought no origin/$default; check this remote's fetch refspec"
     # A second run in this checkout finds it on the first run's head, and mustn't advise a switch under it
-    if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$default")" ]; then
+    if [ "$(git rev-parse HEAD)" != "$tip" ]; then
         flock -n "$lock" true 2>/dev/null || refuse "another run is checking in this repository"
     fi
-    [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$default")" ] ||
-        refuse "start from $default equal to origin/$default, so the script and its commands are the reviewed ones (git switch $default && git pull --ff-only; in a worktree, git switch --detach origin/$default)"
-    start=$(git symbolic-ref --quiet --short HEAD || echo "--detach $(git rev-parse HEAD)")
+    [ "$(git rev-parse HEAD)" = "$tip" ] ||
+        refuse "start from $default equal to origin/$default, so the script and its commands are the reviewed ones (git switch $default && git pull --ff-only; in a worktree, git switch --detach refs/remotes/origin/$default)"
+    # Not --short, which says heads/<branch> when a tag has the branch's name, and git switch refuses that
+    start=$(git symbolic-ref --quiet HEAD || echo "--detach $tip")
+    start=${start#refs/heads/}
 
     # Read from the commit before any switch: not the head's copies, nor uncommitted edits, which could skip every check
-    git diff --quiet HEAD -- scripts/merge-pr.sh scripts/check-commands scripts/check-paths ||
+    git diff --quiet "$tip" -- scripts/merge-pr.sh scripts/check-commands scripts/check-commands-own scripts/check-paths ||
         refuse "scripts/ has uncommitted changes to this script or its lists"
-    commands=$(git show HEAD:scripts/check-commands 2>/dev/null | grep -vE '^[[:space:]]*(#|$)' || true)
+    commands=$(list_lines scripts/check-commands)
     [ -n "$commands" ] || refuse "scripts/check-commands is missing or holds no command"
-    paths=$(git show HEAD:scripts/check-paths 2>/dev/null || true)
-    no_worktree=$(printf '%s\n' "$paths" | grep -xF no-worktree || true)
+    own=$(list_lines scripts/check-commands-own)
+    [ -z "$own" ] || commands="$commands
+$own"
+    paths=$(list_lines scripts/check-paths)
+    no_worktree=
     # The globs stay literal: they are patterns for the paths, not for the files here
-    skip=$(printf '%s\n' "$paths" | sed -n 's/^skip //p')
+    skip=
+    # A line this doesn't know refuses: a slip in `no-worktree` would silently turn off the guard
+    while read -r word rest; do
+        known=
+        case "$word" in
+            "") known=1 ;;
+            no-worktree) [ -n "$rest" ] || { no_worktree=1; known=1; } ;;
+            # One glob: more words would each count, so `skip a # not code, so *` would skip every check
+            skip) case "$rest" in
+                "" | *[[:space:]]*) ;;
+                *) skip="$skip
+$rest"; known=1 ;;
+            esac ;;
+        esac
+        [ -n "$known" ] ||
+            refuse "scripts/check-paths has a line this script doesn't know: $word $rest. A pull request fixing it can't pass this either: the user merges that one with gh pr merge from a plain terminal"
+    done <<EOF
+$paths
+EOF
 
     look_at_github
     set -f
@@ -264,8 +347,11 @@ main() {
         run_checks
         # The checks take minutes: a review or a push meanwhile counts
         checked=$head
+        checked_base=$base
         look_at_github
         [ "$head" = "$checked" ] || refuse "a new head, $head, was pushed during the checks"
+        # A retarget lands it on a base its checks and its skipped paths never saw
+        [ "$base" = "$checked_base" ] || refuse "its base changed from $checked_base to $base during the checks"
     fi
 
     # Exactly the head commit checked above. Not --delete-branch: gh would also delete a local branch of that name, or

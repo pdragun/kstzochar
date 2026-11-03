@@ -1,4 +1,5 @@
 # Run on the pull request's head before merging it.
 # One command per line, in order; the first that fails stops the merge.
+# This project's own commands go in scripts/check-commands-own.
 task up
 task check
