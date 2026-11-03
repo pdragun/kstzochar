@@ -236,6 +236,18 @@ tasks:
               vars:
                   CLI_ARGS: doctrine:migrations:migrate --no-interaction {{.CLI_ARGS}}
 
+    # For a project's up and db:reset, which must work before its first migration (doctrine:migrations:migrate
+    # refuses to run without one). It never takes "-- x" arguments ("task db:reset -- x" would otherwise give x to
+    # the migration after the volume is gone); a caller sets fixed options with vars: {MIGRATE_OPTIONS: …}.
+    doctrine:migrations:migrate:if-present:
+        internal: true
+        status:
+            - test -z "$(find migrations -name '*.php' -print -quit 2>/dev/null)"
+        cmds:
+            - task: doctrine:migrations:migrate
+              vars:
+                  CLI_ARGS: '{{.MIGRATE_OPTIONS}}'
+
     doctrine:migrations:migrate:prev:
         desc: Roll back the last migration
         aliases: [dmmprev]

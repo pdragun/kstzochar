@@ -10,10 +10,14 @@
 # its scripts), change, publish or delete data, or never return. Add new shared tasks of that kind here, and a
 # project's own ones to its taskfiles/permission-probes. Rules match like
 # Claude Code's: a trailing :* or " *" is the prefix, then nothing or a space and anything; any other * is a plain
-# glob. Task runs every task named on its command line, so a wildcard before " -- " also lets any other task run.
+# glob. Task runs every task named on its command line, so a wildcard before " -- " also lets any other task run,
+# so a rule is read as Task reads it (up to a shell separator, spaces collapsed, names unquoted and without the root
+# namespace's ":"), and each task it names is checked alone with the arguments after "--": a probe without arguments
+# counts wherever a rule names its task, whatever flags, variables and arguments surround it, and a runner named
+# after another task counts as a runner. A project's own probes are read the same way.
 # The runners' arguments run code (any npm or composer command), so every rule for them is risky but the safe ones
-# (a safe command, or it followed by a space, : or *). Task's options other than the listing ones are risky too:
-# -t and -d run another Taskfile.
+# (a safe command, or it followed by a space, : or *). Task's options other than the listing ones are risky too,
+# anywhere before "--": -t and -d run another Taskfile.
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -40,7 +44,8 @@ probes_unreadable=
 # shared probes and says so.
 if [ -e taskfiles/permission-probes ] || [ -L taskfiles/permission-probes ]; then
     if all=$(jq -cn --argjson probes "$probes" --rawfile own taskfiles/permission-probes \
-        '$probes + [$own | split("\n")[] | sub("(^\\s*#|\\s#(\\D|$)).*"; "") | gsub("^\\s+|\\s+$"; "") | select(length > 0)]'); then
+        '$probes + [$own | split("\n")[] | sub("(^\\s*#|\\s#(\\D|$)).*"; "") | gsub("^\\s+|\\s+$"; "") | select(length > 0)
+            | gsub("\\s+"; " ")]'); then
         probes=$all
     else
         echo "check-permissions: can't read taskfiles/permission-probes, so only the shared probes count" >&2
@@ -49,32 +54,67 @@ if [ -e taskfiles/permission-probes ] || [ -L taskfiles/permission-probes ]; the
 fi
 user=${CLAUDE_CONFIG_DIR:-${HOME:-}/.claude}/settings.json
 allowed=
+# The check of one settings file's rules. In a quoted heredoc, so a ' in it is harmless.
+rules_check=$(cat <<'JQ'
+# A command as Task reads it: spaces collapsed, redirections and their targets dropped, cut at a shell separator
+# (| & ;), and the words before a "--" word unquoted (quotes, backslashes, $'...') and without the root namespace's
+# ":". Gives {task, names, flags, tail}, tail being " -- ..." or "".
+def parse:
+    gsub("\\s+"; " ") | sub("^ "; "") | sub(" $"; "")
+    | if startswith("task ") or . == "task" then
+          gsub(" ?[0-9]*[<>]+&? ?[^ ]*"; "") | sub(" ?[|&;].*$"; "") | sub(" $"; "")
+          | (split(" ")[1:]) as $w
+          | ($w | index("--")) as $i
+          | ($w[:($i // ($w | length))] | map(gsub("[\"'\\\\]"; "") | ltrimstr("$") | ltrimstr(":") | select(length > 0))) as $before
+          | {task: true,
+             names: [$before[] | select((startswith("-") or contains("=")) | not)],
+             flags: [$before[] | select(startswith("-"))],
+             tail: (if $i == null then "" else " " + ($w[$i:] | join(" ")) end)}
+      else {task: false, text: .} end;
+# The same command without flags and variables: "task <names> -- ..."
+def canon: parse | if .task then (["task"] + .names | join(" ")) + .tail else .text end;
+# The commands a rule allows, as Claude Code matches them: a trailing :* or " *" is the prefix, any other * a glob
+def rule_re:
+    test("[ :]\\*$") as $prefix
+    | sub("[ :]\\*$"; "") | gsub("(?<c>[.+?^${}()|\\[\\]\\\\])"; "\\\(.c)") | gsub("\\*"; ".*")
+    | "^" + . + (if $prefix then "( .*)?" else "" end) + "$";
+def is_safe($safe):
+    . as $c | any($safe[]; . as $s | $c == $s
+        or ($c | startswith($s) and IN($c[($s | length):($s | length) + 1]; " ", ":", "*")));
+
+($probes | map(canon)) as $probes
+| (select(.permissions.defaultMode? == "bypassPermissions")
+      | "every command  <-  defaultMode bypassPermissions in \(input_filename)"),
+  ((.permissions.allow[]? | strings) as $rule
+      | if $rule == "Bash" then "every command  <-  Bash in \(input_filename)"
+        elif ($rule | startswith("Bash(")) then
+            ($rule | ltrimstr("Bash(") | rtrimstr(")")) as $raw
+            | ($raw | parse) as $p
+            | ($raw | canon) as $cmd
+            # Each task the rule runs, alone with the arguments after "--": "task lint npm -- x" runs "task npm -- x"
+            | (if $p.task then [$p.names[] | "task " + . + $p.tail] else [] end) as $singles
+            | ($raw | sub("[ :]\\*$"; "") | select(test("^\\s*\\**\\s*$"))
+                  | "every command  <-  \($rule) in \(input_filename)"),
+              ([$cmd] + $singles | unique[] | rule_re as $re | $probes[] | select(test($re))
+                  | "\(.)  <-  \($rule) in \(input_filename)"),
+              # A probe without arguments counts wherever a rule names its task, whatever surrounds it
+              ($probes[] | select(test("^task [^ ]+$")) | select(ltrimstr("task ") as $n | any($p.names[]?; . == $n))
+                  | "\(.)  <-  \($rule) in \(input_filename)"),
+              # A wildcard before "--", also in a variable or after a separator or redirection, as written
+              ($raw | gsub("\\s+"; " ") | sub("^ "; "") | select(startswith("task ") and (split(" -- ")[0] | contains("*")))
+                  | "task <any other task>  <-  \($rule) in \(input_filename)"),
+              # Task's options anywhere before "--", other than the listing ones
+              ($p | select(.task) | .flags[] | select(test("^(--list|--list-all|-l|-a|--version)$") | not)
+                  | "\($raw) (Task options)  <-  \($rule) in \(input_filename)"),
+              ($singles[] | select(test("^task (" + $runners + ")( |$)") and (is_safe($safe) | not))
+                  | "\(.) (its arguments run code)  <-  \($rule) in \(input_filename)")
+        else empty end)
+JQ
+)
 for file in .claude/settings.json .claude/settings.local.json "$user"; do
     [ -f "$file" ] || continue
     # One file at a time, so a broken one doesn't hide the rules of the others
-    found=$(jq -r --argjson probes "$probes" --arg runners "$runners" --argjson safe "$safe" '
-        (select(.permissions.defaultMode? == "bypassPermissions")
-            | "every command  <-  defaultMode bypassPermissions in \(input_filename)"),
-        ((.permissions.allow[]? | strings) as $rule
-            | if $rule == "Bash" then "every command  <-  Bash in \(input_filename)"
-              elif ($rule | startswith("Bash(")) then
-                  ($rule | ltrimstr("Bash(") | rtrimstr(")")) as $cmd
-                  | ($cmd | test("[ :]\\*$")) as $prefix
-                  | ($cmd | sub("[ :]\\*$"; "")) as $stem
-                  | ($stem
-                      | gsub("(?<c>[.+?^${}()|\\[\\]\\\\])"; "\\\(.c)") | gsub("\\*"; ".*")
-                      | "^" + . + (if $prefix then "( .*)?" else "" end) + "$") as $re
-                  | ($stem | select(test("^\\s*\\**\\s*$")) | "every command  <-  \($rule) in \(input_filename)"),
-                    ($probes[] | select(test($re)) | "\(.)  <-  \($rule) in \(input_filename)"),
-                    ($cmd | select(startswith("task ") and (split(" -- ")[0] | contains("*")))
-                      | "task <any other task>  <-  \($rule) in \(input_filename)"),
-                    ($cmd | select(test("^task -") and (test("^task (--list|--list-all|-l|-a|--version)( |$)") | not))
-                      | "\(.) (Task options)  <-  \($rule) in \(input_filename)"),
-                    ($cmd | select(test("^task (" + $runners + ")( |$)")
-                          and ((. as $c | any($safe[]; . as $s | $c == $s
-                              or ($c | startswith($s) and IN($c[($s | length):($s | length) + 1]; " ", ":", "*")))) | not))
-                      | "\(.) (its arguments run code)  <-  \($rule) in \(input_filename)")
-              else empty end)' "$file") || {
+    found=$(jq -r --argjson probes "$probes" --arg runners "$runners" --argjson safe "$safe" "$rules_check" "$file") || {
         unreadable="$unreadable $file"
         continue
     }
