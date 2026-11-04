@@ -2,7 +2,21 @@
 # Merges a pull request after running this project's checks on its head, so the result doesn't rest on what anyone
 # reported. Usage, from the default branch, up to date:
 #
-#   scripts/merge-pr.sh <number> --merge|--squash|--rebase
+#   scripts/merge-pr.sh <number> --merge|--squash|--rebase [--override '<what>' '<the user'\''s words>']...
+#
+# --override passes one policy refusal the user decided to accept, and adds a line
+# `Merge override: <head> <what> (decided by the user, <date>: "<words>")` to the pull request before the merge:
+# - `check:<command>`, a command of the lists, as written there, that failed; the next ones still run. Not one that hit
+#   the limit, was killed or was ended by a hangup, interrupt or terminate signal, as what it started may still run,
+#   nor a line with a tab or carriage return, which can't be named;
+# - `no-commands`, a project without scripts/check-commands (or an empty one); scripts/check-commands-own still runs;
+# - `check-paths`, every line of scripts/check-paths this script doesn't know, each then read as `no-worktree`, the
+#   stricter reading, as it may be a misspelt one; so it runs from the main checkout.
+# The words go in single quotes, with each ' in them written '\'', and can't hold a double quote. An override a run
+# didn't need is said and records nothing.
+# Each is its own flag, given once, so passing one passes nothing else. It never passes the settings check, the lock, a linked
+# worktree, uncommitted changes, a default branch other than origin's, a check that changes tracked files, changes
+# requested, a missing review line, or GitHub's checks.
 #
 # Starting from the default branch means this script and its commands are the reviewed ones, not the pull request's.
 # What the commands call, such as a task, still comes from the head, so a change to those is for the review to catch.
@@ -11,12 +25,13 @@
 # - a change to the own list counts from the merge after the one that brings it;
 # - land a task before the line that calls it: a head from before the task fails until it is rebased;
 # - a line that fails on every head, such as a renamed task's, also blocks the pull request that fixes it, which the user
-#   then merges with `gh pr merge` from a plain terminal, as this script has no override;
+#   then passes with `--override check:<the line>`;
 # - a merge that changes only `skip` paths (scripts/check-paths) runs none, so don't list a command that reads them;
 # - a line can't ask for the main checkout: where scripts/check-paths has `no-worktree`, every line runs there, and
 #   elsewhere a run from a worktree runs them all in it;
 # - a list that exists must be a committed regular file without a NUL byte, or the merge is refused, and so is a line of
-#   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it.
+#   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it (`--override
+#   check-paths`).
 #
 # Never give it an allow rule: it runs what must always ask, and a pull request's code. Inside a Claude Code session it
 # refuses settings that would skip the prompt (an allow rule for it, or a default mode `auto`, `bypassPermissions` or
@@ -31,6 +46,28 @@ refuse() {
         echo "merge-pr: this checkout and anything it runs may still have what the head left, such as installed packages, images and migrations" >&2
     fi
     exit 1
+}
+
+# The records below are lines of <what><tab><words>
+tab=$(printf '\t')
+cr=$(printf '\r')
+
+# Whether the user passed --override $1; if so, records it once for the pull request's body and says so
+overridden() {
+    while IFS=$tab read -r what words; do
+        [ -n "$what" ] && [ "$what" = "$1" ] || continue
+        case "$used" in
+            *"
+$1$tab"*) ;;
+            *) used="$used
+$1$tab$words" ;;
+        esac
+        printf 'merge-pr: passed by --override %s ("%s")\n' "$1" "$words" >&2
+        return 0
+    done <<EOF
+$overrides
+EOF
+    return 1
 }
 
 # The lines of a list in the commit $tip, without comments and blank lines. Only a missing file means none: a failed read
@@ -50,7 +87,6 @@ list_lines() {
     size=$(git cat-file -s "$tip:$1") || refuse "can't read $1"
     [ "$(git cat-file blob "$tip:$1" | LC_ALL=C tr -d '\000' | wc -c)" -eq "$size" ] || refuse "$1 holds a NUL byte, or can't be read"
     text=$(git cat-file blob "$tip:$1") || refuse "can't read $1"
-    cr=$(printf '\r')
     printf '%s\n' "$text" | LC_ALL=C sed -E -e "s/$cr\$//" -e '/^[[:space:]]*(#|$)/d' || refuse "can't read $1"
 }
 
@@ -80,11 +116,17 @@ settings_check() {
             esac
             for path in scripts/merge-pr.sh ./scripts/merge-pr.sh "$PWD/scripts/merge-pr.sh"; do
                 for wrapper in "" "sh " "bash " "dash " "env " "nohup " "time " "timeout 60 "; do
-                    spelling="$wrapper$path 1 --merge"
-                    # shellcheck disable=SC2254 # the rule is the pattern
-                    case "$spelling" in
-                        $pattern) refuse "$file allows this script without a prompt ($rule); remove the rule, or run this from a plain terminal, outside Claude Code" ;;
-                    esac
+                    # Also with an override, so a rule allowing only those runs is caught
+                    for method in --merge --squash --rebase; do
+                        for override in "" " --override check:x y" " --override 'check:x' 'y'" " --override no-commands y" \
+                            " --override 'no-commands' 'y'" " --override check-paths y" " --override 'check-paths' 'y'"; do
+                            spelling="$wrapper$path 1 $method$override"
+                            # shellcheck disable=SC2254 # the rule is the pattern
+                            case "$spelling" in
+                                $pattern) refuse "$file allows this script without a prompt ($rule); remove the rule, or run this from a plain terminal, outside Claude Code" ;;
+                            esac
+                        done
+                    done
                 done
             done
         done <<EOF
@@ -244,17 +286,30 @@ run_checks() {
         }
         if [ "$code" != 0 ]; then
             tail -n 15 "$log" >&2
-            case "$code" in
-                124) printf 'merge-pr: `%s` still ran after %ss; what it started may still run\n' "$command" "${MERGE_PR_TIMEOUT:-3600}" >&2 ;;
-                137) printf 'merge-pr: `%s` was killed, by the limit of %ss or for lack of memory; what it started may still run\n' "$command" "${MERGE_PR_TIMEOUT:-3600}" >&2 ;;
-                # A missing task fails at once: not what a limit or a kill means
-                *) advise_rebase "$command" ;;
-            esac
             [ -z "$(git status --porcelain --untracked-files=no)" ] || {
                 switched=
                 refuse "\`$command\` failed and changed tracked files, so this checkout stays on $head (see git status, restore or stash them, then git switch $start, which would otherwise carry them over; output in $log)"
             }
-            refuse "\`$command\` failed with $code (output in $log)"
+            # What a limit or a kill left may still run, so no override passes it. A command can also exit so itself
+            # (an OOM-killed container), which only a merge from a plain terminal passes
+            nofinish="no override passes that, as what it started may still run: run it again once that has ended, or if the user accepts it, they merge from a plain terminal"
+            case "$code" in
+                124) refuse "\`$command\` still ran after ${MERGE_PR_TIMEOUT:-3600}s (output in $log); $nofinish" ;;
+                137) refuse "\`$command\` was killed, by the limit of ${MERGE_PR_TIMEOUT:-3600}s or for lack of memory (output in $log); $nofinish" ;;
+                # The signals that end a command from outside (hangup, interrupt, terminate), so what it started may
+                # still run. Not every code above 128: task exits 201 for a failed command, PHP 255 for a fatal error
+                129 | 130 | 143) refuse "\`$command\` was ended by signal $((code - 128)) (output in $log); $nofinish" ;;
+                # A missing task fails at once: not what a limit or a kill means
+                *) advise_rebase "$command" ;;
+            esac
+            overridden "check:$command" || {
+                case "$command" in
+                    *"$tab"* | *"$cr"*) refuse "\`$command\` failed with $code (output in $log); its line holds a tab or a carriage return, which --override can't name, so if the user accepts that, they merge it from a plain terminal" ;;
+                esac
+                # As one shell word, also for a line with a quote in it
+                quoted=$(printf '%s' "check:$command" | sed "s/'/'\\\\''/g")
+                refuse "\`$command\` failed with $code (output in $log); if the user accepts that, run this again with --override '$quoted' '<their words>'"
+            }
         fi
         [ -z "$(git status --porcelain --untracked-files=no)" ] || {
             switched=
@@ -269,9 +324,40 @@ EOF
 }
 
 main() {
-    [ $# = 2 ] || refuse "usage: scripts/merge-pr.sh <number> --merge|--squash|--rebase"
+    usage="usage: scripts/merge-pr.sh <number> --merge|--squash|--rebase [--override '<what>' '<the user'\\''s words>']..."
+    [ $# -ge 2 ] || refuse "$usage"
     number=$1
     method=$2
+    shift 2
+    overrides=
+    used=
+    while [ $# -gt 0 ]; do
+        [ "$1" = --override ] && [ $# -ge 3 ] || refuse "$usage"
+        case "$2" in
+            no-commands | check-paths | check:?*) ;;
+            *) refuse "unknown override $2: it passes no-commands, check-paths or check:<a command of the lists>" ;;
+        esac
+        case "$3" in
+            *[![:space:]]*) ;;
+            *) refuse "--override $2 needs the user's words" ;;
+        esac
+        # One line each, a tab between: the record and the matching read them so. The record quotes the words
+        case "$2$3" in
+            *"
+"* | *"$tab"* | *"$cr"*) refuse "--override takes its name and the user's words on one line, without tabs or carriage returns" ;;
+        esac
+        case "$3" in
+            *'"'*) refuse "--override $2: the record quotes the user's words in double quotes, so they can't hold one" ;;
+        esac
+        # A second one would be dropped without a word
+        case "$overrides" in
+            *"
+$2$tab"*) refuse "--override $2 is given twice; give it once, with the user's words" ;;
+        esac
+        overrides="$overrides
+$2$tab$3"
+        shift 3
+    done
     case "$method" in
         --merge) allowed=mergeCommitAllowed ;;
         --squash) allowed=squashMergeAllowed ;;
@@ -312,10 +398,15 @@ main() {
     git diff --quiet "$tip" -- scripts/merge-pr.sh scripts/check-commands scripts/check-commands-own scripts/check-paths ||
         refuse "scripts/ has uncommitted changes to this script or its lists"
     commands=$(list_lines scripts/check-commands)
-    [ -n "$commands" ] || refuse "scripts/check-commands is missing or holds no command"
+    [ -n "$commands" ] || overridden no-commands ||
+        refuse "scripts/check-commands is missing or holds no command; if the user accepts merging without it, run this again with --override no-commands '<their words>'"
     own=$(list_lines scripts/check-commands-own)
-    [ -z "$own" ] || commands="$commands
+    if [ -z "$commands" ]; then
+        commands=$own
+    elif [ -n "$own" ]; then
+        commands="$commands
 $own"
+    fi
     paths=$(list_lines scripts/check-paths)
     no_worktree=
     # The globs stay literal: they are patterns for the paths, not for the files here
@@ -333,8 +424,9 @@ $own"
 $rest"; known=1 ;;
             esac ;;
         esac
-        [ -n "$known" ] ||
-            refuse "scripts/check-paths has a line this script doesn't know: $word $rest. A pull request fixing it can't pass this either: the user merges that one with gh pr merge from a plain terminal"
+        # A passed line counts as `no-worktree`, as it may be a misspelt one
+        [ -n "$known" ] || { overridden check-paths && no_worktree=1; } ||
+            refuse "scripts/check-paths has a line this script doesn't know: $word $rest. A pull request fixing it can't pass this either: if the user accepts that, run this again with --override check-paths '<their words>', which passes every unknown line and reads each as no-worktree, so from the main checkout"
     done <<EOF
 $paths
 EOF
@@ -344,6 +436,9 @@ EOF
     if only_skipped_paths; then
         set +f
         echo "merge-pr: every changed path is one the checks don't read, so none ran"
+    elif [ -z "$commands" ]; then
+        set +f
+        echo "merge-pr: no command to run"
     else
         set +f
         run_checks
@@ -356,6 +451,42 @@ EOF
         [ "$base" = "$checked_base" ] || refuse "its base changed from $checked_base to $base during the checks"
     fi
 
+    # Read again, so an edit to the body during the checks stays, and a line a failed run left isn't added twice
+    # An override the run didn't need is said, as a misspelt one would otherwise go unnoticed
+    printf '%s\n' "$overrides" | while IFS=$tab read -r what words; do
+        [ -z "$what" ] || case "$used" in
+            *"
+$what$tab"*) ;;
+            *) printf 'merge-pr: --override %s was not needed, so it is not recorded\n' "$what" >&2 ;;
+        esac
+    done
+    if [ -n "$used" ]; then
+        today=$(date +%Y-%m-%d)
+        # Not in a pipe: only the last command's failure would count, and an empty body would replace the real one
+        json=$(gh pr view "$number" --json body) || refuse "can't read the body of pull request $number"
+        body=$(printf '%s' "$json" | jq -r .body) || refuse "can't read the body of pull request $number"
+        # Compared without the CRs of a body edited on GitHub's site; the body itself is written back as it was
+        plain=$(printf '%s' "$body" | tr -d '\r')
+        # Only the same line is left out: other words, or another day, are another decision and are recorded too
+        lines=$(printf '%s\n' "$used" | while IFS=$tab read -r what words; do
+            [ -n "$what" ] || continue
+            line=$(printf 'Merge override: %s %s (decided by the user, %s: "%s")' "$head" "$what" "$today" "$words")
+            printf '%s\n' "$plain" | grep -qxF -- "$line" || printf '%s\n' "$line"
+        done)
+        if [ -n "$lines" ]; then
+            # In the body's own line ends
+            case "$body" in
+                *"$cr"*) new="${body%"$cr"}$cr
+$cr
+$(printf '%s\n' "$lines" | sed "s/\$/$cr/")
+" ;;
+                *) new="$body
+
+$lines" ;;
+            esac
+            gh pr edit "$number" --body "$new" >/dev/null || refuse "can't add the Merge override lines to pull request $number, so nothing was merged"
+        fi
+    fi
     # Exactly the head commit checked above. Not --delete-branch: gh would also delete a local branch of that name, or
     # switch away from it, and can fail after the merge when a worktree has it checked out.
     # A signal now mustn't stop this script, so it can report and tidy. A handler, not ignoring it: children get the default
@@ -363,7 +494,8 @@ EOF
     # for the running command. A closed pipe mustn't end this script either.
     trap '' PIPE
     trap : HUP INT TERM
-    gh pr merge "$number" "$method" --match-head-commit "$head" || refuse "gh pr merge failed"
+    gh pr merge "$number" "$method" --match-head-commit "$head" ||
+        refuse "gh pr merge failed${used:+; the Merge override lines stay in the pull request, and a run again with the same words on the same day adds none of them twice}"
     echo "merge-pr: merged pull request $number with $method in $(($(date +%s) - started))s" || true
     # Only tidying from here on: a failure leaves the merge as it is
     # A fork's branch isn't here: a branch of the same name here is another one

@@ -28,17 +28,25 @@ probes='["task docker:exec", "task sh", "task shell", "task console -- x", "task
     "task console -- doctrine:database:drop --force", "task c -- doctrine:database:drop --force",
     "task composer -- x", "task install", "task app:install", "task ci", "task composer:install", "task npm -- x",
     "task npm -- ci", "task npm -- install", "task node:exec", "task build", "task assets:build", "task follow",
-    "task app:follow-logs", "task db:reset", "task dbr", "task app:db:reset", "task db:grant-test", "task db:shell",
-    "task dbsh", "task fix-perms", "task down", "task app:down", "task dr", "task docker:rebuild", "task update",
-    "task docker:update", "task dmm", "task dmmprev", "task docker:up", "task composer:install:stale",
-    "task doctrine:migrations:migrate", "task doctrine:migrations:migrate:prev", "task up", "task app:up",
-    "scripts/merge-pr.sh 1 --merge", "./scripts/merge-pr.sh 1 --merge"]'
+    "task app:follow-logs", "task db:reset", "task dbr", "task app:db:reset", "task db:grant-test",
+    "task db:shell", "task dbsh", "task fix-perms", "task down", "task app:down", "task dr", "task docker:rebuild",
+    "task update", "task docker:update", "task dmm", "task dmmprev", "task docker:up",
+    "task composer:install:stale", "task doctrine:migrations:migrate", "task doctrine:migrations:migrate:prev",
+    "task up", "task app:up"]'
 runners='composer|npm|node:exec|docker:exec|sh|shell|dbsh|db:shell|console|c'
 safe='["task composer -- outdated", "task composer -- validate", "task composer -- show", "task npm -- outdated",
     "task npm -- ls", "task console -- about", "task console -- debug", "task console -- lint", "task c -- about",
     "task c -- debug", "task c -- lint"]'
 
 command -v jq >/dev/null || { echo "check-permissions: needs jq, so the allow rules aren't checked" >&2; exit 2; }
+# Every spelling of the merge script, each path, method and override, as its own settings check tries them
+probes=$(printf '%s' "$probes" | jq -c '. + [("scripts/merge-pr.sh", "./scripts/merge-pr.sh") as $p
+    | ("--merge", "--squash", "--rebase") as $m
+    | ("", " --override check:x y", " --override \u0027check:x\u0027 \u0027y\u0027", " --override no-commands y",
+        " --override check-paths y") as $o | "\($p) 1 \($m)\($o)"]') || {
+    echo "check-permissions: can't build the probes" >&2
+    exit 2
+}
 unreadable=
 probes_unreadable=
 # A project's own risky tasks: taskfiles/permission-probes, one command per line; a "#" at the start of a line, or
@@ -150,6 +158,8 @@ def is_safe($safe):
             | (if $p.task then [$p.names[] | "task " + . + $p.tail] else [] end) as $singles
             | ($raw | sub("[ :]\\*$"; "") | select(test("^\\s*\\**\\s*$"))
                   | "every command  <-  \($rule) in \(input_filename)"),
+              # Whatever it allows of the merge script, which must always ask
+              ($raw | select(contains("merge-pr")) | "scripts/merge-pr.sh  <-  \($rule) in \(input_filename)"),
               ([$cmd] + $singles | unique[] | rule_re as $re | $probes[] | select(test($re))
                   | "\(.)  <-  \($rule) in \(input_filename)"),
               # A probe without arguments counts wherever a rule names its task, whatever surrounds it
