@@ -117,10 +117,11 @@ settings_check() {
             for path in scripts/merge-pr.sh ./scripts/merge-pr.sh "$PWD/scripts/merge-pr.sh"; do
                 for wrapper in "" "sh " "bash " "dash " "env " "nohup " "time " "timeout 60 "; do
                     # Also with an override, so a rule allowing only those runs is caught
-                    for method in --merge --squash --rebase; do
+                    # Not $method: that is the merge this run makes, and a loop variable here would replace it
+                    for probe in --merge --squash --rebase; do
                         for override in "" " --override check:x y" " --override 'check:x' 'y'" " --override no-commands y" \
                             " --override 'no-commands' 'y'" " --override check-paths y" " --override 'check-paths' 'y'"; do
-                            spelling="$wrapper$path 1 $method$override"
+                            spelling="$wrapper$path 1 $probe$override"
                             # shellcheck disable=SC2254 # the rule is the pattern
                             case "$spelling" in
                                 $pattern) refuse "$file allows this script without a prompt ($rule); remove the rule, or run this from a plain terminal, outside Claude Code" ;;
@@ -368,7 +369,8 @@ $2$tab$3"
     switched=
     started=$(date +%s)
     if [ -n "${CLAUDECODE:-}" ]; then
-        settings_check
+        # In a subshell: its loops set plain variables, and one named like main's (it was $method) changed the merge
+        ( settings_check ) || exit 1
         echo "merge-pr: settings check passed"
     else
         echo "merge-pr: settings check skipped, not inside a Claude Code session"
@@ -394,8 +396,12 @@ $2$tab$3"
     start=$(git symbolic-ref --quiet HEAD || echo "--detach $tip")
     start=${start#refs/heads/}
 
-    # Read from the commit before any switch: not the head's copies, nor uncommitted edits, which could skip every check
-    git diff --quiet "$tip" -- scripts/merge-pr.sh scripts/check-commands scripts/check-commands-own scripts/check-paths ||
+    # Read from the commit before any switch: not the head's copies, nor uncommitted edits, which could skip every check.
+    # Also the file that runs, where scripts/merge-pr.sh is a link: a diff of the link alone misses edits to its target
+    self=$(readlink -f "$0")
+    top=$(git rev-parse --show-toplevel)
+    case $self in "$top"/*) self=${self#"$top"/} ;; *) self=scripts/merge-pr.sh ;; esac
+    git diff --quiet "$tip" -- scripts/merge-pr.sh "$self" scripts/check-commands scripts/check-commands-own scripts/check-paths ||
         refuse "scripts/ has uncommitted changes to this script or its lists"
     commands=$(list_lines scripts/check-commands)
     [ -n "$commands" ] || overridden no-commands ||
