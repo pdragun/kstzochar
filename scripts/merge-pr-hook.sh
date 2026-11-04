@@ -31,8 +31,15 @@ case "$mode" in
     default | acceptEdits) exit 0 ;;
     # A prompt the user approves, also from the phone: `auto` leaves a hook's ask to the user, not its classifier
     auto)
+        reason="This command looks like it runs scripts/merge-pr.sh, which runs the pull request's code in its checks, then merges it. Approve it only for a merge you asked for, and only this once: an allow rule for the script (\"don't ask again\") makes it refuse every merge. If the command only names the script, deny it."
+        # Passing a refusal records the words as the user's decision, so the prompt says so
+        # In the part that runs the script, without its quotes, which the shell drops: --'override' is --override too
+        printf '%s' "$input" | jq -r '.tool_input.command // empty' | tr -d "'\"\\\\" | tr ';&|\n' '\n\n\n\n' |
+            grep -F merge-pr.sh | grep -qF -- --override &&
+            reason="$reason It passes a refusal with --override and, where the run needs it, records the quoted words in the pull request as your decision: approve it only if you made that decision on that refusal, in those words."
+
         # Exit 0 without the ask would let the command through, so a failing jq refuses
-        jq -n --arg reason "This command looks like it runs scripts/merge-pr.sh, which runs the pull request's code in its checks, then merges it. Approve it only for a merge you asked for, and only this once: an allow rule for the script (\"don't ask again\") makes it refuse every merge. If the command only names the script, deny it." \
+        jq -n --arg reason "$reason" \
             '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "ask", permissionDecisionReason: $reason}}' || {
             echo "scripts/merge-pr.sh: jq failed to build the prompt, so this is refused" >&2
             exit 2
