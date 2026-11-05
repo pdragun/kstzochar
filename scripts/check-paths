@@ -1,4 +1,6 @@
 no-worktree
+route src/Controller/* taskfiles/smoke-routes
+route config/routes* taskfiles/smoke-routes
 skip README.md
 skip AGENTS.md
 skip CLAUDE.md

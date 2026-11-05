@@ -16,7 +16,7 @@
 # didn't need is said and records nothing.
 # Each is its own flag, given once, so passing one passes nothing else. It never passes the settings check, the lock, a linked
 # worktree, uncommitted changes, a default branch other than origin's, a check that changes tracked files, changes
-# requested, a missing review line, or GitHub's checks.
+# requested, a missing review line, GitHub's checks, or a changed route not listed (its `No route:` line does).
 #
 # Starting from the default branch means this script and its commands are the reviewed ones, not the pull request's.
 # What the commands call, such as a task, still comes from the head, so a change to those is for the review to catch.
@@ -34,6 +34,12 @@
 #   resolves (JSON with the project's `name` and the services' published ports), and the run refuses when Docker has a
 #   container of that project from another folder, volumes of it but no container from this one, or one of its ports
 #   held by another project. A head without the task is refused until it is rebased;
+# - `route <glob> <file>` in scripts/check-paths: a head that changes a path of the glob but not the file (a list of the
+#   routes the real run requests, such as taskfiles/smoke-routes) or deletes the file, unless its body has a line
+#   `No route: <its head> <reason>` saying why the change needs no route listed. As with `Reviewed:`, a new head needs a
+#   new line. A path git quotes (a quote, a backslash or a control character in it) counts as changing every glob. The
+#   review checks that the listed routes are the ones the change touches, and the `No route:` reason: a line added
+#   after the review is the user's decision;
 # - a list that exists must be a committed regular file without a NUL byte, or the merge is refused, and so is a line of
 #   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it (`--override
 #   check-paths`).
@@ -202,12 +208,17 @@ look_at_github_checks() {
     [ "$open" = 0 ] || refuse "pending checks on GitHub: an Actions workflow of $head is still running; wait for it and run this again"
 }
 
-# Whether every path the pull request changes is one the checks don't read.
-only_skipped_paths() {
+# Sets changed: the paths the pull request changes since it branched.
+read_changed() {
     git fetch --quiet origin "$base" "refs/pull/$number/head" || refuse "can't fetch the pull request"
     git cat-file -e "$head^{commit}" 2>/dev/null ||
         refuse "its head $head can't be fetched"
-    changed=$(git diff --name-only --no-renames "$(git merge-base "refs/remotes/origin/$base" "$head")" "$head")
+    fork_point=$(git merge-base "refs/remotes/origin/$base" "$head") || refuse "can't find where $head branched from $base"
+    changed=$(git -c core.quotePath=false diff --name-only --no-renames "$fork_point" "$head") || refuse "can't read what $head changes"
+}
+
+# Whether every path the pull request changes is one the checks don't read.
+only_skipped_paths() {
     [ -n "$changed" ] || return 1
     while IFS= read -r file; do
         matched=
@@ -221,6 +232,46 @@ only_skipped_paths() {
     done <<EOF
 $changed
 EOF
+}
+
+# `route <glob> <file>`: a change to a path of the glob lists its routes in the file, or says in a `No route:` line naming
+# the head why it needs none. Before the checks, so the refusal doesn't cost them.
+check_routes() {
+    unlisted=
+    while read -r glob file; do
+        [ -n "$glob" ] || continue
+        touched=
+        listed=
+        while IFS= read -r path; do
+            # shellcheck disable=SC2254 # the line of check-paths is the pattern
+            case "$path" in
+                # Quoted by git (read_changed turns off only the quoting of non-ASCII), so it may be any path
+                \"*) touched=${touched:-$path} ;;
+                $glob) touched=${touched:-$path} ;;
+            esac
+            [ "$path" != "$file" ] || listed=1
+        done <<EOF
+$changed
+EOF
+        missing="but not $file"
+        # A deleted list makes the real run request only its default
+        [ -z "$listed" ] || git cat-file -e "$head:$file" 2>/dev/null || { listed=; missing="and deletes $file"; }
+        [ -z "$touched" ] || [ -n "$listed" ] || unlisted="$unlisted
+$touched $missing"
+    done <<EOF
+$routes
+EOF
+    [ -n "$unlisted" ] || return 0
+    # The reason is the line's point, so a line without one, or with the placeholder of the refusal below, doesn't count
+    named=$(printf '%s' "$pr" | jq -r .body | tr -d '\r' |
+        sed -n -E 's/^No route: ([0-9a-f]{7,40})[[:space:]]+[^[:space:]<].*$/\1/p')
+    for sha in $named; do
+        case "$head" in
+            "$sha"*) return 0 ;;
+        esac
+    done
+    lists=$(printf '%s' "$unlisted" | sed '/^$/d' | tr '\n' ',' | sed -e 's/,$//' -e 's/,/, /g')
+    refuse "it changes $lists, the list of the routes the real run requests; add the ones the change touches there, or, if the user agrees none needs listing, a line \`No route: ${head%"${head#???????}"} <reason>\` to the description with their reason"
 }
 
 # The lists, and what changed on the default branch since the head branched (a new line, a changed task), come from
@@ -468,6 +519,8 @@ $own"
     paths=$(list_lines scripts/check-paths)
     no_worktree=
     own_stack=
+    # Lines of <glob> <file>
+    routes=
     # The globs stay literal: they are patterns for the paths, not for the files here
     skip=
     # A line this doesn't know refuses: a slip in `no-worktree` would silently turn off the guard
@@ -483,6 +536,16 @@ $own"
                 *) skip="$skip
 $rest"; known=1 ;;
             esac ;;
+            # Exactly two words, a glob and a file, as for `skip`
+            route)
+                glob=${rest%%[[:space:]]*}
+                file=${rest#"$glob"}
+                file=${file#"${file%%[![:space:]]*}"}
+                case "$file" in
+                    "" | *[[:space:]]*) ;;
+                    *) routes="$routes
+$glob $file"; known=1 ;;
+                esac ;;
         esac
         # A passed line counts as `no-worktree`, as it may be a misspelt one
         [ -n "$known" ] || { overridden check-paths && no_worktree=1; } ||
@@ -492,6 +555,8 @@ $paths
 EOF
 
     look_at_github
+    read_changed
+    check_routes
     set -f
     if only_skipped_paths; then
         set +f
@@ -509,6 +574,8 @@ EOF
         [ "$head" = "$checked" ] || refuse "a new head, $head, was pushed during the checks"
         # A retarget lands it on a base its checks and its skipped paths never saw
         [ "$base" = "$checked_base" ] || refuse "its base changed from $checked_base to $base during the checks"
+        # The body was read again: a `No route:` line taken out meanwhile counts
+        check_routes
     fi
 
     # Read again, so an edit to the body during the checks stays, and a line a failed run left isn't added twice
