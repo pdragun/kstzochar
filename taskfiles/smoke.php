@@ -7,7 +7,8 @@
 // a line, or after a space, starts a comment. Redirects aren't followed,
 // so a redirect where a page should be fails. A "login" route is requested with the session cookie that the
 // project's taskfiles/smoke-login prints (an executable run here, which creates its user if it is missing), so the
-// controller behind the firewall runs. Without the file only / is requested, and only a 5xx or no answer fails.
+// controller behind the firewall runs; it gets SMOKE_LOGIN_TIMEOUT seconds (120). Without the file only / is requested,
+// and only a 5xx or no answer fails.
 // Exit 1: a route failed or smoke-login did; exit 2: the file can't be read or has a line that isn't a route.
 
 declare(strict_types=1);
@@ -64,7 +65,12 @@ function routes(): ?array
     return $routes;
 }
 
-/** The Cookie header that smoke-login prints, or null when it fails. */
+/**
+ * The Cookie header that smoke-login prints, or null when it fails or is still running after SMOKE_LOGIN_TIMEOUT
+ * seconds (120, as long as a request may take for a cold cache; read in the container, as SMOKE_URL is). Its stdout
+ * and stderr are pipes read until it exits, not until they close, so a child it leaves running (a server it started)
+ * doesn't hang the task, or a merge that runs it. On a timeout only the script itself is killed.
+ */
 function login(): ?string
 {
     if (!is_file(LOGIN) || !is_executable(LOGIN)) {
@@ -72,21 +78,69 @@ function login(): ?string
 
         return null;
     }
-    $process = proc_open(['./'.LOGIN], [1 => ['pipe', 'w'], 2 => \STDERR], $pipes);
+    $setting = getenv('SMOKE_LOGIN_TIMEOUT');
+    $timeout = false !== $setting && preg_match('/^[1-9]\d{0,5}$/', $setting) ? (int) $setting : 120;
+    if (false !== $setting && '' !== $setting && (string) $timeout !== $setting) {
+        err("SMOKE_LOGIN_TIMEOUT=$setting is no number of seconds, using $timeout");
+    }
+    $process = proc_open(['./'.LOGIN], [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
     if (false === $process) {
         err("can't run ".LOGIN);
 
         return null;
     }
-    $cookie = trim((string) stream_get_contents($pipes[1]));
-    $cookie = trim(preg_replace('/^cookie:/i', '', $cookie)); // the header's value, with or without its name
+    stream_set_blocking($pipes[1], false);
+    stream_set_blocking($pipes[2], false);
+    $output = '';
+    // A chunk read from stdout goes to the cookie, from stderr through to the task's stderr
+    $take = static function ($pipe) use (&$output, $pipes): void {
+        $chunk = (string) fread($pipe, 8192);
+        if ($pipe === $pipes[1]) {
+            $output .= $chunk;
+        } else {
+            fwrite(\STDERR, $chunk);
+        }
+    };
+    $deadline = hrtime(true) + $timeout * 1_000_000_000;
+    $status = proc_get_status($process);
+    while ($status['running'] && hrtime(true) < $deadline) {
+        $read = array_values(array_filter([$pipes[1], $pipes[2]], static fn ($pipe) => !feof($pipe)));
+        $none = null;
+        if ([] === $read) {
+            usleep(20000); // closed both but hasn't exited yet
+        } elseif (stream_select($read, $none, $none, 0, 100000)) {
+            array_walk($read, $take);
+        }
+        $status = proc_get_status($process);
+    }
+    if (!$status['running']) {
+        foreach ([$pipes[1], $pipes[2]] as $pipe) { // what it printed before it exited; a child may keep writing
+            for ($i = 0; $i < 8 && !feof($pipe); ++$i) {
+                $take($pipe);
+            }
+        }
+    }
     fclose($pipes[1]);
-    $code = proc_close($process);
-    if (0 !== $code) {
-        err(LOGIN." exited with $code");
+    fclose($pipes[2]);
+    if ($status['running']) {
+        proc_terminate($process, 9);
+        proc_close($process);
+        err(LOGIN." was still running after $timeout s, stopped it");
 
         return null;
     }
+    proc_close($process);
+    if ($status['signaled']) {
+        err(LOGIN.' was killed by signal '.$status['termsig']);
+
+        return null;
+    }
+    if (0 !== $status['exitcode']) {
+        err(LOGIN." exited with {$status['exitcode']}");
+
+        return null;
+    }
+    $cookie = trim(preg_replace('/^cookie:/i', '', trim($output))); // the header's value, with or without its name
     if ('' === $cookie || preg_match('/[\r\n]/', $cookie) || !str_contains($cookie, '=')) {
         err(LOGIN.' printed no cookie (one line, such as PHPSESSID=…)');
 
