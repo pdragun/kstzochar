@@ -4,3 +4,6 @@
 # This project's own commands go in scripts/check-commands-own.
 task up
 task check
+# The routes of taskfiles/smoke-routes on the head's running stack (only / without that file), last since it needs the
+# app up with the head's migrations and only tells something once the tests pass.
+task smoke
