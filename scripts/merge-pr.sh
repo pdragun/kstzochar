@@ -29,6 +29,11 @@
 # - a merge that changes only `skip` paths (scripts/check-paths) runs none, so don't list a command that reads them;
 # - a line can't ask for the main checkout: where scripts/check-paths has `no-worktree`, every line runs there, and
 #   elsewhere a run from a worktree runs them all in it;
+# - `own-stack` in scripts/check-paths checks, on the head and before any command, that the compose stack its checks
+#   would reset and start is this checkout's own: the head's `task app:config` prints what `docker compose config`
+#   resolves (JSON with the project's `name` and the services' published ports), and the run refuses when Docker has a
+#   container of that project from another folder, volumes of it but no container from this one, or one of its ports
+#   held by another project. A head without the task is refused until it is rebased;
 # - a list that exists must be a committed regular file without a NUL byte, or the merge is refused, and so is a line of
 #   scripts/check-paths this script doesn't know, which likewise blocks the pull request that fixes it (`--override
 #   check-paths`).
@@ -37,7 +42,9 @@
 # refuses settings that would skip the prompt (an allow rule for it, or a default mode `auto`, `bypassPermissions` or
 # `dontAsk`), and scripts/merge-pr-hook.sh stops sessions in a mode that does: in `auto` switched on for the session it
 # asks for the prompt, in the others it refuses.
-# MERGE_PR_TIMEOUT limits each command, in seconds (default 3600). Output of the checks: .git/merge-pr.log.
+# MERGE_PR_TIMEOUT limits each command, in seconds (default 3600), and MERGE_PR_ASK_TIMEOUT each question of `own-stack`
+# (default 120). Output of the checks: merge-pr.log in the checkout's
+# git directory (`git rev-parse --git-path merge-pr.log`: .git/ in the main checkout, .git/worktrees/<name>/ in a worktree).
 set -eu
 
 refuse() {
@@ -248,6 +255,50 @@ back_to_start() {
     }
 }
 
+# `own-stack`: the checks reset and start the stack the head's Taskfile names, so a head without a name per checkout,
+# or two folders whose names collide, would reset another checkout's stack and delete its volumes. The head only
+# answers what docker compose resolves; Docker says which folder started each container of that project.
+check_own_stack() {
+    # Under the lock, so a stuck Docker or task mustn't hold it for good
+    asks="timeout -k 10 ${MERGE_PR_ASK_TIMEOUT:-120}"
+    printf '$ task --silent app:config\n' >>"$log"
+    config=$($asks task --silent app:config </dev/null 2>>"$log" 9>&-) ||
+        refuse "\`task app:config\` failed on $head, so which stack its checks would reset is unknown (output in $log); if the head lacks the task, rebase it onto $default; nothing was touched"
+    name=$(printf '%s' "$config" | jq -er '.name | select(type == "string" and . != "")') ||
+        refuse "\`task app:config\` on $head names no compose project; nothing was touched"
+    ports=$(printf '%s' "$config" | jq -r '[.services[]?.ports[]?.published | select(. != null) | tostring] | unique | .[]') ||
+        refuse "can't read the ports of \`task app:config\` on $head; nothing was touched"
+    owners=$($asks docker ps -a --filter "label=com.docker.compose.project=$name" --format '{{.Label "com.docker.compose.project.working_dir"}}') ||
+        refuse "can't ask Docker which checkout started the stack $name; nothing was touched"
+    mine=
+    while IFS= read -r dir; do
+        [ -n "$dir" ] || continue
+        # The checkout the folder is in, so a worktree inside this one isn't taken for it; a folder that is gone is none
+        [ "$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" = "$top" ] ||
+            refuse "the checks of $head would reset the stack $name, which another checkout started ($dir); nothing was touched"
+        mine=1
+    done <<EOF
+$owners
+EOF
+    if [ -z "$mine" ]; then
+        # A volume doesn't say its folder: without a container of this checkout, it may be another's
+        volumes=$($asks docker volume ls -q --filter "label=com.docker.compose.project=$name") ||
+            refuse "can't ask Docker for the volumes of the stack $name; nothing was touched"
+        [ -z "$volumes" ] ||
+            refuse "the checks of $head would reset the stack $name, whose volumes ($(printf '%s' "$volumes" | tr '\n' ' ' | sed 's/ $//')) no container of this checkout uses, so they may be another checkout's; if they are this one's, run task --yes reset here first; nothing was touched"
+    fi
+    for port in $ports; do
+        users=$($asks docker ps --filter "publish=$port" --format '{{.Label "com.docker.compose.project"}}') ||
+            refuse "can't ask Docker who publishes port $port; nothing was touched"
+        while IFS= read -r project; do
+            [ -z "$project" ] || [ "$project" = "$name" ] ||
+                refuse "the stack $name would publish port $port, which the stack $project holds, so its start would fail after the reset; give this checkout another port (DEV_PORT in .devcontainer/.env); nothing was touched"
+        done <<EOF
+$users
+EOF
+    done
+}
+
 run_checks() {
     if [ "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)" ] && [ -n "$no_worktree" ]; then
         refuse "the checks would take over this project's running stack from a worktree; run this in the main checkout"
@@ -274,6 +325,7 @@ run_checks() {
     # A tracked file of the head would otherwise replace an ignored one here, such as .env.local, and go on the way back
     git switch --quiet --detach --no-overwrite-ignore "$head" ||
         refuse "can't switch to $head, which may track a file this checkout ignores; move that file first, as a pull would replace it too"
+    [ -z "$own_stack" ] || check_own_stack
     ran=1
     while IFS= read -r command; do
         printf 'merge-pr: checking %s with %s\n' "${head%"${head#???????}"}" "$command"
@@ -415,6 +467,7 @@ $own"
     fi
     paths=$(list_lines scripts/check-paths)
     no_worktree=
+    own_stack=
     # The globs stay literal: they are patterns for the paths, not for the files here
     skip=
     # A line this doesn't know refuses: a slip in `no-worktree` would silently turn off the guard
@@ -423,6 +476,7 @@ $own"
         case "$word" in
             "") known=1 ;;
             no-worktree) [ -n "$rest" ] || { no_worktree=1; known=1; } ;;
+            own-stack) [ -n "$rest" ] || { own_stack=1; known=1; } ;;
             # One glob: more words would each count, so `skip a # not code, so *` would skip every check
             skip) case "$rest" in
                 "" | *[[:space:]]*) ;;
