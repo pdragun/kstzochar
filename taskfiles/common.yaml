@@ -142,6 +142,17 @@ tasks:
               fi
             - sh taskfiles/check-permissions.sh
 
+    # Requests the routes of taskfiles/smoke-routes in the running stack (taskfiles/smoke.php has the format). It runs
+    # project code (the routes, taskfiles/smoke-login), so it always asks: a probe in check-permissions.sh. Read in the
+    # container, SMOKE_URL isn't passed through from here.
+    app:smoke:
+        desc: 'Request the routes of taskfiles/smoke-routes from the running stack and fail on an unexpected status (only / without the file)'
+        aliases: [smoke]
+        cmds:
+            - task: docker:exec
+              vars:
+                  COMMAND: php taskfiles/smoke.php
+
     # One-off as root in a new container, so it works while the stack is down and needs no sudo
     fix-perms:
         desc: Give root-owned files (project, Caddy volumes) back to the host user, e.g. after a stack that ran as root
