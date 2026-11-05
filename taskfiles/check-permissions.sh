@@ -32,7 +32,7 @@ probes='["task docker:exec", "task sh", "task shell", "task console -- x", "task
     "task db:shell", "task dbsh", "task fix-perms", "task down", "task app:down", "task dr", "task docker:rebuild",
     "task update", "task docker:update", "task dmm", "task dmmprev", "task docker:up",
     "task composer:install:stale", "task doctrine:migrations:migrate", "task doctrine:migrations:migrate:prev",
-    "task up", "task app:up"]'
+    "task up", "task app:up", "task smoke", "task app:smoke"]'
 runners='composer|npm|node:exec|docker:exec|sh|shell|dbsh|db:shell|console|c'
 safe='["task composer -- outdated", "task composer -- validate", "task composer -- show", "task npm -- outdated",
     "task npm -- ls", "task console -- about", "task console -- debug", "task console -- lint", "task c -- about",
