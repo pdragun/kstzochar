@@ -123,7 +123,7 @@ tasks:
             - sh taskfiles/db-grant-test.sh
 
     # Checks
-    # .claude/settings.local.json too: "don't ask again" adds its rules there. The risky commands are in the script.
+    # .claude/settings.local.json too: "don't ask again" adds its rules there. The risky commands are in taskfiles/permission-rules.json and permission-probes.
     check:permissions:
         desc: Check the allow lists of .claude/settings.json and settings.local.json (tasks exist, risky commands still prompt)
         silent: true
@@ -140,10 +140,22 @@ tasks:
                   echo "$missing" >&2
                   exit 1
               fi
-            - sh taskfiles/check-permissions.sh
+            # Installed on the machine with the other shared tools; what counts as risky is in taskfiles/permission-rules.json
+            - |
+              # By name, else where it is installed, for a PATH without ~/.local/bin
+              c=$(command -v check-permissions.sh || echo "$HOME/.local/bin/check-permissions.sh")
+              [ -x "$c" ] || { echo "check-permissions.sh is not installed on this machine (~/.local/bin), so the allow rules' risks aren't checked" >&2; exit 1; }
+              "$c"
+
+    # Several sessions can work in one repository, each in a checkout of its own. On the host, where git runs
+    checkout:check:
+        desc: "Check this checkout is on the given branch with nothing uncommitted, before working in it (task checkout:check -- <branch>)"
+        silent: true
+        cmds:
+            - sh taskfiles/checkout-check.sh{{range .CLI_ARGS_LIST}} {{shellQuote .}}{{end}}
 
     # Requests the routes of taskfiles/smoke-routes in the running stack (taskfiles/smoke.php has the format). It runs
-    # project code (the routes, taskfiles/smoke-login), so it always asks: a probe in check-permissions.sh. Read in the
+    # project code (the routes, taskfiles/smoke-login), so it always asks: a probe in taskfiles/permission-rules.json. Read in the
     # container, SMOKE_URL isn't passed through from here.
     app:smoke:
         desc: 'Request the routes of taskfiles/smoke-routes from the running stack and fail on an unexpected status (only / without the file)'
