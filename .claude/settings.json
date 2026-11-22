@@ -4,6 +4,7 @@
     "allow": [
       "Bash(task --list)",
       "Bash(task check:permissions)",
+      "Bash(task checkout:check -- *)",
       "Bash(task ps)",
       "Bash(task logs)",
       "Bash(task logs -- *)",
@@ -94,7 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(/Taskfile\\.yaml|/Taskfile\\.local\\.yml|/taskfiles/(common\\.yaml|check-permissions\\.sh|permission-probes)|/\\.claude/settings(\\.local)?\\.json)$' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && task check:permissions 1>&2 || exit 2"
+            "command": "jq -r '.tool_input.file_path // empty' | grep -qE '(/Taskfile\\.yaml|/Taskfile\\.local\\.yml|/taskfiles/(common\\.yaml|permission-rules\\.json|permission-probes)|/\\.claude/settings(\\.local)?\\.json)$' || exit 0; cd \"$CLAUDE_PROJECT_DIR\" && task check:permissions 1>&2 || exit 2"
           }
         ]
       }
@@ -105,11 +106,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -f taskfiles/check-permissions.sh ] || { echo \"taskfiles/check-permissions.sh is missing, so risky allow rules are not caught\" >&2; exit 1; }; sh taskfiles/check-permissions.sh 1>&2; case $? in 0) exit 0;; 1) exit 2;; *) echo \"The permission check could not run, so risky allow rules are not caught\" >&2; exit 1;; esac"
-          },
-          {
-            "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" 2>/dev/null && [ -f scripts/merge-pr-hook.sh ] && exec sh scripts/merge-pr-hook.sh || exit 0"
+            "command": "s=\"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json\"; if command -v jq >/dev/null; then h=$(jq -r 'select(.disableAllHooks != true) | .hooks.PreToolUse[]? | select(.matcher == null or .matcher == \"\" or .matcher == \"*\" or .matcher == \"Bash\") | .hooks[]?.command | strings | capture(\"\\\\x27(?<p>[^\\\\x27]*check-permissions-hook\\\\.sh)\\\\x27\").p' \"$s\" 2>/dev/null | head -n 1); else h=$(grep -o \"'[^']*check-permissions-hook\\.sh'\" \"$s\" 2>/dev/null | head -n 1 | tr -d \"'\"); fi; [ -n \"$h\" ] && [ -f \"$h\" ] && exit 0; echo \"The permission check does not run in this account: $s does not run check-permissions-hook.sh before Bash commands, or its file is gone, so risky allow rules are not caught: install the shared tools again\" >&2; exit 1"
           }
         ]
       }

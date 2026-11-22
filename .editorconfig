@@ -22,10 +22,6 @@ indent_size = 2
 [*.sh]
 indent_style = tab
 
-# Space-indented: its jq program is aligned with spaces
-[taskfiles/check-permissions.sh]
-indent_style = space
-
 [{,*.*}Dockerfile]
 indent_style = tab
 
