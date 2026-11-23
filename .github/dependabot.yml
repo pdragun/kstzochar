@@ -9,42 +9,14 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     ignore:
-      # Symfony minor and major upgrades (8.1 -> 8.2) go by hand: extra.symfony.require
-      # pins the minor, and an upgrade needs the Flex recipe updates. Patches still come.
-      # Only the components on the framework's version line (8.1.* in composer.json);
-      # independently versioned symfony/* packages (flex, maker-bundle, monolog-bundle,
-      # webpack-encore-bundle, polyfills, contracts) still get minor and major updates.
-      - { dependency-name: "symfony/browser-kit", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/cache", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/console", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/css-selector", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/debug-bundle", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/dotenv", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/expression-language", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/form", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/framework-bundle", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/html-sanitizer", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/http-client", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/intl", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/lock", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/mailer", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/notifier", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/phpunit-bridge", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/process", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/property-access", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/property-info", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/rate-limiter", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/runtime", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/security-bundle", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/serializer", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/stopwatch", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/string", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/translation", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/twig-bundle", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/validator", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/web-link", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/web-profiler-bundle", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
-      - { dependency-name: "symfony/yaml", update-types: ["version-update:semver-minor", "version-update:semver-major"] }
+      # Symfony 8.2+ goes by hand: extra.symfony.require pins 8.1, which Dependabot doesn't
+      # apply (it runs Composer without plugins), and an upgrade needs the Flex recipe
+      # updates. Patches within 8.1 still come. Independently versioned symfony/* packages
+      # (flex 2.x, maker-bundle 1.x, monolog-bundle 4.x, webpack-encore-bundle 2.x,
+      # apache-pack 1.x) are below 8.2, so they still get minor and major updates.
+      # On each manual Symfony upgrade, move this to the next minor (8.3 after 8.2).
+      - dependency-name: "symfony/*"
+        versions: [">=8.2"]
     groups:
       symfony:
         patterns: ["symfony/*"]
@@ -80,8 +52,10 @@ updates:
       interval: monthly
     ignore:
       # The prod stage copies binaries and libraries from the frankenphp (Debian) builder,
-      # so debian moves to a new release only together with frankenphp, by hand.
+      # so debian and frankenphp move to a new major only together, by hand.
       - dependency-name: "debian"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "dunglas/frankenphp"
         update-types: ["version-update:semver-major"]
       # Node: LTS majors only, moved by hand in the Dockerfile and compose.override.yaml together.
       - dependency-name: "node"
