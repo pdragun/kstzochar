@@ -17,6 +17,9 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
+# Old PHPUnit copies that the phpunit-bridge downloads; PHPUnit comes from Composer
+/bin/.phpunit/
+
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
 /public/build/
