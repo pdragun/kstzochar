@@ -31,6 +31,11 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    ignore:
+      # webpack 5.112 removed lib/dependencies/LoaderDependency, which Encore 4's
+      # copy-files-loader requires: the asset build fails. Lift this with the Encore 7 upgrade.
+      - dependency-name: "webpack"
+        versions: [">=5.112.0"]
     groups:
       npm:
         update-types: ["minor", "patch"]

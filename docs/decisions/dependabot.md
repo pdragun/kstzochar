@@ -18,3 +18,7 @@ The images use short tags (`node:24-slim`, `debian:13-slim`, `dunglas/frankenphp
 CI (`task check`) builds the dev image and runs the PHP checks and tests. It doesn't build the `frankenphp_prod` / `assets_builder` stages or the production assets, so before merging a Docker or npm update, build them locally: `task build` and `docker build --target frankenphp_prod .`.
 
 In a grouped Symfony patch pull request, check the `composer.lock` diff: no `symfony/*` component on the framework's line may move to 8.2 (Composer runs without Flex there, and the ignore covers the packages Dependabot updates, not every indirect one it pulls along).
+
+## webpack held below 5.112 (2026-11-23)
+
+webpack 5.112 removed `lib/dependencies/LoaderDependency`, which the copy-files-loader of `@symfony/webpack-encore` 4 requires, so `task build` fails with `Cannot find module 'webpack/lib/dependencies/LoaderDependency'`. `package.json` pins `webpack` to `~5.111.1`, and Dependabot ignores `>=5.112.0`. Both go with the upgrade to Encore 7, which also clears the npm advisories left open (webpack-dev-server, webpack-dev-middleware, serialize-javascript, sockjs, uuid, css-minimizer-webpack-plugin, node-notifier through webpack-notifier).
