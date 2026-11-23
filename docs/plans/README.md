@@ -14,4 +14,5 @@ Related documents:
 
 - [Production deploy checklist](../deploy-checklist.md): manual production steps that merged pull requests still need.
 - [Decision: GA4 through gtag.js or Google Tag Manager](../decisions/ga4-vs-gtm.md): open, blocks the Google Analytics part of the next deploy.
+- [Decision: what Dependabot updates on its own](../decisions/dependabot.md): decided; which upgrades stay manual and how to check an update pull request.
 - [Code review of 2026-10-05](../reviews/code-review-2026-10-05.md): the findings behind the first fix plan.

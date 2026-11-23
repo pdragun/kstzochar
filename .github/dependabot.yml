@@ -1,0 +1,71 @@
+# Dependabot version updates: https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+# Why the ignores below exist: docs/decisions/dependabot.md
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    ignore:
+      # Symfony 8.2+ goes by hand: extra.symfony.require pins 8.1, which Dependabot doesn't
+      # apply (it runs Composer without plugins), and an upgrade needs the Flex recipe
+      # updates. Patches within 8.1 still come. Independently versioned symfony/* packages
+      # (flex 2.x, maker-bundle 1.x, monolog-bundle 4.x, webpack-encore-bundle 2.x,
+      # apache-pack 1.x) are below 8.2, so they still get minor and major updates.
+      # On each manual Symfony upgrade, move this to the next minor (8.3 after 8.2).
+      - dependency-name: "symfony/*"
+        versions: [">=8.2"]
+    groups:
+      symfony:
+        patterns: ["symfony/*"]
+        update-types: ["minor", "patch"]
+      composer-dev:
+        dependency-type: development
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      npm:
+        update-types: ["minor", "patch"]
+        # 0.x packages: a "minor" bump (0.6 -> 0.7) can break, so they come on their own.
+        exclude-patterns: ["@a2lix/symfony-collection", "regenerator-runtime"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # Base images in the Dockerfile (frankenphp, node, debian).
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      # The prod stage copies binaries and libraries from the frankenphp (Debian) builder,
+      # so debian and frankenphp move to a new major only together, by hand.
+      - dependency-name: "debian"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "dunglas/frankenphp"
+        update-types: ["version-update:semver-major"]
+      # Node: LTS majors only, moved by hand in the Dockerfile and compose.override.yaml together.
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+
+  # Images in compose*.yaml (node in compose.override.yaml).
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
