@@ -9,7 +9,6 @@ As far as is known (2026-10-25), production hasn't been deployed since before PR
 - [ ] **Decide between gtag.js and Google Tag Manager** ([decision](decisions/ga4-vs-gtm.md)). The deploy replaces the hand-edited production template, which removes the Google Tag Manager snippet that isn't in git.
 - [ ] **Set `GA_MEASUREMENT_ID=G-…`** in the production `.env.local` if gtag.js is chosen (PR #25). Use the same ID as the GA4 tag in the Google Tag Manager container, so the property's history continues.
 - [ ] **Check for a physical `public/robots.txt`** on the hosting (PR #24). If one exists, it hides the `/robots.txt` route, so remove it.
-- [ ] **Check that the PHP `mbstring` extension is enabled** on the hosting (`php -m | grep mbstring`, or phpinfo) (PR #98). `league/uri` 7.10, pulled in by `symfony/html-sanitizer`, requires it, so without it `composer install` refuses the lock file and Composer's platform check stops every request.
 
 ## During the deploy
 
