@@ -1,7 +1,7 @@
-const Encore = require('@symfony/webpack-encore');
+import Encore from '@symfony/webpack-encore';
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
-// It's useful when you use tools that rely on webpack.config.js file.
+// It's useful when you use tools that rely on webpack.config.mjs file.
 if (!Encore.isRuntimeEnvironmentConfigured()) {
     Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
@@ -73,7 +73,6 @@ Encore
      * https://symfony.com/doc/current/frontend.html#adding-more-features
      */
     .cleanupOutputBeforeBuild()
-    .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     // enables hashed filenames (e.g. app.abc123.css)
     .enableVersioning(Encore.isProduction())
@@ -83,14 +82,22 @@ Encore
     //     config.plugins.push('@babel/a-babel-plugin');
     // })
 
-    // enables and configure @babel/preset-env polyfills
-    .configureBabelPresetEnv((config) => {
-        config.useBuiltIns = 'usage';
-        config.corejs = '3.23';
+    // Babel 8 compiles for the browsers in package.json "browserslist" and adds no polyfills.
+
+    // Encore 7 no longer minifies CSS on its own: cssnano does it in production.
+    .configureCssMinimizerPlugin((options, MinimizerPlugin) => {
+        options.minify = MinimizerPlugin.cssnanoMinify;
     })
 
-    // enables Sass/SCSS support
-    .enableSassLoader()
+    // enables Sass/SCSS support; Bootstrap 5's SCSS uses @import and functions that Dart Sass
+    // deprecates, so warnings from node_modules and about app.scss's @import of it are silenced
+    .enableSassLoader((options) => {
+        options.sassOptions = {
+            ...options.sassOptions,
+            quietDeps: true,
+            silenceDeprecations: ['import'],
+        };
+    })
 
     // uncomment if you use TypeScript
     .enableTypeScriptLoader()
@@ -106,4 +113,4 @@ Encore
     //.autoProvidejQuery()
 ;
 
-module.exports = Encore.getWebpackConfig();
+export default await Encore.getWebpackConfig();

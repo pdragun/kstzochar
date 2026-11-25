@@ -12,7 +12,7 @@ As far as is known (2026-10-25), production hasn't been deployed since before PR
 
 ## During the deploy
 
-- [ ] `composer install` (new dependencies, e.g. `twig/intl-extra` from PR #19 and `symfony/html-sanitizer` from PR #33), and upload the production asset build (`npm run build`).
+- [ ] `composer install` (new dependencies, e.g. `twig/intl-extra` from PR #19 and `symfony/html-sanitizer` from PR #33), and upload the production asset build (`task build`, in the node container: since Encore 7 it needs Node `^22.18` or `>=24.11`, so don't build with an older Node on the host).
 - [ ] **Run the migrations** with `bin/console doctrine:migrations:migrate`:
   - `Version20000101000000`, the baseline: only recorded, because the tables exist (PR #22);
   - `Version20261008190000`: removes the DBAL 3 type comments (PR #22);

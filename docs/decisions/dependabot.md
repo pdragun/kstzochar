@@ -7,8 +7,7 @@ Dependabot opens version-update pull requests for Composer and npm (weekly) and 
 - **Symfony 8.2 and later** (`symfony/*` with `versions: [">=8.2"]`). `extra.symfony.require` pins 8.1, but Dependabot runs Composer without plugins, so Flex doesn't apply it; and an upgrade needs the Flex recipe updates (`composer recipes:update`) and a look at the deprecations. Patches within 8.1 still come, and the independently versioned `symfony/*` packages (flex, maker-bundle, monolog-bundle, webpack-encore-bundle, apache-pack) are below 8.2, so they still get minor and major updates. **On each manual Symfony upgrade, move the bound to the next minor** (`>=8.3` after moving to 8.2).
 - **Debian and frankenphp majors**: the prod stage's `debian` image gets the frankenphp binary, the PHP extensions and their libraries from the `dunglas/frankenphp` builder, so both must be on the same Debian release and move together.
 - **Node majors** (Dockerfile `node_upstream` and the `node` service in `compose.override.yaml`): move both to the next LTS release together.
-- **webpack 5.112 and later** (`versions: [">=5.112.0"]`): it breaks the asset build of Encore 4, see [below](#webpack-held-below-5112-2026-11-23).
-- **0.x npm packages** (`@a2lix/symfony-collection`, `regenerator-runtime`) come as pull requests of their own, not in the grouped minor/patch one, since a 0.x minor can break.
+- **0.x npm packages** (`@a2lix/symfony-collection`) come as pull requests of their own, not in the grouped minor/patch one, since a 0.x minor can break.
 
 ## What the Docker entries actually do
 
@@ -20,6 +19,8 @@ CI (`task check`) builds the dev image and runs the PHP checks and tests. It doe
 
 In a grouped Symfony patch pull request, check the `composer.lock` diff: no `symfony/*` component on the framework's line may move to 8.2 (Composer runs without Flex there, and the ignore covers the packages Dependabot updates, not every indirect one it pulls along).
 
-## webpack held below 5.112 (2026-11-23)
+## webpack held below 5.112 (2026-11-23, lifted 2026-11-25)
+
+**Lifted** with the upgrade to Encore 7 (2026-11-25): `webpack` is back on `^5`, the Dependabot ignore is gone, and `npm audit` and Dependabot show no open npm advisories. On the way, `webpack-notifier` (with `.enableBuildNotifications()`), `file-loader`, `core-js` and `regenerator-runtime` were dropped; `webpack.config.js` became `webpack.config.mjs` (Encore 7 is ESM-only); Babel 8 compiles for the `browserslist` in `package.json` (`defaults`) without polyfills; cssnano minifies the production CSS, which Encore 7 no longer does on its own; and `webpack-dev-server` is no longer installed (the `dev-server` script went with it; the node service runs `npm run watch`). The original note:
 
 webpack 5.112 removed `lib/dependencies/LoaderDependency`, which the copy-files-loader of `@symfony/webpack-encore` 4 requires, so `task build` fails with `Cannot find module 'webpack/lib/dependencies/LoaderDependency'`. `package.json` pins `webpack` to `~5.111.1`, and Dependabot ignores `>=5.112.0`. The ignore holds back Dependabot's security updates for webpack too: an advisory fixed only in 5.112 or later shows up as an alert without a pull request, so handle it by hand (or with the Encore 7 upgrade). Both go with the upgrade to Encore 7, which also clears most npm advisories left open (webpack-dev-server, webpack-dev-middleware, serialize-javascript, sockjs, css-minimizer-webpack-plugin). `node-notifier` and its `uuid` come from `webpack-notifier`, a direct devDependency used by `.enableBuildNotifications()` in `webpack.config.js`, not from Encore: clearing them needs `webpack-notifier` removed (the node container can't show desktop notifications anyway) or replaced.

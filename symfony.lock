@@ -341,7 +341,7 @@
             "assets/styles/app.css",
             "config/packages/webpack_encore.yaml",
             "package.json",
-            "webpack.config.js"
+            "webpack.config.mjs"
         ]
     },
     "symfonycasts/verify-email-bundle": {
