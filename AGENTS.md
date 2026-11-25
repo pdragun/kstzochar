@@ -73,7 +73,7 @@ Rules most changes need:
 - **Menu and breadcrumbs**: KnpMenuBundle builder registered as `app.menu_builder` in `config/services.yaml`, rendered through `templates/extended_knp_menu.html.twig`.
 - **Translations**: UI strings are being moved into `translations/messages.sk.yaml` (Slovak only). Prefer adding keys there over hard-coding strings in controllers or templates.
 - **Docker**: `Dockerfile` (stages `frankenphp_dev`, `frankenphp_prod`, `assets_builder`), `compose*.yaml`, `frankenphp/` (Caddyfile, php.ini, entrypoint). FrankenPHP runs in classic mode; worker mode has not been tested.
-- **Frontend**: Encore entries `app`, `a2lixSfCollection`, `newLocation` (hides the invitation form's "new location" fieldset behind a button), `cookieConsent` (the cookie banner) and `css/app` (SCSS, Bootstrap 5). Encore also copies images, downloads and the CKEditor assets from `vendor/friendsofsymfony/ckeditor-bundle` into `public/build/`.
+- **Frontend**: Encore 7 (ESM-only, so the config is `webpack.config.mjs`; Babel 8 targets the `browserslist` in `package.json` and adds no polyfills; cssnano minifies the production CSS). Encore entries `app`, `a2lixSfCollection`, `newLocation` (hides the invitation form's "new location" fieldset behind a button), `cookieConsent` (the cookie banner) and `css/app` (SCSS, Bootstrap 5). Encore also copies images, downloads and the CKEditor assets from `vendor/friendsofsymfony/ckeditor-bundle` into `public/build/`.
 
 Read the matching file in `docs/agents/` before working on that area:
 
